@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 body {
+    color: #292929;
     overscroll-behavior-y: contain;
     scrollbar-gutter: stable;
 }
@@ -16,8 +17,4 @@ input[type='number']::-webkit-inner-spin-button {
 /* Firefox */
 input[type='number'] {
     -moz-appearance: textfield;
-}
-
-.logo {
-    font-size: 40px;
 }

@@ -18,12 +18,12 @@ export default defineConfig(({ mode }) => {
         },
         server: {
             proxy: {
-                // "/proxyBase": {
-                //     target: "https://xxx",
-                //     changeOrigin: true,
-                //     secure: false,
-                //     rewrite: (path) => path.replace(/^\/proxyBase/, ""),
-                // },
+                '/proxyBase': {
+                    target: 'http://localhost:5001',
+                    changeOrigin: true,
+                    secure: false,
+                    rewrite: path => path.replace(/^\/proxyBase/, ''),
+                },
             },
         },
     };

@@ -46,8 +46,6 @@ const request = async (
 
     // Headers setting
     const defaultHeaders = {
-        // TODO
-        'x-ft-clientip': 'Anonymous',
         ...headers,
     } as { [key: string]: string };
     if (headers?.['authorization'] !== '')
@@ -101,8 +99,10 @@ const request = async (
         if (res?.status === 401 || res?.status === 403) {
             if (!cancelMsg) SnackbarUtils.error('登入逾時，請重新登入');
             setTimeout(() => {
-                // TODO
-                window.location.href = '';
+                const homeUrl = import.meta.env.DEV
+                    ? `${import.meta.env.VITE_DOMAIN}/`
+                    : `${import.meta.env.VITE_DOMAIN}/${import.meta.env.VITE_BASE_URL}/`;
+                window.location.href = homeUrl;
             }, 300);
             return false;
         }
@@ -115,8 +115,7 @@ const request = async (
 
         // not 200
         if (res?.status !== 200) {
-            // TODO
-            const errMsg = data?.Result?.Desc || '系統異常，請稍後再試';
+            const errMsg = data.message || '系統異常，請稍後再試';
             if (!cancelMsg) SnackbarUtils.error(errMsg);
             return false;
         }
