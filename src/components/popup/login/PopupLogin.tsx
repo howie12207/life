@@ -44,35 +44,39 @@ const PopupLogin = ({ popup, setPopup }: Props) => {
             closeAfterTransition
         >
             <Fade in={popup === 'login'} timeout={{ enter: 500, exit: 500 }}>
-                <form className="fixed left-1/2 top-1/2 w-[90%] max-w-[24rem] -translate-x-1/2 -translate-y-1/2 rounded bg-white px-4 py-8 text-center text-sm focus:outline-none sm:w-96">
-                    <h1 className="mb-4 text-2xl font-bold text-blue-800">登入</h1>
+                <form className="fixed left-1/2 top-1/2 flex max-h-[80%] w-[90%] max-w-[24rem] -translate-x-1/2 -translate-y-1/2 flex-col rounded bg-white px-4 py-8 text-sm sm:w-96">
+                    <h1 className="mb-4 h-auto text-center text-2xl font-bold text-blue-800">
+                        管理員登入
+                    </h1>
 
-                    <BaseInput
-                        ref={accountRef}
-                        id="life-account"
-                        label="帳號"
-                        value={account}
-                        setValue={setAccount}
-                        isValid={accountIsValid}
-                        setIsValid={setAccountIsValid}
-                        rules={accountRules}
-                        placeholder="請輸入您的帳號"
-                    />
-                    <BaseInput
-                        ref={passwordRef}
-                        id="life-password"
-                        label="密碼"
-                        type="password"
-                        showEye
-                        value={password}
-                        setValue={setPassword}
-                        isValid={passwordIsValid}
-                        setIsValid={setPasswordIsValid}
-                        rules={passwordRules}
-                        placeholder="請輸入您的密碼"
-                    />
+                    <div className="overflow-y-auto">
+                        <BaseInput
+                            ref={accountRef}
+                            id="life-account"
+                            label="帳號"
+                            value={account}
+                            setValue={setAccount}
+                            isValid={accountIsValid}
+                            setIsValid={setAccountIsValid}
+                            rules={accountRules}
+                            placeholder="請輸入您的帳號"
+                        />
+                        <BaseInput
+                            ref={passwordRef}
+                            id="life-password"
+                            label="密碼"
+                            type="password"
+                            showEye
+                            value={password}
+                            setValue={setPassword}
+                            isValid={passwordIsValid}
+                            setIsValid={setPasswordIsValid}
+                            rules={passwordRules}
+                            placeholder="請輸入您的密碼"
+                        />
+                    </div>
 
-                    <div className="flex justify-evenly">
+                    <div className="flex h-auto justify-evenly pt-2">
                         <Button variant="contained" onClick={login}>
                             登入
                         </Button>

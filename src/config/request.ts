@@ -1,4 +1,5 @@
 import SnackbarUtils from '../utils/snackBar';
+import { store } from '@/app/store';
 
 type RequestParams = {
     method?: string;
@@ -49,8 +50,7 @@ const request = async (
         ...headers,
     } as { [key: string]: string };
     if (headers?.['authorization'] !== '')
-        // TODO
-        defaultHeaders['authorization'] = `Bearer xxx`;
+        defaultHeaders['authorization'] = `Bearer ${store.getState().base.token}`;
     else delete defaultHeaders['authorization'];
     if (headers?.['Content-Type'] === undefined)
         defaultHeaders['Content-Type'] = 'application/json';
@@ -98,12 +98,12 @@ const request = async (
         // 401 403
         if (res?.status === 401 || res?.status === 403) {
             if (!cancelMsg) SnackbarUtils.error('登入逾時，請重新登入');
-            setTimeout(() => {
-                const homeUrl = import.meta.env.DEV
-                    ? `${import.meta.env.VITE_DOMAIN}/`
-                    : `${import.meta.env.VITE_DOMAIN}/${import.meta.env.VITE_BASE_URL}/`;
-                window.location.href = homeUrl;
-            }, 300);
+            // setTimeout(() => {
+            //     const homeUrl = import.meta.env.DEV
+            //         ? `${import.meta.env.VITE_DOMAIN}/`
+            //         : `${import.meta.env.VITE_DOMAIN}/${import.meta.env.VITE_BASE_URL}/`;
+            //     window.location.href = homeUrl;
+            // }, 300);
             return false;
         }
 

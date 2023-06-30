@@ -1,10 +1,7 @@
 import { useState, useImperativeHandle, forwardRef, Ref } from 'react';
 import { Fade } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 type BaseInputProps = {
-    type?: React.HTMLInputTypeAttribute;
-    inputmode?: React.HTMLAttributes<HTMLLIElement>['inputMode'];
     value: string;
     setValue: (value: string) => void;
     label?: string;
@@ -12,14 +9,13 @@ type BaseInputProps = {
     isValid: boolean;
     setIsValid: (value: boolean) => void;
     rules?: Array<RulesType>;
-    upperCase?: boolean;
-    maxlength?: number;
     immediate?: boolean;
     children?: JSX.Element;
     disabled?: boolean;
     placeholder?: string;
     setIsFocus?: (value: boolean) => void;
-    showEye?: boolean;
+    rows?: number;
+    cols?: number;
 };
 export type BaseInputType = {
     validateNow: () => boolean;
@@ -32,8 +28,6 @@ export type RulesType = {
 
 const Input = (
     {
-        type = 'text',
-        inputmode,
         label,
         value,
         id,
@@ -41,14 +35,13 @@ const Input = (
         isValid,
         setIsValid,
         rules = [],
-        upperCase = false,
-        maxlength,
         immediate = false,
         children,
         disabled = false,
         placeholder = '',
-        showEye = false,
         setIsFocus,
+        rows,
+        cols,
     }: BaseInputProps,
     ref: Ref<BaseInputType>
 ) => {
@@ -60,9 +53,8 @@ const Input = (
         if (setIsFocus) setIsFocus(false);
         validate();
     };
-    const inputHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let inputValue = e.target.value;
-        if (upperCase) inputValue = inputValue.toUpperCase();
+    const inputHandle = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const inputValue = e.target.value;
         setValue(inputValue);
         if (immediate || isBlured) validate(inputValue);
     };
@@ -95,12 +87,6 @@ const Input = (
         setIsBlured(false);
     };
 
-    const [customType, setCustomType] = useState(type);
-    const typeHandle = () => {
-        if (customType !== 'text') setCustomType('text');
-        else setCustomType('password');
-    };
-
     useImperativeHandle(ref, () => {
         return {
             validateNow,
@@ -117,33 +103,21 @@ const Input = (
                     </label>
                 )}
                 <div className="relative sm:flex">
-                    <input
+                    <textarea
                         className={[
-                            'h-10 w-full rounded border px-3 outline-none transition focus:border-blue-700 disabled:bg-gray-300',
+                            'w-full rounded border px-3 py-2 outline-none transition focus:border-blue-700 disabled:bg-gray-300',
                             `${!isValid && isBlured ? '!border-red-500' : ''}`,
-                            `${showEye ? 'pr-10' : ''}`,
                         ].join(' ')}
-                        type={customType}
                         id={id}
                         value={value}
                         onBlur={blurHandle}
                         onInput={inputHandle}
                         onFocus={focusHandle}
-                        autoComplete="new-password"
                         {...(disabled ? { disabled } : {})}
-                        {...(inputmode ? { inputMode: inputmode } : {})}
-                        {...(maxlength ? { maxLength: maxlength } : {})}
                         {...(placeholder ? { placeholder } : {})}
+                        {...(rows ? { rows } : {})}
+                        {...(cols ? { cols } : {})}
                     />
-                    {showEye && (
-                        <div className="absolute right-2 top-2">
-                            {customType === 'password' ? (
-                                <Visibility className="cursor-pointer" onClick={typeHandle} />
-                            ) : (
-                                <VisibilityOff className="cursor-pointer" onClick={typeHandle} />
-                            )}
-                        </div>
-                    )}
                     {children}
                 </div>
             </>
@@ -154,4 +128,4 @@ const Input = (
     );
 };
 
-export const BaseInput = forwardRef(Input);
+export const BaseTextarea = forwardRef(Input);

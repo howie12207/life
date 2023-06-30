@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAppSelector } from '@/app/hook';
 import { Slide, Button } from '@mui/material';
+import { Person } from '@mui/icons-material';
 import PopupLogin from '@/components/popup/login/PopupLogin';
 import { throttle } from '@/utils/baseFunc';
 
 const Header = () => {
     const [show, setShow] = useState(true);
     const lastScrollYRef = useRef(0);
-    const username = useAppSelector(state => state.base.username);
+    const isLogin = useAppSelector(state => state.base.token);
 
     const containerRef = useRef(null);
 
@@ -31,11 +32,11 @@ const Header = () => {
     }, [show]);
 
     const LoginBox = () => {
-        return username ? (
-            <span className="!ml-auto">您好，{username}</span>
+        return isLogin ? (
+            <span className="!ml-auto">Admin</span>
         ) : (
             <Button className="!ml-auto" variant="contained" onClick={() => setPopup('login')}>
-                管理員登入
+                <Person />
             </Button>
         );
     };

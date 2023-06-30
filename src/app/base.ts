@@ -1,24 +1,33 @@
 import { createSlice } from '@reduxjs/toolkit';
+import Cookies from 'js-cookie';
 
 export const baseSlice = createSlice({
     name: 'base',
     initialState: {
         loading: false,
-        isLogin: false,
-        username: '',
+        // isLogin: false,
+        // username: '',
+        token: '',
     },
     reducers: {
         updateLoading(state, action) {
             state.loading = action.payload;
         },
-        updateIsLogin(state, action) {
-            state.isLogin = action.payload;
+        // updateIsLogin(state, action) {
+        //     state.isLogin = action.payload;
+        // },
+        // updateUsername(state, action) {
+        //     state.username = action.payload;
+        // },
+        updateToken(state, action) {
+            state.token = action.payload;
         },
-        updateUsername(state, action) {
-            state.username = action.payload;
+        clearToken(state) {
+            state.token = '';
+            Cookies.remove('token');
         },
     },
 });
 
-export const { updateLoading, updateIsLogin, updateUsername } = baseSlice.actions;
+export const { updateLoading, updateToken, clearToken } = baseSlice.actions;
 export default baseSlice.reducer;
