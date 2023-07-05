@@ -76,7 +76,7 @@
 //             {label && <label className="mb-1 inline-block text-gray-700">{label}</label>}
 //             <DatePicker
 //                 dateFormat="yyyy/MM/dd"
-//                 wrapperClassName="sm:mx-2 w-full sm:w-auto min-w-[216px]"
+//                 wrapperClassName="sm:mx-2 w-full sm:w-auto"
 //                 className={`h-10 w-full rounded border px-3 outline-none transition ${
 //                     !isValid && isBlured ? '!border-red-500' : ''
 //                 }`}
@@ -115,7 +115,7 @@
 //                 {...(placeholder ? { placeholderText: placeholder } : {})}
 //             /> */}
 //             {/* <Fade in={!isValid && isBlured}>
-//                 <div className="my-1 min-h-[20px] text-sm text-red-500">{message}</div>
+//                 <div className="my-1 min-h-[1.25rem] text-sm text-red-500">{message}</div>
 //             </Fade> */}
 //         </>
 //     );

@@ -2,12 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-    color: #292929;
-    overscroll-behavior-y: contain;
-    scrollbar-gutter: stable;
-}
-
 /* Chrome, Safari, Edge, Opera */
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {
@@ -17,20 +11,4 @@ input[type='number']::-webkit-inner-spin-button {
 /* Firefox */
 input[type='number'] {
     -moz-appearance: textfield;
-}
-
-/* Transition */
-.page-enter {
-    opacity: 0;
-}
-.page-enter-active {
-    opacity: 1;
-    transition: 0.3s ease-in-out;
-}
-.page-exit {
-    opacity: 1;
-}
-.page-exit-active {
-    opacity: 0;
-    transition: 0.3s ease-in-out;
 }

@@ -5,20 +5,12 @@ export const baseSlice = createSlice({
     name: 'base',
     initialState: {
         loading: false,
-        // isLogin: false,
-        // username: '',
         token: '',
     },
     reducers: {
         updateLoading(state, action) {
             state.loading = action.payload;
         },
-        // updateIsLogin(state, action) {
-        //     state.isLogin = action.payload;
-        // },
-        // updateUsername(state, action) {
-        //     state.username = action.payload;
-        // },
         updateToken(state, action) {
             state.token = action.payload;
         },

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, useLocation, useOutlet } from 'react-router-dom';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import Cookies from 'js-cookie';
@@ -10,25 +10,33 @@ import Header from '@/components/header/Header';
 import GoTop from '@/components/goTop/GoTop';
 import LoadingFull from '@/components/loadingFull/LoadingFull';
 
-import Home from '@/pages/home';
-import Cost from '@/pages/cost';
-import Error from '@/pages/error';
+import { NavLink } from 'react-router-dom';
 
-export default function App() {
+const App = () => {
     const dispatch = useAppDispatch();
     useEffect(() => {
         const token = Cookies.get('token');
         if (token) dispatch(updateToken(token));
     }, [dispatch]);
 
-    function Root() {
+    const Root = () => {
         const location = useLocation();
         const outlet = useOutlet();
-        const { nodeRef } = routes.find(route => route.path === location.pathname) ?? {};
+        const emptyRef = useRef(null);
+        const { nodeRef } = routes.find(route => route.path === location.pathname) ?? {
+            nodeRef: emptyRef,
+        };
 
         return (
             <>
                 <Header />
+
+                <div className="flex gap-2">
+                    <NavLink to="/">home</NavLink>
+                    <NavLink to="/cost">cost</NavLink>
+                    <NavLink to="/article">article</NavLink>
+                    <NavLink to="/fsada">error</NavLink>
+                </div>
 
                 <SwitchTransition>
                     <CSSTransition
@@ -38,7 +46,9 @@ export default function App() {
                         classNames="page"
                         unmountOnExit
                     >
-                        <main ref={nodeRef}>{outlet}</main>
+                        <Suspense>
+                            <main ref={nodeRef}>{outlet}</main>
+                        </Suspense>
                     </CSSTransition>
                 </SwitchTransition>
 
@@ -46,11 +56,27 @@ export default function App() {
                 <LoadingFull />
             </>
         );
-    }
+    };
+
+    const Home = lazy(() => import('@/pages/home'));
+    const Cost = lazy(() => import('@/pages/cost'));
+    const Article = lazy(() => import('@/pages/article'));
+    const ArticleId = lazy(() => import('@/pages/article/_id'));
+    const Error = lazy(() => import('@/pages/error'));
 
     const routes = [
         { path: '/', Component: Home, nodeRef: useRef(null) },
         { path: '/cost', Component: Cost, nodeRef: useRef(null) },
+        {
+            path: '/article',
+            Component: Article,
+            nodeRef: useRef(null),
+        },
+        {
+            path: '/article/:id',
+            Component: ArticleId,
+            nodeRef: useRef(null),
+        },
         { path: '*', Component: Error, nodeRef: useRef(null) },
     ];
     const router = createBrowserRouter([
@@ -62,4 +88,6 @@ export default function App() {
     ]);
 
     return <RouterProvider router={router} />;
-}
+};
+
+export default App;

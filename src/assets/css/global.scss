@@ -1,0 +1,53 @@
+body {
+    color: #292929;
+    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable;
+}
+
+/* Transition */
+.page-enter {
+    opacity: 0;
+}
+.page-enter-active {
+    opacity: 1;
+    transition: 0.3s ease-in-out;
+}
+.page-exit {
+    opacity: 1;
+}
+.page-exit-active {
+    opacity: 0;
+    transition: 0.3s ease-in-out;
+}
+
+// Quill
+.quill {
+    .ql-toolbar {
+        @apply rounded-tl rounded-tr;
+    }
+
+    .ql-container {
+        @apply flex min-h-[10rem] flex-1 flex-col rounded-bl rounded-br;
+    }
+
+    .ql-editor {
+        @apply flex-1;
+    }
+
+    &.error-item {
+        .ql-toolbar {
+            @apply border-l-red-500 border-r-red-500 border-t-red-500 transition;
+        }
+
+        .ql-container {
+            @apply border-red-500 transition;
+        }
+    }
+}
+
+// MUI Checkbox
+.MuiCheckbox-root {
+    &.error-item {
+        @apply text-red-500;
+    }
+}

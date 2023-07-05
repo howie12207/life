@@ -26,7 +26,8 @@ const PopupLogin = ({ popup, setPopup }: Props) => {
     const [passwordIsValid, setPasswordIsValid] = useState(false);
     const passwordRules = [{ validate: isRequired, message: '請輸入密碼' }];
 
-    const login = async () => {
+    // Submit
+    const submit = async () => {
         const isValid = [accountRef.current?.validateNow(), passwordRef.current?.validateNow()];
         if (!isValid.every(item => item)) return enqueueSnackbar('請確認紅框處內容');
 
@@ -34,6 +35,9 @@ const PopupLogin = ({ popup, setPopup }: Props) => {
         const res = await apiLogin({ account, password });
         dispatch(updateLoading(false));
         if (res) setPopup('');
+    };
+    const keydownHandle = (key: string) => {
+        if (key === 'Enter' || key === 'Go') submit();
     };
 
     return (
@@ -60,6 +64,7 @@ const PopupLogin = ({ popup, setPopup }: Props) => {
                             setIsValid={setAccountIsValid}
                             rules={accountRules}
                             placeholder="請輸入您的帳號"
+                            keydown={keydownHandle}
                         />
                         <BaseInput
                             ref={passwordRef}
@@ -73,11 +78,12 @@ const PopupLogin = ({ popup, setPopup }: Props) => {
                             setIsValid={setPasswordIsValid}
                             rules={passwordRules}
                             placeholder="請輸入您的密碼"
+                            keydown={keydownHandle}
                         />
                     </div>
 
                     <div className="flex h-auto justify-evenly pt-2">
-                        <Button variant="contained" onClick={login}>
+                        <Button variant="contained" onClick={submit}>
                             登入
                         </Button>
                         <Button color="info" variant="contained" onClick={() => setPopup('')}>

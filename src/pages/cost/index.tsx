@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useAppSelector } from '@/app/hook';
-import { apiGetCostList, CostListRes, CostItemParams } from '@/api/base';
+import { apiGetCostList, CostListRes, CostItemParams } from '@/api/cost';
 // import { isRequired } from '@/utils/validate';
 
 import {
@@ -11,8 +11,8 @@ import {
     TableCell,
     TableBody,
     TableFooter,
-    CircularProgress,
     TablePagination,
+    Skeleton,
 } from '@mui/material';
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
@@ -20,7 +20,7 @@ import PopupEdit from './PopupEdit';
 // import { BaseInputType } from '@/components/baseInput/BaseInput';
 // import { BaseDateRange } from '@/components/baseDateRange/BaseDateRange';
 
-function Cost() {
+const Cost = () => {
     const nodeRef = useRef(null);
     const isLogin = useAppSelector(state => state.base.token);
 
@@ -75,14 +75,16 @@ function Cost() {
     };
 
     const TableData = () => {
-        const LoadingOrEmpty = () => {
-            return (
-                <TableRow>
-                    <TableCell height={160} colSpan={4} align="center">
-                        {isLoadingData ? <CircularProgress /> : '暫無資料'}
-                    </TableCell>
+        const Loading = () => {
+            return Array.from({ length: 10 }, (_, index) => (
+                <TableRow key={index}>
+                    {Array.from({ length: isLogin ? 5 : 4 }, (_, indexCell) => (
+                        <TableCell key={indexCell}>
+                            <Skeleton />
+                        </TableCell>
+                    ))}
                 </TableRow>
-            );
+            ));
         };
 
         const DataDisplay = () => {
@@ -91,7 +93,9 @@ function Cost() {
                     {costList.map((list, index) => {
                         return (
                             <TableRow key={index}>
-                                <TableCell>{list.costDate}</TableCell>
+                                <TableCell>
+                                    <time>{list.costDate}</time>
+                                </TableCell>
                                 <TableCell>{list.itemName}</TableCell>
                                 <TableCell>${list.price?.toLocaleString()}</TableCell>
                                 <TableCell className="whitespace-pre">{list.note}</TableCell>
@@ -122,7 +126,7 @@ function Cost() {
             );
         };
 
-        return isLoadingData || costList.length === 0 ? <LoadingOrEmpty /> : <DataDisplay />;
+        return isLoadingData ? <Loading /> : <DataDisplay />;
     };
 
     return (
@@ -170,11 +174,7 @@ function Cost() {
 
                     <SwitchTransition>
                         <CSSTransition
-                            key={
-                                isLoadingData || costList.length === 0
-                                    ? 'LoadingOrEmpty'
-                                    : 'DataDisplay'
-                            }
+                            key={isLoadingData ? 'Loading' : 'DataDisplay'}
                             nodeRef={nodeRef}
                             classNames="page"
                             unmountOnExit
@@ -217,6 +217,6 @@ function Cost() {
             />
         </section>
     );
-}
+};
 
 export default Cost;

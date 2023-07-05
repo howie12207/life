@@ -11,6 +11,7 @@ import { SnackbarUtilsConfigurator, SnackbarCloseButton } from './utils/snackBar
 
 import App from './App.tsx';
 import '@/assets/css/index.css';
+import '@/assets/css/global.scss';
 
 const theme = createTheme({
     palette: {
@@ -26,7 +27,7 @@ const snackProps = {
     style: {
         width: '20rem',
         maxWidth: '100%',
-        paddingRight: '32px',
+        paddingRight: '2rem',
         flexWrap: 'nowrap',
         margin: 'auto',
     } as { [key: string]: string },

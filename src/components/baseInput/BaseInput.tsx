@@ -1,4 +1,4 @@
-import { useState, useImperativeHandle, forwardRef, Ref } from 'react';
+import { useState, useImperativeHandle, forwardRef, Ref, KeyboardEvent } from 'react';
 import { Fade } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
@@ -20,6 +20,7 @@ type BaseInputProps = {
     placeholder?: string;
     setIsFocus?: (value: boolean) => void;
     showEye?: boolean;
+    keydown?: (value: string) => void;
 };
 export type BaseInputType = {
     validateNow: () => boolean;
@@ -49,6 +50,7 @@ const Input = (
         placeholder = '',
         showEye = false,
         setIsFocus,
+        keydown,
     }: BaseInputProps,
     ref: Ref<BaseInputType>
 ) => {
@@ -68,6 +70,12 @@ const Input = (
     };
     const focusHandle = () => {
         if (setIsFocus) setIsFocus(true);
+    };
+    const keydownHandle = (e: KeyboardEvent<HTMLInputElement>) => {
+        // Prevent default form submit
+        if (e.key === 'Enter' || e.key === 'Go') e.preventDefault();
+
+        if (keydown) keydown(e.key);
     };
     const validate = (modalValue = value) => {
         if (rules.length === 0) {
@@ -129,6 +137,7 @@ const Input = (
                         onBlur={blurHandle}
                         onInput={inputHandle}
                         onFocus={focusHandle}
+                        onKeyDown={keydownHandle}
                         autoComplete="new-password"
                         {...(disabled ? { disabled } : {})}
                         {...(inputmode ? { inputMode: inputmode } : {})}
@@ -148,7 +157,7 @@ const Input = (
                 </div>
             </>
             <Fade in={!isValid && isBlured}>
-                <div className="my-1 min-h-[20px] text-sm text-red-500">{message}</div>
+                <div className="my-1 min-h-[1.25rem] text-sm text-red-500">{message}</div>
             </Fade>
         </div>
     );

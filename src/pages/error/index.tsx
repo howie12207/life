@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { ReportProblem } from '@mui/icons-material';
 
-function Error() {
+const Error = () => {
     return (
         <section className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-sky-600 bg-gradient-to-r from-sky-700 py-40">
             <div className="items-center gap-4 rounded bg-white/60 p-8 sm:flex">
@@ -18,6 +18,6 @@ function Error() {
             </div>
         </section>
     );
-}
+};
 
 export default Error;

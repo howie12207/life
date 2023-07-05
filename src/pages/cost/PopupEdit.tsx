@@ -10,7 +10,7 @@ import { BaseTextarea } from '@/components/baseTextarea/BaseTextarea';
 
 import { isRequired, onlyNumber } from '@/utils/validate';
 import { toStartTime } from '@/utils/format';
-import { apiAddCostItem, apiEditCostItem, apiDeleteCostItem, CostItemParams } from '@/api/base';
+import { apiAddCostItem, apiEditCostItem, apiDeleteCostItem, CostItemParams } from '@/api/cost';
 
 type Props = {
     popup: string;
@@ -25,7 +25,7 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
     const { enqueueSnackbar } = useSnackbar();
 
     const dateRef: Ref<BaseInputType> = useRef(null);
-    const [dateValue, setDateValue] = useState(new Date() as Date | null);
+    const [dateValue, setDateValue] = useState<Date | null>(new Date());
     const [dateIsValid, setDateIsValid] = useState(false);
     const dateRules = [{ validate: isRequired, message: '請選擇日期' }];
 
@@ -49,6 +49,7 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
         setNote(editData?.note || '');
     }, [editData]);
 
+    // submit
     const submit = async () => {
         const isValid = [
             dateRef.current?.validateNow(),
@@ -75,6 +76,9 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
             getCostList();
             closeHandle();
         }
+    };
+    const keydownHandle = (key: string) => {
+        if (key === 'Enter' || key === 'Go') submit();
     };
 
     const closeHandle = () => {
@@ -127,6 +131,7 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
                                 setIsValid={setItemNameIsValid}
                                 rules={itemNameRules}
                                 placeholder="請輸入項目名稱"
+                                keydown={keydownHandle}
                             />
                             <BaseInput
                                 ref={priceRef}
@@ -138,6 +143,7 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
                                 setIsValid={setPriceIsValid}
                                 rules={priceRules}
                                 placeholder="請輸入花費金額"
+                                keydown={keydownHandle}
                             />
                             <BaseTextarea
                                 ref={noteRef}

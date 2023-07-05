@@ -83,7 +83,7 @@ const Input = (
                 {...(placeholder ? { placeholderText: placeholder } : {})}
             />
             <Fade in={!isValid && isBlured}>
-                <div className="my-1 min-h-[20px] text-sm text-red-500">{message}</div>
+                <div className="my-1 min-h-[1.25rem] text-sm text-red-500">{message}</div>
             </Fade>
         </>
     );
