@@ -1,10 +1,9 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAppSelector } from '@/app/hook';
 import { apiGetArticleList, ArticleListRes } from '@/api/article';
 
-import { Button, Pagination, Box, Skeleton } from '@mui/material';
+import { Button, Pagination, Box } from '@mui/material';
 import { Add } from '@mui/icons-material';
-import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import PopupEdit from './PopupEdit';
 import ArticleCard from './ArticleCard';
 
@@ -23,7 +22,7 @@ const Article = () => {
         window.scrollTo(0, 0);
     };
 
-    const [articleList, setArticleList] = useState<ArticleListRes['list']>([]);
+    const [articleList, setArticleList] = useState([{}, {}, {}, {}, {}] as ArticleListRes['list']);
     const getArticleList = useCallback(async () => {
         setIsLoadingData(true);
         const params: { [key: string]: number } = { page: nowPage - 1, size: perPage };
@@ -42,32 +41,6 @@ const Article = () => {
     useEffect(() => {
         getArticleList();
     }, [getArticleList]);
-    const nodeRef = useRef(null);
-    const Article = useMemo(() => {
-        const Loading = () => (
-            <>
-                {Array.from({ length: 5 }, (_, index) => (
-                    <div
-                        className="my-4 flex flex-col gap-4 overflow-hidden rounded bg-red-50 p-4 shadow transition hover:shadow-xl"
-                        key={index}
-                    >
-                        <Skeleton height={28} />
-                        <Skeleton height={24} />
-                        <Skeleton height={24} />
-                        <Skeleton height={24} />
-                        <Skeleton height={24} />
-                        <Skeleton height={24} />
-                    </div>
-                ))}
-            </>
-        );
-        const Data = () =>
-            articleList.map(item => {
-                return <ArticleCard className="my-4" key={item._id} data={item} />;
-            });
-        return isLoadingData ? <Loading /> : <Data />;
-    }, [isLoadingData, articleList]);
-
     // Popup
     const [popup, setPopup] = useState('');
 
@@ -88,17 +61,18 @@ const Article = () => {
                     </div>
                 )}
             </div>
-            <SwitchTransition>
-                <CSSTransition
-                    key={isLoadingData ? 'Loading' : 'DataDisplay'}
-                    nodeRef={nodeRef}
-                    classNames="page"
-                    unmountOnExit
-                    timeout={500}
-                >
-                    <div ref={nodeRef}>{Article}</div>
-                </CSSTransition>
-            </SwitchTransition>
+
+            {articleList.map((item, index) => {
+                return (
+                    <ArticleCard
+                        className="my-4"
+                        key={index}
+                        data={item}
+                        isLoadingData={isLoadingData}
+                    />
+                );
+            })}
+
             {totalCount > 0 && (
                 <Box my={2} display="flex" justifyContent="center">
                     <Pagination count={totalPage} page={nowPage} onChange={changePage} />

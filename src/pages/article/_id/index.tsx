@@ -12,22 +12,19 @@ import PopupEdit from '../PopupEdit';
 import style from '../articleCard.module.scss';
 
 const ArticleId = () => {
-    const renderRef = useRef(false);
     const nodeRef = useRef(null);
 
     const params = useParams();
-    const [isLoadingData, setIsLoadingData] = useState(true);
     const [articleData, setArticleData] = useState({} as ArticleItemParams);
+    const [isLoadingData, setIsLoadingData] = useState(true);
     const getArticle = useCallback(async () => {
         const _id = params.id || '';
         setIsLoadingData(true);
         const res = await apiGetArticleItem(_id);
-        if (res) setArticleData(res);
         setIsLoadingData(false);
+        if (res) setArticleData(res);
     }, [params.id]);
     useEffect(() => {
-        if (renderRef.current) return;
-        renderRef.current = true;
         getArticle();
     }, [getArticle]);
 
@@ -36,7 +33,9 @@ const ArticleId = () => {
     const isLogin = useAppSelector(state => state.base.token);
 
     return (
-        <section className="m-4 min-h-[calc(100vh-2rem-3.5rem)] rounded bg-red-50 p-4">
+        <section
+            className={`m-4 min-h-[calc(100vh-2rem-3.5rem)] rounded bg-red-50 p-4 ${style.articleId}`}
+        >
             <SwitchTransition>
                 <CSSTransition
                     key={isLoadingData ? 'loading' : 'data'}

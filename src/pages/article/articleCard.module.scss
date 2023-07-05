@@ -1,6 +1,6 @@
 .content {
     pre {
-        @apply my-2 overflow-x-auto rounded bg-gray-200 p-2 text-xs;
+        @apply my-2 rounded bg-gray-200 p-2 text-xs;
     }
 
     .ql-size-small {
@@ -57,5 +57,13 @@
 
     a {
         @apply text-blue-500 underline;
+    }
+}
+
+.articleId {
+    .content {
+        pre {
+            @apply overflow-x-auto;
+        }
     }
 }

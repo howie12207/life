@@ -21,10 +21,10 @@ const controllers = {} as {
     };
 };
 
-const clear = (url: string) => {
+const clear = (url: string, isCancelByRepeated?: boolean) => {
     clearTimeout(controllers[url]?.timeout);
     delete controllers[url];
-    return false;
+    if (isCancelByRepeated) throw new Error('isCancelByRepeated');
 };
 
 const request = async (
@@ -126,7 +126,7 @@ const request = async (
         const isNetworkError = error instanceof TypeError && error.message === 'Failed to fetch';
 
         // return old repeated
-        if (controllers[url]?.isRepeated) return clear(url);
+        if (controllers[url]?.isRepeated) return clear(url, true);
 
         // Retry
         if ((isCancel || isNetworkError) && retryCount < retries) {
@@ -140,7 +140,8 @@ const request = async (
         else if (error instanceof SyntaxError) msg = '返回資料有誤，請稍後再試';
         if (!cancelMsg) SnackbarUtils.error(msg);
 
-        return clear(url);
+        clear(url);
+        return false;
     }
 };
 

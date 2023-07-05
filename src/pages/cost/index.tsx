@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useAppSelector } from '@/app/hook';
 import { apiGetCostList, CostListRes, CostItemParams } from '@/api/cost';
 // import { isRequired } from '@/utils/validate';
@@ -32,10 +32,11 @@ const Cost = () => {
     const [perPage, setPerPage] = useState(20);
     const changePage = (_: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
         setNowPage(newPage);
+        window.scrollTo(0, 0);
     };
     const changePerPage = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setPerPage(parseInt(e.target.value, 10));
-        setNowPage(0);
+        changePage(null, 0);
     };
 
     const [costList, setCostList] = useState<CostListRes['list']>([]);
@@ -53,10 +54,7 @@ const Cost = () => {
         }
         setIsLoadingData(false);
     }, [nowPage, perPage]);
-    // const renderRef = useRef(false);
     useEffect(() => {
-        // if (renderRef.current) return;
-        // renderRef.current = true;
         getCostList();
     }, [getCostList]);
 
@@ -74,60 +72,121 @@ const Cost = () => {
         setPopup(target);
     };
 
-    const TableData = () => {
+    const TableData = useMemo(() => {
         const Loading = () => {
-            return Array.from({ length: 10 }, (_, index) => (
-                <TableRow key={index}>
-                    {Array.from({ length: isLogin ? 5 : 4 }, (_, indexCell) => (
-                        <TableCell key={indexCell}>
-                            <Skeleton />
-                        </TableCell>
+            return (
+                <TableBody ref={nodeRef}>
+                    {Array.from({ length: 10 }, (_, index) => (
+                        <TableRow key={index}>
+                            <TableCell height={72}>
+                                <Skeleton width={72} />
+                            </TableCell>
+                            <TableCell>
+                                <Skeleton width={72} />
+                            </TableCell>
+                            <TableCell>
+                                <Skeleton width={80} />
+                            </TableCell>
+                            <TableCell>
+                                <Skeleton width={440} />
+                            </TableCell>
+                            {isLogin && (
+                                <TableCell>
+                                    <Skeleton width={80} />
+                                </TableCell>
+                            )}
+                        </TableRow>
                     ))}
-                </TableRow>
-            ));
+                </TableBody>
+            );
         };
 
-        const DataDisplay = () => {
+        const Data = () => {
             return (
                 <>
-                    {costList.map((list, index) => {
-                        return (
-                            <TableRow key={index}>
-                                <TableCell>
-                                    <time>{list.costDate}</time>
-                                </TableCell>
-                                <TableCell>{list.itemName}</TableCell>
-                                <TableCell>${list.price?.toLocaleString()}</TableCell>
-                                <TableCell className="whitespace-pre">{list.note}</TableCell>
-                                {isLogin && (
+                    <TableBody ref={nodeRef}>
+                        {costList.map((list, index) => {
+                            return (
+                                <TableRow key={index}>
                                     <TableCell>
-                                        <div className="flex flex-wrap gap-2">
-                                            <Edit
-                                                className="cursor-pointer"
-                                                color="primary"
-                                                onClick={() =>
-                                                    openHandle(list as CostItemParams, 'edit')
-                                                }
-                                            />
-                                            <Delete
-                                                className="cursor-pointer"
-                                                color="error"
-                                                onClick={() =>
-                                                    openHandle(list as CostItemParams, 'delete')
-                                                }
-                                            />
-                                        </div>
+                                        <time>{list.costDate}</time>
                                     </TableCell>
-                                )}
-                            </TableRow>
-                        );
-                    })}
+                                    <TableCell>{list.itemName}</TableCell>
+                                    <TableCell>${list.price?.toLocaleString()}</TableCell>
+                                    <TableCell className="whitespace-pre">{list.note}</TableCell>
+                                    {isLogin && (
+                                        <TableCell>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Edit
+                                                    className="cursor-pointer"
+                                                    color="primary"
+                                                    onClick={() =>
+                                                        openHandle(list as CostItemParams, 'edit')
+                                                    }
+                                                />
+                                                <Delete
+                                                    className="cursor-pointer"
+                                                    color="error"
+                                                    onClick={() =>
+                                                        openHandle(list as CostItemParams, 'delete')
+                                                    }
+                                                />
+                                            </div>
+                                        </TableCell>
+                                    )}
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                    <TableFooter ref={nodeRef}>
+                        <TableRow>
+                            <TablePagination
+                                rowsPerPageOptions={[10, 20, 50, { label: 'All', value: -1 }]}
+                                colSpan={isLogin ? 5 : 4}
+                                count={totalCount}
+                                rowsPerPage={perPage}
+                                page={nowPage}
+                                SelectProps={{
+                                    inputProps: {
+                                        'aria-label': 'rows per page',
+                                    },
+                                    native: true,
+                                }}
+                                onPageChange={changePage}
+                                onRowsPerPageChange={changePerPage}
+                            />
+                        </TableRow>
+                    </TableFooter>
                 </>
             );
         };
 
-        return isLoadingData ? <Loading /> : <DataDisplay />;
-    };
+        const Empty = () => {
+            return (
+                <TableBody ref={nodeRef}>
+                    <TableRow>
+                        <TableCell className="h-[160px]" colSpan={isLogin ? 5 : 4} align="center">
+                            暫無資料
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            );
+        };
+
+        return (
+            <SwitchTransition>
+                <CSSTransition
+                    key={isLoadingData ? 'loading' : costList.length === 0 ? 'empty' : 'data'}
+                    nodeRef={nodeRef}
+                    classNames="page"
+                    unmountOnExit
+                    timeout={500}
+                >
+                    {isLoadingData ? <Loading /> : costList.length === 0 ? <Empty /> : <Data />}
+                </CSSTransition>
+            </SwitchTransition>
+        );
+    }, [costList, isLoadingData, isLogin]);
 
     return (
         <section className="p-6">
@@ -172,9 +231,17 @@ const Cost = () => {
                         </TableRow>
                     </TableHead>
 
-                    <SwitchTransition>
+                    {TableData}
+
+                    {/* <SwitchTransition>
                         <CSSTransition
-                            key={isLoadingData ? 'Loading' : 'DataDisplay'}
+                            key={
+                                isLoadingData
+                                    ? 'Loading'
+                                    : costList.length === 0
+                                    ? 'Empty'
+                                    : 'DataDisplay'
+                            }
                             nodeRef={nodeRef}
                             classNames="page"
                             unmountOnExit
@@ -185,26 +252,7 @@ const Cost = () => {
                             </TableBody>
                         </CSSTransition>
                     </SwitchTransition>
-
-                    <TableFooter>
-                        <TableRow>
-                            <TablePagination
-                                rowsPerPageOptions={[10, 20, 50, { label: 'All', value: -1 }]}
-                                colSpan={isLogin ? 5 : 4}
-                                count={totalCount}
-                                rowsPerPage={perPage}
-                                page={nowPage}
-                                SelectProps={{
-                                    inputProps: {
-                                        'aria-label': 'rows per page',
-                                    },
-                                    native: true,
-                                }}
-                                onPageChange={changePage}
-                                onRowsPerPageChange={changePerPage}
-                            />
-                        </TableRow>
-                    </TableFooter>
+                    */}
                 </Table>
             </div>
 
