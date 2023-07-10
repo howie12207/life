@@ -51,3 +51,8 @@ body {
         @apply text-red-500;
     }
 }
+
+// MUI Skeleton custom
+.MuiSkeleton-root.skeleton-custom {
+    @apply scale-100 rounded-none;
+}

@@ -35,6 +35,7 @@ const App = () => {
                     <NavLink to="/">home</NavLink>
                     <NavLink to="/cost">cost</NavLink>
                     <NavLink to="/article">article</NavLink>
+                    <NavLink to="/portfolio">portfolio</NavLink>
                     <NavLink to="/fsada">error</NavLink>
                 </div>
 
@@ -62,6 +63,7 @@ const App = () => {
     const Cost = lazy(() => import('@/pages/cost'));
     const Article = lazy(() => import('@/pages/article'));
     const ArticleId = lazy(() => import('@/pages/article/_id'));
+    const Portfolio = lazy(() => import('@/pages/portfolio'));
     const Error = lazy(() => import('@/pages/error'));
 
     const routes = [
@@ -75,6 +77,11 @@ const App = () => {
         {
             path: '/article/:id',
             Component: ArticleId,
+            nodeRef: useRef(null),
+        },
+        {
+            path: '/portfolio',
+            Component: Portfolio,
             nodeRef: useRef(null),
         },
         { path: '*', Component: Error, nodeRef: useRef(null) },
