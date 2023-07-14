@@ -5,7 +5,7 @@ import { formatDate, formatDateTime } from '@/utils/format';
 import { apiGetArticleItem, ArticleItemParams } from '@/api/article';
 
 import { Skeleton } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit } from '@mui/icons-material';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import PopupEdit from '../PopupEdit';
 
@@ -51,11 +51,6 @@ const ArticleId = () => {
                                     className="cursor-pointer"
                                     color="primary"
                                     onClick={() => setPopup('edit')}
-                                />
-                                <Delete
-                                    className="cursor-pointer"
-                                    color="error"
-                                    onClick={() => setPopup('delete')}
                                 />
                             </div>
                         )}

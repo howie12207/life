@@ -93,6 +93,8 @@ const request = async (
             signal,
         });
 
+        console.log(444, res);
+
         clear(url);
 
         // 401 403
@@ -112,6 +114,8 @@ const request = async (
         if (defaultHeaders['Content-Type'] === 'text/html') data = await res.text();
         else if (defaultHeaders['responseType'] === 'arraybuffer') data = await res.arrayBuffer();
         else data = await res.json();
+
+        console.log(555, data);
 
         // not 200
         if (res?.status !== 200) {

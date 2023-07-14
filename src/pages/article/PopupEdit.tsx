@@ -38,13 +38,9 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
         return popup === 'add' || popup === 'edit';
     }, [popup]);
 
-    type PopupType = 'add' | 'edit' | 'delete';
+    type PopupType = 'add' | 'edit';
     const popupTypeText = useMemo(() => {
-        const typeList = {
-            add: '新增',
-            edit: '編輯',
-            delete: '刪除',
-        };
+        const typeList = { add: '新增', edit: '編輯' };
         return typeList[popup as PopupType] || '';
     }, [popup]);
 
@@ -71,7 +67,7 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
         }
     }, [dispatch]);
     useEffect(() => {
-        if (sortList.length === 0 && (edit || popup === 'delete')) getSortList();
+        if (sortList.length === 0 && edit) getSortList();
     }, [popup, sortList, getSortList]);
     const [sorts, setSorts] = useState<string[]>([]);
     const sortsIsValid = useMemo(() => sorts?.length > 0, [sorts]);
@@ -126,7 +122,7 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
     // Submit
     const submit = async () => {
         const isValid = [titleRef.current?.validateNow(), contentIsValid, sortsIsValid];
-        if (popup !== 'delete' && !isValid.every(item => item)) {
+        if (!isValid.every(item => item)) {
             if (!quillBlur) setQuillBlur(true);
             if (!sortsBlur) setSortsBlur(true);
             return enqueueSnackbar('請確認紅框處內容');
@@ -142,19 +138,24 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
         const res =
             popup === 'add'
                 ? await apiAddArticleItem(params)
-                : popup === 'edit'
-                ? await apiEditArticleItem({ ...params, _id: editData?._id })
-                : await apiDeleteArticleItem(editData?._id as string);
+                : await apiEditArticleItem({ ...params, _id: editData?._id });
+
         dispatch(updateLoading(false));
         if (res) {
-            if (popup === 'delete') return navigate('/article');
-
             getArticle();
             closeHandle();
         }
     };
     const keydownHandle = (key: string) => {
         if (key === 'Enter' || key === 'Go') submit();
+    };
+    const deleteItem = async () => {
+        const isConfirm = window.confirm(`確認要刪除 ${editData?.name} 嗎?`);
+        if (!isConfirm) return;
+        dispatch(updateLoading(true));
+        const res = await apiDeleteArticleItem(editData?._id as string);
+        dispatch(updateLoading(false));
+        if (res) return navigate('/article');
     };
 
     const closeHandle = () => {
@@ -171,8 +172,8 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
     };
 
     return (
-        <Modal open={edit || popup === 'delete'} closeAfterTransition>
-            <Fade in={edit || popup === 'delete'} timeout={{ enter: 500, exit: 500 }}>
+        <Modal open={edit} closeAfterTransition>
+            <Fade in={edit} timeout={{ enter: 500, exit: 500 }}>
                 <form
                     className={`fixed left-1/2 top-1/2 flex max-h-[80%] w-[90%] -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded bg-white px-4 py-8 text-sm`}
                 >
@@ -180,60 +181,54 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
                         {`${popupTypeText}文章`}
                     </h1>
 
-                    {popup === 'delete' ? (
-                        <div className="py-4 text-center">
-                            是否要刪除
-                            <span className="mx-2 inline-block text-2xl font-bold text-red-500">
-                                {title}
-                            </span>
-                            ?
-                        </div>
-                    ) : (
-                        <div className="h-full overflow-y-auto">
-                            <BaseInput
-                                ref={titleRef}
-                                id="life-articleTitle"
-                                label="標題名稱"
-                                value={title}
-                                setValue={setTitle}
-                                isValid={titleIsValid}
-                                setIsValid={setTitleIsValid}
-                                rules={titleRules}
-                                placeholder="請輸入標題名稱"
-                                keydown={keydownHandle}
-                            />
-                            <label className="mb-1 block text-gray-700">文章內容</label>
-                            <ReactQuill
-                                theme="snow"
-                                value={content}
-                                onChange={setContent}
-                                onBlur={blurQuill}
-                                className={quillBlur && !contentIsValid ? 'error-item' : ''}
-                            />
-                            <Fade in={quillBlur && !contentIsValid}>
-                                <div className="my-1 min-h-[1.25rem] text-sm text-red-500">
-                                    內容長度不夠
-                                </div>
-                            </Fade>
-                            <label className="mb-1 mt-4 block text-gray-700">文章分類</label>
-                            <SwitchTransition>
-                                <CSSTransition
-                                    key={sortList.length === 0 ? 'Loading' : 'DataDisplay'}
-                                    nodeRef={nodeRef}
-                                    classNames="page"
-                                    unmountOnExit
-                                    timeout={500}
-                                >
-                                    <div ref={nodeRef}>{Sorts}</div>
-                                </CSSTransition>
-                            </SwitchTransition>
-                        </div>
-                    )}
-
+                    <div className="h-full overflow-y-auto">
+                        <BaseInput
+                            ref={titleRef}
+                            id="life-articleTitle"
+                            label="標題名稱"
+                            value={title}
+                            setValue={setTitle}
+                            isValid={titleIsValid}
+                            setIsValid={setTitleIsValid}
+                            rules={titleRules}
+                            placeholder="請輸入標題名稱"
+                            keydown={keydownHandle}
+                        />
+                        <label className="mb-1 block text-gray-700">文章內容</label>
+                        <ReactQuill
+                            theme="snow"
+                            value={content}
+                            onChange={setContent}
+                            onBlur={blurQuill}
+                            className={quillBlur && !contentIsValid ? 'error-item' : ''}
+                        />
+                        <Fade in={quillBlur && !contentIsValid}>
+                            <div className="my-1 min-h-[1.25rem] text-sm text-red-500">
+                                內容長度不夠
+                            </div>
+                        </Fade>
+                        <label className="mb-1 mt-4 block text-gray-700">文章分類</label>
+                        <SwitchTransition>
+                            <CSSTransition
+                                key={sortList.length === 0 ? 'Loading' : 'DataDisplay'}
+                                nodeRef={nodeRef}
+                                classNames="page"
+                                unmountOnExit
+                                timeout={500}
+                            >
+                                <div ref={nodeRef}>{Sorts}</div>
+                            </CSSTransition>
+                        </SwitchTransition>
+                    </div>
                     <div className="flex h-auto justify-evenly pt-2">
                         <Button variant="contained" onClick={submit}>
                             送出
                         </Button>
+                        {popup === 'edit' && (
+                            <Button color="error" variant="contained" onClick={deleteItem}>
+                                刪除
+                            </Button>
+                        )}
                         <Button color="info" variant="contained" onClick={closeHandle}>
                             取消
                         </Button>

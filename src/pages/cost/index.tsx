@@ -16,7 +16,7 @@ import {
     TablePagination,
     Skeleton,
 } from '@mui/material';
-import { Add, Edit, Delete, Download } from '@mui/icons-material';
+import { Add, Edit, Download } from '@mui/icons-material';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import PopupEdit from './PopupEdit';
 // import { BaseInputType } from '@/components/baseInput/BaseInput';
@@ -145,16 +145,6 @@ const Cost = () => {
                                                             openHandle(
                                                                 list as CostItemParams,
                                                                 'edit'
-                                                            )
-                                                        }
-                                                    />
-                                                    <Delete
-                                                        className="cursor-pointer"
-                                                        color="error"
-                                                        onClick={() =>
-                                                            openHandle(
-                                                                list as CostItemParams,
-                                                                'delete'
                                                             )
                                                         }
                                                     />
