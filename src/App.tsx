@@ -1,7 +1,14 @@
 import { useRef, useEffect, lazy, Suspense } from 'react';
-import { createBrowserRouter, RouterProvider, useLocation, useOutlet } from 'react-router-dom';
+import {
+    createBrowserRouter,
+    RouterProvider,
+    useLocation,
+    useOutlet,
+    useNavigate,
+} from 'react-router-dom';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import Cookies from 'js-cookie';
+import { setNavigate } from '@/utils/navigateHelper';
 
 import { useAppDispatch } from '@/app/hook';
 import { updateToken } from '@/app/base';
@@ -17,11 +24,13 @@ const App = () => {
     useEffect(() => {
         const token = Cookies.get('token');
         if (token) dispatch(updateToken(token));
-
-        console.log('1601');
     }, [dispatch]);
 
     const Root = () => {
+        // navigate without hooks
+        const navigate = useNavigate();
+        setNavigate(navigate);
+
         const location = useLocation();
         const outlet = useOutlet();
         const emptyRef = useRef(null);

@@ -1,4 +1,5 @@
-import SnackbarUtils from '../utils/snackBar';
+import { navigateTo } from '@/utils/navigateHelper';
+import SnackbarUtils from '@/utils/snackBar';
 import { store } from '@/app/store';
 
 type RequestParams = {
@@ -93,8 +94,6 @@ const request = async (
             signal,
         });
 
-        console.log(444, res);
-
         clear(url);
 
         // 401 403
@@ -115,12 +114,11 @@ const request = async (
         else if (defaultHeaders['responseType'] === 'arraybuffer') data = await res.arrayBuffer();
         else data = await res.json();
 
-        console.log(555, data);
-
-        // not 200
-        if (res?.status !== 200) {
+        // 500
+        if (res?.status === 500) {
             const errMsg = data.message || '系統異常，請稍後再試';
             if (!cancelMsg) SnackbarUtils.error(errMsg);
+            navigateTo('/error?errorCode=500');
             return false;
         }
 

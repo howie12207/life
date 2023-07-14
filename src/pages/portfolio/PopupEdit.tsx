@@ -1,4 +1,4 @@
-import { useState, useRef, Ref, useEffect } from 'react';
+import { useState, useRef, Ref, useEffect, ChangeEvent } from 'react';
 import { useAppDispatch } from '@/app/hook';
 import { updateLoading } from '@/app/base';
 import { useSnackbar } from 'notistack';
@@ -131,6 +131,10 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
         setEditData({} as PortfolioItemParams);
     };
 
+    const changeIsRecommend = (e: ChangeEvent<HTMLInputElement>) => {
+        setIsRecommend(e.target.value === 'true');
+    };
+
     return (
         <Modal open={popup === 'add' || popup === 'edit'} closeAfterTransition>
             <Fade in={popup === 'add' || popup === 'edit'} timeout={{ enter: 500, exit: 500 }}>
@@ -225,15 +229,15 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
                         <RadioGroup
                             className="!flex-row"
                             value={isRecommend}
-                            onChange={value => setIsRecommend(Boolean(value))}
+                            onChange={changeIsRecommend}
                         >
                             <FormControlLabel
-                                value={true}
+                                value={Boolean(true)}
                                 control={<Radio size="small" />}
                                 label="是"
                             />
                             <FormControlLabel
-                                value={false}
+                                value={Boolean(false)}
                                 control={<Radio size="small" />}
                                 label="否"
                             />
