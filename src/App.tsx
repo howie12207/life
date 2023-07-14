@@ -17,6 +17,8 @@ const App = () => {
     useEffect(() => {
         const token = Cookies.get('token');
         if (token) dispatch(updateToken(token));
+
+        console.log('1601');
     }, [dispatch]);
 
     const Root = () => {
@@ -86,13 +88,16 @@ const App = () => {
         },
         { path: '*', Component: Error, nodeRef: useRef(null) },
     ];
-    const router = createBrowserRouter([
-        {
-            path: '/',
-            Component: Root,
-            children: routes,
-        },
-    ]);
+    const router = createBrowserRouter(
+        [
+            {
+                path: '/',
+                Component: Root,
+                children: routes,
+            },
+        ],
+        { basename: import.meta.env.VITE_BASE_URL }
+    );
 
     return <RouterProvider router={router} />;
 };
