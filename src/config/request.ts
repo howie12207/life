@@ -108,19 +108,19 @@ const request = async (
             return false;
         }
 
+        // 500
+        if (res?.status === 500) {
+            const errMsg = '系統異常，請稍後再試';
+            if (!cancelMsg) SnackbarUtils.error(errMsg);
+            navigateTo('/error?errorCode=500');
+            return false;
+        }
+
         // Data type
         let data;
         if (defaultHeaders['Content-Type'] === 'text/html') data = await res.text();
         else if (defaultHeaders['responseType'] === 'arraybuffer') data = await res.arrayBuffer();
         else data = await res.json();
-
-        // 500
-        if (res?.status === 500) {
-            const errMsg = data.message || '系統異常，請稍後再試';
-            if (!cancelMsg) SnackbarUtils.error(errMsg);
-            navigateTo('/error?errorCode=500');
-            return false;
-        }
 
         return data;
     } catch (error) {
