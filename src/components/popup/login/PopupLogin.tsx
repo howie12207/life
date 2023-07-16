@@ -36,9 +36,6 @@ const PopupLogin = ({ popup, setPopup }: Props) => {
         dispatch(updateLoading(false));
         if (res) setPopup('');
     };
-    const keydownHandle = (key: string) => {
-        if (key === 'Enter' || key === 'Go') submit();
-    };
 
     return (
         <Modal
@@ -64,7 +61,7 @@ const PopupLogin = ({ popup, setPopup }: Props) => {
                             setIsValid={setAccountIsValid}
                             rules={accountRules}
                             placeholder="請輸入您的帳號"
-                            keydown={keydownHandle}
+                            enter={submit}
                         />
                         <BaseInput
                             ref={passwordRef}
@@ -78,7 +75,7 @@ const PopupLogin = ({ popup, setPopup }: Props) => {
                             setIsValid={setPasswordIsValid}
                             rules={passwordRules}
                             placeholder="請輸入您的密碼"
-                            keydown={keydownHandle}
+                            enter={submit}
                         />
                     </div>
 

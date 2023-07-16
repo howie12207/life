@@ -122,6 +122,13 @@ const request = async (
         else if (defaultHeaders['responseType'] === 'arraybuffer') data = await res.arrayBuffer();
         else data = await res.json();
 
+        // not 200
+        if (res?.status !== 200) {
+            const errMsg = data.message || '系統異常，請稍後再試';
+            SnackbarUtils.error(errMsg);
+            return false;
+        }
+
         return data;
     } catch (error) {
         const isCancel = error instanceof DOMException && error.name === 'AbortError';

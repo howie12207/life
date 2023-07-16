@@ -109,9 +109,6 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
             closeHandle();
         }
     };
-    const keydownHandle = (key: string) => {
-        if (key === 'Enter' || key === 'Go') submit();
-    };
 
     const deleteHandle = async () => {
         const isConfirm = window.confirm(`請確認是否刪除 ${editData?.name}`);
@@ -154,7 +151,7 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
                             setIsValid={setNameIsValid}
                             rules={nameRules}
                             placeholder="請輸入作品名稱"
-                            keydown={keydownHandle}
+                            enter={submit}
                         />
                         <BaseTextarea
                             id="life-content"
@@ -175,7 +172,7 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
                             setIsValid={setImgIsValid}
                             rules={imgRules}
                             placeholder="請輸入圖片網址"
-                            keydown={keydownHandle}
+                            enter={submit}
                         />
                         <BaseInput
                             ref={pathCodeRef}
@@ -187,7 +184,7 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
                             setIsValid={setPathCodeIsValid}
                             rules={pathCodeRules}
                             placeholder="請輸入程式碼網址"
-                            keydown={keydownHandle}
+                            enter={submit}
                         />
                         <BaseInput
                             ref={pathDemoRef}
@@ -199,7 +196,7 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
                             setIsValid={setPathDemoIsValid}
                             rules={pathDemoRules}
                             placeholder="請輸入Demo網址"
-                            keydown={keydownHandle}
+                            enter={submit}
                         />
                         <BaseInput
                             id="life-pathArticle"
@@ -210,7 +207,7 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
                             setIsValid={setPathArticleIsValid}
                             rules={pathArticleRules}
                             placeholder="請輸入文章網址"
-                            keydown={keydownHandle}
+                            enter={submit}
                         />
                         <BaseInput
                             ref={orderRef}
@@ -222,7 +219,7 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
                             setIsValid={setOrderIsValid}
                             rules={orderRules}
                             placeholder="請輸入排序"
-                            keydown={keydownHandle}
+                            enter={submit}
                             inputmode="numeric"
                         />
                         <label>是否推薦</label>

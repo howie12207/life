@@ -75,9 +75,7 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
             closeHandle();
         }
     };
-    const keydownHandle = (key: string) => {
-        if (key === 'Enter' || key === 'Go') submit();
-    };
+
     const deleteItem = async () => {
         const isConfirm = window.confirm(`確定要刪除 ${editData?.itemName} 嗎?`);
         if (!isConfirm) return;
@@ -125,7 +123,7 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
                             setIsValid={setItemNameIsValid}
                             rules={itemNameRules}
                             placeholder="請輸入項目名稱"
-                            keydown={keydownHandle}
+                            enter={submit}
                         />
                         <BaseInput
                             ref={priceRef}
@@ -137,7 +135,7 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
                             setIsValid={setPriceIsValid}
                             rules={priceRules}
                             placeholder="請輸入花費金額"
-                            keydown={keydownHandle}
+                            enter={submit}
                         />
                         <BaseTextarea
                             ref={noteRef}

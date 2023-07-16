@@ -21,6 +21,8 @@ type BaseInputProps = {
     setIsFocus?: (value: boolean) => void;
     showEye?: boolean;
     keydown?: (value: string) => void;
+    autoFocus?: boolean;
+    enter?: () => void;
 };
 export type BaseInputType = {
     validateNow: () => boolean;
@@ -51,6 +53,8 @@ const Input = (
         showEye = false,
         setIsFocus,
         keydown,
+        autoFocus = false,
+        enter,
     }: BaseInputProps,
     ref: Ref<BaseInputType>
 ) => {
@@ -72,8 +76,12 @@ const Input = (
         if (setIsFocus) setIsFocus(true);
     };
     const keydownHandle = (e: KeyboardEvent<HTMLInputElement>) => {
-        // Prevent default form submit
-        if (e.key === 'Enter' || e.key === 'Go') e.preventDefault();
+        if (e.key === 'Enter' || e.key === 'Go') {
+            // Prevent default form submit
+            e.preventDefault();
+
+            if (enter && !e.nativeEvent.isComposing) enter();
+        }
 
         if (keydown) keydown(e.key);
     };
@@ -143,6 +151,7 @@ const Input = (
                         {...(inputmode ? { inputMode: inputmode } : {})}
                         {...(maxlength ? { maxLength: maxlength } : {})}
                         {...(placeholder ? { placeholder } : {})}
+                        {...(autoFocus ? { autoFocus } : {})}
                     />
                     {showEye && (
                         <div className="absolute right-2 top-2">

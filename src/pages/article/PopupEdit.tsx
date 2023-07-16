@@ -146,9 +146,7 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
             closeHandle();
         }
     };
-    const keydownHandle = (key: string) => {
-        if (key === 'Enter' || key === 'Go') submit();
-    };
+
     const deleteItem = async () => {
         const isConfirm = window.confirm(`確認要刪除 ${editData?.name} 嗎?`);
         if (!isConfirm) return;
@@ -192,7 +190,7 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
                             setIsValid={setTitleIsValid}
                             rules={titleRules}
                             placeholder="請輸入標題名稱"
-                            keydown={keydownHandle}
+                            enter={submit}
                         />
                         <label className="mb-1 block text-gray-700">文章內容</label>
                         <ReactQuill
