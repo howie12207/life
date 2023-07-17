@@ -25,9 +25,8 @@ const BaseImg = ({ src, alt, height }: Props) => {
                 unmountOnExit
                 timeout={500}
             >
-                <>
+                <div ref={nodeRef}>
                     <img
-                        ref={nodeRef}
                         src={src}
                         alt={alt}
                         className={`${
@@ -38,11 +37,10 @@ const BaseImg = ({ src, alt, height }: Props) => {
                     />
 
                     <Skeleton
-                        ref={nodeRef}
                         {...(height ? { height } : {})}
                         className={`${isLoading ? '' : '!absolute !hidden'} skeleton-custom`}
                     />
-                </>
+                </div>
             </CSSTransition>
         </SwitchTransition>
     );
