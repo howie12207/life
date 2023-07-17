@@ -1,12 +1,19 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { apiGetDiaryList, DiaryItemParams } from '@/api/diary';
 import { formatDate } from '@/utils/format';
-import { DiaryItemParams } from '@/api/diary';
+import { toXLSX } from '@/utils/toExcel';
 
-import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
+import { Button } from '@mui/material';
+import { KeyboardArrowLeft, KeyboardArrowRight, Download } from '@mui/icons-material';
 
 type Props = {
     list: Array<DiaryItemParams>;
-    handleEditData: (data: { diaryTime: number; content: string; type: string }) => void;
+    handleEditData: (data: {
+        _id?: string;
+        diaryTime: number;
+        content: string;
+        type: string;
+    }) => void;
     handleMonth: () => void;
 };
 type DisplayItem = {
@@ -67,6 +74,7 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
         list?.forEach(item => {
             const index = newList.findIndex(date => date.time === item.diaryTime);
             newList[index]?.content.push({
+                _id: item._id,
                 diaryTime: item.diaryTime,
                 content: item.content,
                 type: item.type,
@@ -96,8 +104,29 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
         handleMonth();
     };
 
+    // Download
+    const [isLoadingDownload, setIsLoadingDownload] = useState(false);
+    const download = async () => {
+        setIsLoadingDownload(true);
+        const downloadList = await apiGetDiaryList();
+        if (downloadList) {
+            const newData = downloadList.map(item => {
+                return {
+                    日期: formatDate(item.diaryTime),
+                    內容: item.content,
+                    類型: item.type,
+                };
+            });
+            toXLSX(newData, {
+                sheetName: '日曆',
+                fileName: `日曆${formatDate(new Date())}`,
+            });
+        }
+        setIsLoadingDownload(false);
+    };
+
     return (
-        <div>
+        <>
             <div className="my-1 flex items-center justify-center">
                 <KeyboardArrowLeft
                     className="cursor-pointer"
@@ -108,50 +137,67 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
                     className="cursor-pointer"
                     onClick={() => changeMonth('next')}
                 />
+                <Button
+                    variant="contained"
+                    onClick={download}
+                    disabled={isLoadingDownload}
+                    className="!absolute right-4"
+                    size="small"
+                >
+                    <Download className="!text-base" />
+                    下載
+                </Button>
             </div>
-            <section className="grid h-[calc(100vh-3.5rem-1.5rem)] grid-cols-7">
+            <section className="grid h-[calc(100vh-3.5rem-1.5rem)] grid-cols-7 overflow-hidden">
                 {displayList.map(item => {
                     return (
                         <div
                             className="border p-1"
                             key={item.time}
                             onClick={() =>
-                                handleEditData({ diaryTime: item.time, content: '', type: '' })
+                                handleEditData({
+                                    diaryTime: item.time,
+                                    content: '',
+                                    type: '',
+                                })
                             }
                         >
                             <div className="text-center">{formatDay(item.time)}</div>
-                            {item.content?.map((text: DiaryItemParams, index: number) => {
-                                return (
-                                    <div
-                                        title={text.content}
-                                        className={`cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded p-1 ${
-                                            text.type === 'out'
-                                                ? 'bg-green-100'
-                                                : text.type === 'workout'
-                                                ? 'bg-red-100'
-                                                : text.type === 'hike'
-                                                ? 'bg-blue-100'
-                                                : ''
-                                        }`}
-                                        key={index}
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            handleEditData({
-                                                diaryTime: item.time,
-                                                content: text.content,
-                                                type: text.type,
-                                            });
-                                        }}
-                                    >
-                                        {text.content}
-                                    </div>
-                                );
-                            })}
+                            <div className="">
+                                {item.content?.map((text: DiaryItemParams, index: number) => {
+                                    return (
+                                        <div
+                                            title={text.content}
+                                            className={`cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded p-1 ${
+                                                text.type === 'out'
+                                                    ? 'bg-green-100'
+                                                    : text.type === 'workout'
+                                                    ? 'bg-red-100'
+                                                    : text.type === 'hike'
+                                                    ? 'bg-blue-100'
+                                                    : ''
+                                            }`}
+                                            key={index}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                handleEditData({
+                                                    _id: text._id,
+                                                    diaryTime: item.time,
+                                                    content: text.content,
+                                                    type: text.type,
+                                                });
+                                            }}
+                                        >
+                                            {text.content}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     );
                 })}
             </section>
-        </div>
+        </>
     );
 };
 

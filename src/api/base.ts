@@ -22,3 +22,11 @@ export const apiLogin = async (params: LoginParams) => {
         return true;
     } else return false;
 };
+
+export const apiDownloadDb = async () => {
+    const res = await req(`${base}/dbDownload`);
+    if (res?.code === 200) {
+        SnackbarUtils.success('下載成功');
+        return res.data;
+    } else return false;
+};

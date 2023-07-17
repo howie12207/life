@@ -1,23 +1,22 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useAppDispatch } from '@/app/hook';
+import { updateLoading } from '@/app/base';
 import { apiGetDiaryList, DiaryItemParams } from '@/api/diary';
 
 import Calendar from './Calendar';
 import PopupEdit from './PopupEdit';
 
-const Workout = () => {
-    const [isLoadingData, setIsLoadingData] = useState(true);
+const Diary = () => {
+    const dispatch = useAppDispatch();
     const [diaryList, setDiaryList] = useState([] as Array<DiaryItemParams>);
     const getDiaryList = useCallback(async () => {
-        setIsLoadingData(true);
+        dispatch(updateLoading(true));
         const res = await apiGetDiaryList();
         if (res) setDiaryList(res);
-
-        setIsLoadingData(false);
+        dispatch(updateLoading(false));
     }, []);
     useEffect(() => {
         getDiaryList();
-        // TODO
-        console.log(isLoadingData);
     }, [getDiaryList]);
 
     // Popup
@@ -44,4 +43,4 @@ const Workout = () => {
     );
 };
 
-export default Workout;
+export default Diary;

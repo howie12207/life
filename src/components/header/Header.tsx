@@ -4,6 +4,9 @@ import { Slide, Button } from '@mui/material';
 import { Person } from '@mui/icons-material';
 import PopupLogin from '@/components/popup/login/PopupLogin';
 import { throttle } from '@/utils/baseFunc';
+import { apiDownloadDb } from '@/api/base';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 const Header = () => {
     const [show, setShow] = useState(true);
@@ -31,9 +34,22 @@ const Header = () => {
         };
     }, [show]);
 
+    const downloadDb = async () => {
+        const res = await apiDownloadDb();
+        const zip = new JSZip();
+        Object.entries(res).forEach(item => {
+            zip.file(`${item[0]}.json`, JSON.stringify(item[1]));
+        });
+        zip.generateAsync({ type: 'blob' }).then(content => {
+            saveAs(content, 'data.zip');
+        });
+    };
+
     const LoginBox = () => {
         return isLogin ? (
-            <span className="!ml-auto">Admin</span>
+            <span className="!ml-auto" onDoubleClick={downloadDb}>
+                Admin
+            </span>
         ) : (
             <Button className="!ml-auto" variant="contained" onClick={() => setPopup('login')}>
                 <Person />
