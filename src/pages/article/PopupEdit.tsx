@@ -53,6 +53,9 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
     // Content
     const [content, setContent] = useState('');
     const contentIsValid = useMemo(() => content?.length > 15, [content]);
+    const changeContent = (value: string) => {
+        setContent(value.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'));
+    };
     const [quillBlur, setQuillBlur] = useState(false);
     const blurQuill = () => {
         if (!quillBlur) setQuillBlur(true);
@@ -195,8 +198,8 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
                         <label className="mb-1 block text-gray-700">文章內容</label>
                         <ReactQuill
                             theme="snow"
-                            value={content}
-                            onChange={setContent}
+                            defaultValue={content}
+                            onChange={changeContent}
                             onBlur={blurQuill}
                             className={quillBlur && !contentIsValid ? 'error-item' : ''}
                         />
