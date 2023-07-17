@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc && vite build",
+        "build": "tsc && vite build && node ./src/utils/buildTime.js",
         "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "lint:ts": "tsc --noEmit -p tsconfig.json --composite false",
         "preview": "vite preview",

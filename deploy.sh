@@ -1,4 +1,4 @@
-cp 404.html 'dist\'
+cp 404.html 'dist'
 cd dist
 git init 
 git add -A
