@@ -38,6 +38,15 @@ const App = () => {
             nodeRef: emptyRef,
         };
 
+        useEffect(() => {
+            let pathname = location.pathname;
+            const articleIdReg = /^\/article\/.+$/;
+            if (articleIdReg.test(pathname)) pathname = '/article/:id';
+
+            const title = routes.find(route => route.path === pathname)?.title || '錯誤頁';
+            document.title = `${title} | Howie`;
+        }, [location.pathname]);
+
         return (
             <>
                 <Header />
@@ -80,26 +89,30 @@ const App = () => {
     const Error = lazy(() => import('@/pages/error'));
 
     const routes = [
-        { path: '/', Component: Home, nodeRef: useRef(null) },
-        { path: '/cost', Component: Cost, nodeRef: useRef(null) },
+        { path: '/', Component: Home, title: '首頁', nodeRef: useRef(null) },
+        { path: '/cost', Component: Cost, title: '花費清單', nodeRef: useRef(null) },
         {
             path: '/article',
             Component: Article,
+            title: '文章清單',
             nodeRef: useRef(null),
         },
         {
             path: '/article/:id',
             Component: ArticleId,
+            title: '文章',
             nodeRef: useRef(null),
         },
         {
             path: '/portfolio',
             Component: Portfolio,
+            title: '作品清單',
             nodeRef: useRef(null),
         },
         {
             path: '/diary',
             Component: Diary,
+            title: '日曆',
             nodeRef: useRef(null),
         },
         { path: '*', Component: Error, nodeRef: useRef(null) },

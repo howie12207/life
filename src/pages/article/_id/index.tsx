@@ -28,6 +28,11 @@ const ArticleId = () => {
         getArticle();
     }, [getArticle]);
 
+    // Title
+    useEffect(() => {
+        if (articleData?.name) document.title = `文章 - ${articleData?.name} | Howie`;
+    }, [articleData]);
+
     // Popup
     const [popup, setPopup] = useState('');
     const isLogin = useAppSelector(state => state.base.token);
