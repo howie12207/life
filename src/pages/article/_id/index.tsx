@@ -93,7 +93,7 @@ const ArticleId = () => {
                             </>
                         ) : (
                             <div
-                                className={`${style.content}`}
+                                className={`${style.content} whitespace-break-spaces`}
                                 dangerouslySetInnerHTML={{ __html: articleData.content }}
                             ></div>
                         )}

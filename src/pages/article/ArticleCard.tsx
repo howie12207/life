@@ -20,7 +20,7 @@ const ArticleCard = ({ data, className, isLoadingData }: Props) => {
 
     return (
         <section
-            className={`articleCard overflow-hidden rounded bg-red-50 p-4 shadow transition hover:shadow-xl ${style.articleCard} ${className}`}
+            className={`articleCard overflow-hidden whitespace-break-spaces rounded bg-red-50 p-4 shadow transition hover:shadow-xl ${style.articleCard} ${className}`}
         >
             <SwitchTransition>
                 <CSSTransition
