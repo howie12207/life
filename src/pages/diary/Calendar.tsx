@@ -21,7 +21,7 @@ type DisplayItem = {
     content: Array<DiaryItemParams>;
 };
 
-const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
+const Calendar = ({ list, handleEditData }: Props) => {
     const now = new Date();
     const [displayDate, setDisplayDate] = useState(now);
     const [displayList, setDisplayList] = useState<DisplayItem[]>([]);
@@ -81,7 +81,7 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
             });
             setDisplayList(newList);
         });
-    }, [list]);
+    }, [displayDate, list]);
 
     useEffect(() => {
         handleDisplayList();
@@ -89,7 +89,7 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
 
     const showMonthString = useMemo(() => {
         const middle = displayList?.[15]?.time;
-        return String(formatDate(middle))?.slice(0, 7);
+        return String(formatDate(middle) || '')?.slice(0, 7);
     }, [displayList]);
 
     const formatDay = (time: number) => {
@@ -101,7 +101,7 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
         const middle = displayList?.[15]?.time;
         if (direction === 'previous') setDisplayDate(new Date(middle - 60 * 60 * 1000 * 24 * 30));
         else setDisplayDate(new Date(middle + 60 * 60 * 1000 * 24 * 30));
-        handleMonth();
+        // handleMonth();
     };
 
     // Download
