@@ -4,7 +4,7 @@ import { updateLoading } from '@/app/base';
 import { useSnackbar } from 'notistack';
 import { formatDate } from '@/utils/format';
 
-import { Modal, Fade, Button } from '@mui/material';
+import { Modal, Fade, Button, RadioGroup, Radio, FormControlLabel } from '@mui/material';
 import { BaseInput, BaseInputType } from '@/components/baseInput/BaseInput';
 
 import { isRequired } from '@/utils/validate';
@@ -34,7 +34,6 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
     const [contentIsValid, setContentIsValid] = useState(false);
     const contentRules = [{ validate: isRequired, message: '請輸入名稱' }];
 
-    const typeRef: Ref<BaseInputType> = useRef(null);
     const [type, setType] = useState('');
 
     useEffect(() => {
@@ -102,7 +101,34 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                             autoFocus
                             enter={submit}
                         />
-                        <BaseInput
+                        <label>類型</label>
+                        <RadioGroup
+                            className="!flex-row"
+                            value={type}
+                            onChange={e => setType(e.target.value)}
+                        >
+                            <FormControlLabel
+                                value={''}
+                                control={<Radio size="small" />}
+                                label="無"
+                            />
+                            <FormControlLabel
+                                value={'workout'}
+                                control={<Radio size="small" />}
+                                label="健身"
+                            />
+                            <FormControlLabel
+                                value={'hike'}
+                                control={<Radio size="small" />}
+                                label="健行"
+                            />
+                            <FormControlLabel
+                                value={'todo'}
+                                control={<Radio size="small" />}
+                                label="待辦"
+                            />
+                        </RadioGroup>
+                        {/* <BaseInput
                             ref={typeRef}
                             id="life-type"
                             label="類型"
@@ -112,7 +138,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                             setIsValid={() => ({})}
                             placeholder="請輸入類型"
                             enter={submit}
-                        />
+                        /> */}
                     </div>
 
                     <div className="flex h-auto justify-evenly pt-2">

@@ -175,6 +175,8 @@ const Calendar = ({ list, handleEditData }: Props) => {
                                                     ? 'bg-red-100'
                                                     : text.type === 'hike'
                                                     ? 'bg-blue-100'
+                                                    : text.type === 'todo'
+                                                    ? 'bg-yellow-100'
                                                     : ''
                                             }`}
                                             key={index}
