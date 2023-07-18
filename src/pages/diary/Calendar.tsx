@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { apiGetDiaryList, DiaryItemParams } from '@/api/diary';
+import { useState, useEffect, useMemo, useCallback, DragEvent } from 'react';
+import { apiGetDiaryList, apiEditDiaryItem, DiaryItemParams } from '@/api/diary';
 import { formatDate } from '@/utils/format';
 import { toXLSX } from '@/utils/toExcel';
 
@@ -21,7 +21,7 @@ type DisplayItem = {
     content: Array<DiaryItemParams>;
 };
 
-const Calendar = ({ list, handleEditData }: Props) => {
+const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
     const now = new Date();
     const [displayDate, setDisplayDate] = useState(now);
     const [displayList, setDisplayList] = useState<DisplayItem[]>([]);
@@ -125,6 +125,27 @@ const Calendar = ({ list, handleEditData }: Props) => {
         setIsLoadingDownload(false);
     };
 
+    // Drag
+    const [dragItem, setDragItem] = useState({} as DiaryItemParams);
+    const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        if (Object.keys(dragItem).length === 0) return;
+        const res = await apiEditDiaryItem({
+            _id: dragItem._id,
+            diaryTime: Number(event.currentTarget?.dataset?.timestamp as string),
+            content: dragItem.content,
+            type: dragItem.type,
+        });
+        if (res) handleMonth();
+    };
+    const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+    };
+    const handleDragStart = (event: DragEvent<HTMLDivElement>) => {
+        const { _id = '', content = '', type = '' } = event.currentTarget?.dataset || {};
+        setDragItem({ _id, content, type, diaryTime: 0 });
+    };
+
     return (
         <>
             <div className="my-1 flex items-center justify-center">
@@ -148,7 +169,7 @@ const Calendar = ({ list, handleEditData }: Props) => {
                     下載
                 </Button>
             </div>
-            <section className="grid h-[calc(100vh-3.5rem-1.5rem)] grid-cols-7 overflow-hidden">
+            <section className="grid h-[calc(100vh-3.5rem-1.5rem)] grid-cols-7 overflow-hidden text-xs sm:text-base">
                 {displayList.map(item => {
                     return (
                         <div
@@ -161,40 +182,46 @@ const Calendar = ({ list, handleEditData }: Props) => {
                                     type: '',
                                 })
                             }
+                            onDrop={handleDrop}
+                            onDragOver={handleDragOver}
+                            data-timestamp={item.time}
                         >
                             <div className="text-center">{formatDay(item.time)}</div>
-                            <div className="">
-                                {item.content?.map((text: DiaryItemParams, index: number) => {
-                                    return (
-                                        <div
-                                            title={text.content}
-                                            className={`cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded p-1 ${
-                                                text.type === 'out'
-                                                    ? 'bg-green-100'
-                                                    : text.type === 'workout'
-                                                    ? 'bg-red-100'
-                                                    : text.type === 'hike'
-                                                    ? 'bg-blue-100'
-                                                    : text.type === 'todo'
-                                                    ? 'bg-yellow-100'
-                                                    : ''
-                                            }`}
-                                            key={index}
-                                            onClick={e => {
-                                                e.stopPropagation();
-                                                handleEditData({
-                                                    _id: text._id,
-                                                    diaryTime: item.time,
-                                                    content: text.content,
-                                                    type: text.type,
-                                                });
-                                            }}
-                                        >
-                                            {text.content}
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            {item.content?.map((text: DiaryItemParams, index: number) => {
+                                return (
+                                    <div
+                                        title={text.content}
+                                        className={`cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded p-1 ${
+                                            text.type === 'out'
+                                                ? 'bg-green-100'
+                                                : text.type === 'workout'
+                                                ? 'bg-red-100'
+                                                : text.type === 'hike'
+                                                ? 'bg-blue-100'
+                                                : text.type === 'todo'
+                                                ? 'bg-yellow-100'
+                                                : ''
+                                        }`}
+                                        key={index}
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            handleEditData({
+                                                _id: text._id,
+                                                diaryTime: item.time,
+                                                content: text.content,
+                                                type: text.type,
+                                            });
+                                        }}
+                                        draggable
+                                        onDragStart={handleDragStart}
+                                        data-_id={text._id}
+                                        data-content={text.content}
+                                        data-type={text.type}
+                                    >
+                                        {text.content}
+                                    </div>
+                                );
+                            })}
                         </div>
                     );
                 })}
