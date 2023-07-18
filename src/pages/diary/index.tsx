@@ -35,8 +35,11 @@ const Diary = () => {
     };
     return (
         <div>
-            <div></div>
-            <Calendar list={diaryList} handleEditData={handleEditData} handleMonth={getDiaryList} />
+            <Calendar
+                list={diaryList}
+                handleEditData={handleEditData}
+                getDiaryList={getDiaryList}
+            />
 
             <PopupEdit
                 popup={popup}

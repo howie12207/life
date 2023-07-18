@@ -14,10 +14,9 @@ import { useAppDispatch } from '@/app/hook';
 import { updateToken } from '@/app/base';
 
 import Header from '@/components/header/Header';
+import Sidebar from '@/components/sidebar/Sidebar';
 import GoTop from '@/components/goTop/GoTop';
 import LoadingFull from '@/components/loadingFull/LoadingFull';
-
-import { NavLink } from 'react-router-dom';
 
 const App = () => {
     const dispatch = useAppDispatch();
@@ -50,15 +49,7 @@ const App = () => {
         return (
             <>
                 <Header />
-
-                <div className="flex gap-2">
-                    <NavLink to="/">home</NavLink>
-                    <NavLink to="/cost">cost</NavLink>
-                    <NavLink to="/article">article</NavLink>
-                    <NavLink to="/portfolio">portfolio</NavLink>
-                    <NavLink to="/diary">diary</NavLink>
-                    <NavLink to="/fsada">error</NavLink>
-                </div>
+                <Sidebar />
 
                 <SwitchTransition>
                     <CSSTransition

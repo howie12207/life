@@ -127,18 +127,12 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                                 control={<Radio size="small" />}
                                 label="待辦"
                             />
+                            <FormControlLabel
+                                value={'sick'}
+                                control={<Radio size="small" />}
+                                label="不適"
+                            />
                         </RadioGroup>
-                        {/* <BaseInput
-                            ref={typeRef}
-                            id="life-type"
-                            label="類型"
-                            value={type}
-                            setValue={setType}
-                            isValid={true}
-                            setIsValid={() => ({})}
-                            placeholder="請輸入類型"
-                            enter={submit}
-                        /> */}
                     </div>
 
                     <div className="flex h-auto justify-evenly pt-2">

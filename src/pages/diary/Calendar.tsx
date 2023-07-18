@@ -14,14 +14,14 @@ type Props = {
         content: string;
         type: string;
     }) => void;
-    handleMonth: () => void;
+    getDiaryList: () => void;
 };
 type DisplayItem = {
     time: number;
     content: Array<DiaryItemParams>;
 };
 
-const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
+const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
     const now = new Date();
     const [displayDate, setDisplayDate] = useState(now);
     const [displayList, setDisplayList] = useState<DisplayItem[]>([]);
@@ -87,6 +87,20 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
         handleDisplayList();
     }, [handleDisplayList]);
 
+    type WeekIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    const weekDayString = (index: WeekIndex) => {
+        const list = {
+            0: '日',
+            1: '一',
+            2: '二',
+            3: '三',
+            4: '四',
+            5: '五',
+            6: '六',
+        };
+        return list[index];
+    };
+
     const showMonthString = useMemo(() => {
         const middle = displayList?.[15]?.time;
         return String(formatDate(middle) || '')?.slice(0, 7);
@@ -101,7 +115,6 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
         const middle = displayList?.[15]?.time;
         if (direction === 'previous') setDisplayDate(new Date(middle - 60 * 60 * 1000 * 24 * 30));
         else setDisplayDate(new Date(middle + 60 * 60 * 1000 * 24 * 30));
-        // handleMonth();
     };
 
     // Download
@@ -136,14 +149,13 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
             content: dragItem.content,
             type: dragItem.type,
         });
-        if (res) handleMonth();
+        if (res) getDiaryList();
     };
     const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
     };
-    const handleDragStart = (event: DragEvent<HTMLDivElement>) => {
-        const { _id = '', content = '', type = '' } = event.currentTarget?.dataset || {};
-        setDragItem({ _id, content, type, diaryTime: 0 });
+    const handleDragStart = ({ _id, content, type, diaryTime }: DiaryItemParams) => {
+        setDragItem({ _id, content, type, diaryTime });
     };
 
     return (
@@ -169,11 +181,11 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
                     下載
                 </Button>
             </div>
-            <section className="grid h-[calc(100vh-3.5rem-1.5rem)] grid-cols-7 overflow-hidden text-xs sm:text-base">
-                {displayList.map(item => {
+            <section className="grid h-[calc(100vh-3.5rem-2rem)] grid-cols-7 overflow-hidden text-xs sm:text-base">
+                {displayList.map((item, index) => {
                     return (
                         <div
-                            className="border p-1"
+                            className={`border p-1`}
                             key={item.time}
                             onClick={() =>
                                 handleEditData({
@@ -186,18 +198,25 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
                             onDragOver={handleDragOver}
                             data-timestamp={item.time}
                         >
+                            {index < 7 && (
+                                <div className="text-center">
+                                    {weekDayString(index as WeekIndex)}
+                                </div>
+                            )}
                             <div className="text-center">{formatDay(item.time)}</div>
                             {item.content?.map((text: DiaryItemParams, index: number) => {
                                 return (
                                     <div
                                         title={text.content}
-                                        className={`cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded p-1 ${
+                                        className={`mb-1 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded p-1 ${
                                             text.type === 'out'
                                                 ? 'bg-green-100'
                                                 : text.type === 'workout'
                                                 ? 'bg-red-100'
                                                 : text.type === 'hike'
                                                 ? 'bg-blue-100'
+                                                : text.type === 'sick'
+                                                ? 'bg-purple-100'
                                                 : text.type === 'todo'
                                                 ? 'bg-yellow-100'
                                                 : ''
@@ -213,10 +232,14 @@ const Calendar = ({ list, handleEditData, handleMonth }: Props) => {
                                             });
                                         }}
                                         draggable
-                                        onDragStart={handleDragStart}
-                                        data-_id={text._id}
-                                        data-content={text.content}
-                                        data-type={text.type}
+                                        onDragStart={() =>
+                                            handleDragStart({
+                                                _id: text._id,
+                                                diaryTime: item.time,
+                                                content: text.content,
+                                                type: text.type,
+                                            })
+                                        }
                                     >
                                         {text.content}
                                     </div>

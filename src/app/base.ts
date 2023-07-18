@@ -6,6 +6,7 @@ export const baseSlice = createSlice({
     initialState: {
         loading: false,
         token: '',
+        isOpenMenu: false,
     },
     reducers: {
         updateLoading(state, action) {
@@ -18,8 +19,11 @@ export const baseSlice = createSlice({
             state.token = '';
             Cookies.remove('token');
         },
+        updateIsOpenMenu(state, action) {
+            state.isOpenMenu = action.payload;
+        },
     },
 });
 
-export const { updateLoading, updateToken, clearToken } = baseSlice.actions;
+export const { updateLoading, updateToken, clearToken, updateIsOpenMenu } = baseSlice.actions;
 export default baseSlice.reducer;
