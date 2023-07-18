@@ -53,9 +53,6 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
     // Content
     const [content, setContent] = useState('');
     const contentIsValid = useMemo(() => content?.length > 15, [content]);
-    const changeContent = (value: string) => {
-        setContent(value.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'));
-    };
     const [quillBlur, setQuillBlur] = useState(false);
     const blurQuill = () => {
         if (!quillBlur) setQuillBlur(true);
@@ -199,9 +196,26 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
                         <ReactQuill
                             theme="snow"
                             defaultValue={content}
-                            onChange={changeContent}
+                            onChange={setContent}
                             onBlur={blurQuill}
                             className={quillBlur && !contentIsValid ? 'error-item' : ''}
+                            modules={{
+                                toolbar: {
+                                    container: [
+                                        ['bold', 'italic', 'underline', 'strike'],
+                                        [
+                                            { list: 'ordered' },
+                                            { list: 'bullet' },
+                                            { indent: '-1' },
+                                            { indent: '+1' },
+                                        ],
+                                        [{ align: [] }],
+                                        ['link', 'image', 'video'],
+                                        ['clean'],
+                                        [{ color: [] }],
+                                    ],
+                                },
+                            }}
                         />
                         <Fade in={quillBlur && !contentIsValid}>
                             <div className="my-1 min-h-[1.25rem] text-sm text-red-500">

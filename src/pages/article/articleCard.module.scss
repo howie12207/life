@@ -3,56 +3,12 @@
         @apply my-2 rounded bg-gray-200 p-2 text-xs;
     }
 
-    .ql-size-small {
-        @apply text-xs;
-    }
-
-    .ql-size-large {
-        @apply text-lg;
-    }
-
-    .ql-size-huge {
-        @apply text-xl;
-    }
-
-    .ql-align-left {
-        @apply text-left;
-    }
-
-    .ql-align-center {
-        @apply text-center;
-    }
-
-    .ql-align-right {
-        @apply text-right;
-    }
-
-    .ql-align-justify {
-        @apply text-justify;
-    }
-
     ol {
         @apply list-decimal pl-8;
     }
 
     ul {
         @apply list-disc pl-8;
-    }
-
-    .ql-indent-1 {
-        @apply indent-8;
-    }
-
-    .ql-indent-2 {
-        @apply indent-16;
-    }
-
-    .ql-indent-3 {
-        @apply indent-24;
-    }
-
-    .ql-indent-4 {
-        @apply indent-32;
     }
 
     a {

@@ -45,6 +45,51 @@ body {
     }
 }
 
+.ql-size-small {
+    @apply text-xs;
+}
+
+.ql-size-large {
+    @apply text-lg;
+}
+
+.ql-size-huge {
+    @apply text-xl;
+}
+
+.ql-align-left {
+    @apply text-left;
+}
+
+.ql-align-center {
+    text-align: center !important;
+    @apply text-center;
+}
+
+.ql-align-right {
+    @apply text-right;
+}
+
+.ql-align-justify {
+    @apply text-justify;
+}
+
+.ql-indent-1 {
+    @apply indent-8;
+}
+
+.ql-indent-2 {
+    @apply indent-16;
+}
+
+.ql-indent-3 {
+    @apply indent-24;
+}
+
+.ql-indent-4 {
+    @apply indent-32;
+}
+
 // MUI Checkbox
 .MuiCheckbox-root {
     &.error-item {
