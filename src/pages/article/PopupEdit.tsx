@@ -210,9 +210,10 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
                                             { indent: '+1' },
                                         ],
                                         [{ align: [] }],
+                                        [{ size: ['small', false, 'large', 'huge'] }],
                                         ['link', 'image', 'video'],
                                         ['clean'],
-                                        [{ color: [] }],
+                                        [{ color: [] }, { background: [] }],
                                     ],
                                 },
                             }}
