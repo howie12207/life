@@ -23,6 +23,7 @@ type BaseInputProps = {
     keydown?: (value: string) => void;
     autoFocus?: boolean;
     enter?: () => void;
+    onBlur?: () => unknown;
 };
 export type BaseInputType = {
     validateNow: () => boolean;
@@ -55,6 +56,7 @@ const Input = (
         keydown,
         autoFocus = false,
         enter,
+        onBlur,
     }: BaseInputProps,
     ref: Ref<BaseInputType>
 ) => {
@@ -65,6 +67,7 @@ const Input = (
         setIsBlured(true);
         if (setIsFocus) setIsFocus(false);
         validate();
+        if (onBlur) onBlur();
     };
     const inputHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
         let inputValue = e.target.value;

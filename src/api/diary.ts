@@ -2,7 +2,7 @@ import req from '@/config/request';
 import { base } from '@/config/apiPath';
 import SnackbarUtils from '@/utils/snackBar';
 
-// 新增花費項目
+// 新增日記項目
 export type DiaryItemParams = {
     _id?: string;
     diaryTime: number;
@@ -17,13 +17,8 @@ export const apiAddDiaryItem = async (params: DiaryItemParams) => {
     } else return false;
 };
 
-// 取得花費清單
+// 取得日記清單
 type ListParams = { startTime?: string; endTime?: string };
-// export type CostListRes = {
-//     list: Array<CostItemParams>;
-//     totalPage: number;
-//     totalCount: number;
-// };
 export const apiGetDiaryList = async (params?: ListParams) => {
     const searchParams = new URLSearchParams();
     if (params) {
@@ -37,7 +32,7 @@ export const apiGetDiaryList = async (params?: ListParams) => {
     else return false;
 };
 
-// 編輯花費項目
+// 編輯日記項目
 export const apiEditDiaryItem = async (params: DiaryItemParams) => {
     const res = await req(`${base}/diary/item/${params._id}`, {
         method: 'PATCH',
@@ -49,7 +44,7 @@ export const apiEditDiaryItem = async (params: DiaryItemParams) => {
     } else return false;
 };
 
-// 刪除花費項目
+// 刪除日記項目
 export const apiDeleteDiaryItem = async (_id: string) => {
     const res = await req(`${base}/diary/item/${_id}`, {
         method: 'DELETE',

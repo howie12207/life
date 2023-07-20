@@ -15,6 +15,33 @@ const Sidebar = () => {
     const isLogin = useAppSelector(state => state.base.token);
     const isOpenSidebar = useAppSelector(state => state.base.isOpenMenu);
 
+    const menuList = [
+        {
+            name: '首頁',
+            link: '/',
+        },
+        {
+            name: '花費清單',
+            link: '/cost',
+        },
+        {
+            name: '文章清單',
+            link: '/article',
+        },
+        {
+            name: '作品清單',
+            link: '/portfolio',
+        },
+        {
+            name: '日曆',
+            link: '/diary',
+        },
+        {
+            name: '股票清單',
+            link: '/stock',
+        },
+    ];
+
     const LoginBox = () => {
         return isLogin ? (
             <span>Admin</span>
@@ -59,7 +86,7 @@ const Sidebar = () => {
             >
                 <Fade in={isOpenSidebar}>
                     <aside className="fixed right-0 top-0 z-10 flex h-screen w-[15rem] flex-col overflow-y-auto rounded-bl rounded-tl bg-blue-100 outline-none">
-                        <div className="flex h-[4rem] items-center justify-between px-4">
+                        <div className="flex h-[4rem] items-center justify-between border-b border-gray-400 px-4">
                             <LoginBox />
                             <Close
                                 className="cursor-pointer"
@@ -69,53 +96,22 @@ const Sidebar = () => {
 
                         <nav className="flex-grow">
                             <ul>
-                                <li className="border-b border-t border-gray-400">
-                                    <NavLink
-                                        to="/"
-                                        className="block p-4"
-                                        onClick={() => dispatch(updateIsOpenMenu(false))}
-                                    >
-                                        首頁
-                                    </NavLink>
-                                </li>
-                                <li className="border-b border-gray-400">
-                                    <NavLink
-                                        to="/cost"
-                                        className="block p-4"
-                                        onClick={() => dispatch(updateIsOpenMenu(false))}
-                                    >
-                                        花費清單
-                                    </NavLink>
-                                </li>
-                                <li className="border-b border-gray-400">
-                                    <NavLink
-                                        to="/article"
-                                        className="block p-4"
-                                        onClick={() => dispatch(updateIsOpenMenu(false))}
-                                    >
-                                        文章清單
-                                    </NavLink>
-                                </li>
-                                <li className="border-b border-gray-400">
-                                    <NavLink
-                                        to="/portfolio"
-                                        className="block p-4"
-                                        onClick={() => dispatch(updateIsOpenMenu(false))}
-                                    >
-                                        作品清單
-                                    </NavLink>
-                                </li>
-                                <li className="border-b border-gray-400">
-                                    <NavLink
-                                        to="/diary"
-                                        className="block p-4"
-                                        onClick={() => dispatch(updateIsOpenMenu(false))}
-                                    >
-                                        日曆
-                                    </NavLink>
-                                </li>
+                                {menuList.map(item => {
+                                    return (
+                                        <li className="border-b border-gray-400" key={item.name}>
+                                            <NavLink
+                                                to={item.link}
+                                                className="block p-4"
+                                                onClick={() => dispatch(updateIsOpenMenu(false))}
+                                            >
+                                                {item.name}
+                                            </NavLink>
+                                        </li>
+                                    );
+                                })}
                             </ul>
                         </nav>
+
                         {isLogin && (
                             <Button
                                 variant="contained"

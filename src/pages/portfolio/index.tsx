@@ -1,16 +1,12 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useAppSelector } from '@/app/hook';
 import { apiGetPortfolioList, PortfolioListRes, PortfolioItemParams } from '@/api/portfolio';
-// import { isRequired } from '@/utils/validate';
 import { useIntersectionObserver } from '@/hooks';
 
 import { Button } from '@mui/material';
 import { Add } from '@mui/icons-material';
-// import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import PortfolioCard from './PortfolioCard';
 import PopupEdit from './PopupEdit';
-// import { BaseInputType } from '@/components/baseInput/BaseInput';
-// import { BaseDateRange } from '@/components/baseDateRange/BaseDateRange';
 
 const Portfolio = () => {
     const isLogin = useAppSelector(state => state.base.token);
@@ -65,7 +61,7 @@ const Portfolio = () => {
     return (
         <section className="p-6">
             <div className="flex items-center justify-between">
-                <h1 className="mb-4 text-2xl font-bold">作品清單</h1>
+                <h1 className="text-2xl font-bold">作品清單</h1>
                 {isLogin && (
                     <div className="text-right">
                         <Button
