@@ -22,7 +22,7 @@ import {
 type Props = {
     popup: string;
     setPopup: (value: string) => void;
-    getStockList: () => void;
+    getStockList: () => unknown;
     editData?: StockItemParams;
     setEditData: (data: StockItemParams) => void;
 };
@@ -76,7 +76,7 @@ const PopupEdit = ({ popup, setPopup, getStockList, editData, setEditData }: Pro
     useEffect(() => {
         if (Object.keys(stockTable).length === 0 && (popup === 'add' || popup === 'edit'))
             getStockTable();
-    }, [popup]);
+    }, [popup, getStockTable, stockTable]);
 
     useEffect(() => {
         setItemCode(editData?.itemCode || '');
