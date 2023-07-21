@@ -87,30 +87,33 @@ const Summary = ({ stockList }: Props) => {
         ] as Array<PaymentItem>;
     }, [stockList]);
 
-    // TODO
-    // const total = useMemo(() => {
-    //     const { buyTotal, sellTotal } = stockList.reduce(
-    //         (acc, current) => {
-    //             if (current.itemType === 'sell') {
-    //                 acc.buyTotal += current.dollar;
-    //             } else if (current.itemType === 'buy' || current.itemType === 'allotment') {
-    //                 acc.sellTotal += current.dollar;
-    //             }
-    //         },
-    //         { buyTotal: 0, sellTotal: 0 }
-    //     );
+    const total = useMemo(() => {
+        const { buyTotal, sellTotal } = stockList.reduce(
+            (acc, current) => {
+                if (current.itemType === 'sell') acc.sellTotal += current.dollar;
+                else if (current.itemType === 'buy' || current.itemType === 'allotment')
+                    acc.buyTotal += current.dollar;
+                return acc;
+            },
+            { buyTotal: 0, sellTotal: 0 }
+        );
 
-    //     return { buyTotal, sellTotal };
-    //     // return {};
-    // }, [stockList]);
+        const profitTotal = paymentList.reduce((acc, current) => {
+            return acc + Number(current.profit || 0);
+        }, 0);
+
+        const lastTotal = buyTotal - sellTotal + profitTotal;
+
+        return { buyTotal, sellTotal, profitTotal, lastTotal };
+    }, [stockList, paymentList]);
 
     return (
         <>
             {/* TODO */}
-            {/* <div>buy:{total.buyTotal?.toLocaleString()}</div>
-            <div>sell:{total.sellTotal?.toLocaleString()}</div> */}
-            {/* <div>profit: {totalProfit.toLocaleString()}</div>
-            <div>last:{lastTotal?.toLocaleString()}</div> */}
+            <div>buy:{total.buyTotal?.toLocaleString()}</div>
+            <div>sell:{total.sellTotal?.toLocaleString()}</div>
+            <div>profit: {total.profitTotal?.toLocaleString()}</div>
+            <div>last:{total.lastTotal?.toLocaleString()}</div>
 
             {/* TODO 補下載功能 */}
             <Table>
