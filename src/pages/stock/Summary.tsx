@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { formatDate } from '@/utils/format';
 import { StockListRes, StockItemParams } from '@/api/stock';
 
-import { Table, TableRow, TableCell, TableBody } from '@mui/material';
+import { Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 
 type Props = {
     stockList: StockListRes['list'];
@@ -117,34 +117,39 @@ const Summary = ({ stockList }: Props) => {
 
             {/* TODO 補下載功能 */}
             <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>名稱</TableCell>
+                        <TableCell>購買日</TableCell>
+                        <TableCell>購買成本</TableCell>
+                        <TableCell>購買股數</TableCell>
+                        <TableCell>售出日</TableCell>
+                        <TableCell>淨收</TableCell>
+                        <TableCell>售出股數</TableCell>
+                        <TableCell>盈虧</TableCell>
+                    </TableRow>
+                </TableHead>
                 <TableBody>
                     {paymentList.map((item, index) => {
                         return (
-                            <TableRow key={index}>
-                                <TableCell
-                                    className={`${
-                                        item.profit > 0
-                                            ? '!text-red-500'
-                                            : item.profit <= 0
-                                            ? '!text-green-500'
-                                            : ''
-                                    }`}
-                                >
-                                    {item.itemName}
-                                </TableCell>
+                            <TableRow
+                                key={index}
+                                className={`${
+                                    item.profit > 0
+                                        ? 'bg-red-100'
+                                        : item.profit <= 0
+                                        ? 'bg-green-100'
+                                        : ''
+                                }`}
+                            >
+                                <TableCell>{item.itemName}</TableCell>
                                 <TableCell>{formatDate(item.tradeDate)}</TableCell>
                                 <TableCell>{item.dollar?.toLocaleString()}</TableCell>
                                 <TableCell>{item.amount?.toLocaleString()}</TableCell>
                                 <TableCell>{formatDate(item.sellDate)}</TableCell>
                                 <TableCell>{item.sellDollar?.toLocaleString()}</TableCell>
                                 <TableCell>{item.sellAmount?.toLocaleString()}</TableCell>
-                                <TableCell
-                                    className={`${
-                                        item.profit > 0 ? '!text-red-500' : '!text-green-500'
-                                    }`}
-                                >
-                                    {item.profit?.toLocaleString()}
-                                </TableCell>
+                                <TableCell>{item.profit?.toLocaleString()}</TableCell>
                             </TableRow>
                         );
                     })}
