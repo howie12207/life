@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { formatDate } from '@/utils/format';
-import { StockListRes, StockItemParams } from '@/api/stock';
+import { StockListRes } from '@/api/stock';
 
 import { Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 
@@ -40,38 +40,72 @@ const Summary = ({ stockList }: Props) => {
 
             let buyRecords = [] as StockListRes['list'];
 
-            for (const record of recordItem) {
-                const { itemName, itemCode, itemType, tradeDate, dollar, amount } = record;
+            for (let i = 0; i < recordItem.length; i++) {
+                const { itemName, itemCode, itemType, tradeDate, dollar, amount } = recordItem[i];
+                let lastAmt = amount;
+                let lastDollar = dollar;
 
                 if (itemType === 'buy' || itemType === 'allotment') {
-                    buyRecords.push(record);
+                    buyRecords.push(recordItem[i]);
                 } else if (itemType === 'sell') {
-                    let matchedBuyRecord = null as null | StockItemParams;
-
-                    for (const buyRecord of buyRecords) {
-                        if (buyRecord.amount === amount) {
-                            matchedBuyRecord = buyRecord;
+                    for (let j = 0; j < buyRecords.length; j++) {
+                        const buyRecord = buyRecords[j];
+                        if (buyRecord.amount === lastAmt) {
+                            buyRecords = buyRecords.filter(item => item !== buyRecord);
+                            result.push({
+                                itemCode,
+                                itemName,
+                                tradeDate: buyRecord.tradeDate,
+                                dollar: buyRecord.dollar,
+                                amount: buyRecord.amount,
+                                sellDate: tradeDate,
+                                sellDollar: lastDollar,
+                                sellAmount: lastAmt,
+                                profit: lastDollar - buyRecord.dollar,
+                            });
                             break;
-                        } else if (buyRecord.amount > amount) {
-                            // TODO 賣一半
+                        } else if (buyRecord.amount < lastAmt) {
+                            buyRecords = buyRecords.filter(item => item !== buyRecord);
+                            result.push({
+                                itemCode,
+                                itemName,
+                                tradeDate: buyRecord.tradeDate,
+                                dollar: buyRecord.dollar,
+                                amount: buyRecord.amount,
+                                sellDate: tradeDate,
+                                sellDollar: (lastDollar / lastAmt) * buyRecord.amount,
+                                sellAmount: buyRecord.amount,
+                                profit:
+                                    (lastDollar / lastAmt) * buyRecord.amount - buyRecord.dollar,
+                            });
+
+                            lastDollar = lastDollar - (lastDollar / lastAmt) * buyRecord.amount;
+                            lastAmt = lastAmt - buyRecord.amount;
+                            j--;
+                            continue;
+                        } else {
+                            buyRecords = buyRecords.filter(item => item !== buyRecord);
+                            buyRecords.unshift({
+                                ...buyRecord,
+                                amount: buyRecord.amount - lastAmt,
+                                dollar:
+                                    (buyRecord.dollar / buyRecord.amount) *
+                                    (buyRecord.amount - lastAmt),
+                            });
+                            result.push({
+                                itemCode,
+                                itemName,
+                                tradeDate: buyRecord.tradeDate,
+                                dollar: (buyRecord.dollar / buyRecord.amount) * lastAmt,
+                                amount: lastAmt,
+                                sellDate: tradeDate,
+                                sellDollar: lastDollar,
+                                sellAmount: lastAmt,
+                                profit:
+                                    lastDollar - (buyRecord.dollar / buyRecord.amount) * lastAmt,
+                            });
+                            break;
                         }
-                    }
-
-                    if (matchedBuyRecord !== null) {
-                        buyRecords = buyRecords.filter(buyRecord => buyRecord !== matchedBuyRecord);
-                        const profit = dollar - matchedBuyRecord.dollar;
-
-                        result.push({
-                            itemCode,
-                            itemName,
-                            tradeDate: matchedBuyRecord.tradeDate,
-                            dollar: matchedBuyRecord.dollar,
-                            amount: matchedBuyRecord.amount,
-                            sellDate: tradeDate,
-                            sellDollar: dollar,
-                            sellAmount: amount,
-                            profit,
-                        });
                     }
                 }
             }
@@ -83,7 +117,7 @@ const Summary = ({ stockList }: Props) => {
 
         return [
             ...inventory.sort((a, b) => b.tradeDate - a.tradeDate),
-            ...result.sort((a, b) => b.tradeDate - a.tradeDate),
+            ...result.sort((a, b) => b.sellDate - a.sellDate || b.tradeDate - a.tradeDate),
         ] as Array<PaymentItem>;
     }, [stockList]);
 
