@@ -13,9 +13,11 @@ const Summary = ({ stockList }: Props) => {
         itemCode: string;
         itemName: string;
         tradeDate: number;
+        price: string;
         dollar: number;
         amount: number;
         sellDate: number;
+        sellPrice: string;
         sellDollar: number;
         sellAmount: number;
         profit: number;
@@ -40,25 +42,51 @@ const Summary = ({ stockList }: Props) => {
 
             let buyRecords = [] as StockListRes['list'];
 
-            for (let i = 0; i < recordItem.length; i++) {
-                const { itemName, itemCode, itemType, tradeDate, dollar, amount } = recordItem[i];
+            for (const record of recordItem) {
+                const { itemName, itemCode, itemType, tradeDate, dollar, amount, price } = record;
                 let lastAmt = amount;
                 let lastDollar = dollar;
 
                 if (itemType === 'buy' || itemType === 'allotment') {
-                    buyRecords.push(recordItem[i]);
+                    buyRecords.push(record);
                 } else if (itemType === 'sell') {
+                    // 零股處理
+                    if (lastAmt % 1000 !== 0) {
+                        const target = buyRecords.find(item => item.amount === lastAmt);
+                        buyRecords = buyRecords.filter(item => item !== target);
+                        result.push({
+                            itemCode,
+                            itemName,
+                            tradeDate: target?.tradeDate,
+                            price: target?.price,
+                            dollar: target?.dollar,
+                            amount: target?.amount,
+                            sellDate: tradeDate,
+                            sellPrice: price,
+                            sellDollar: lastDollar,
+                            sellAmount: lastAmt,
+                            profit: lastDollar - Number(target?.dollar),
+                        });
+                        continue;
+                    }
+
                     for (let j = 0; j < buyRecords.length; j++) {
                         const buyRecord = buyRecords[j];
+
+                        // 零股處理
+                        if (buyRecord.amount % 1000 !== 0) continue;
+
                         if (buyRecord.amount === lastAmt) {
                             buyRecords = buyRecords.filter(item => item !== buyRecord);
                             result.push({
                                 itemCode,
                                 itemName,
                                 tradeDate: buyRecord.tradeDate,
+                                price: buyRecord.price,
                                 dollar: buyRecord.dollar,
                                 amount: buyRecord.amount,
                                 sellDate: tradeDate,
+                                sellPrice: price,
                                 sellDollar: lastDollar,
                                 sellAmount: lastAmt,
                                 profit: lastDollar - buyRecord.dollar,
@@ -70,9 +98,11 @@ const Summary = ({ stockList }: Props) => {
                                 itemCode,
                                 itemName,
                                 tradeDate: buyRecord.tradeDate,
+                                price: buyRecord.price,
                                 dollar: buyRecord.dollar,
                                 amount: buyRecord.amount,
                                 sellDate: tradeDate,
+                                sellPrice: price,
                                 sellDollar: (lastDollar / lastAmt) * buyRecord.amount,
                                 sellAmount: buyRecord.amount,
                                 profit:
@@ -96,9 +126,11 @@ const Summary = ({ stockList }: Props) => {
                                 itemCode,
                                 itemName,
                                 tradeDate: buyRecord.tradeDate,
+                                price: buyRecord.price,
                                 dollar: (buyRecord.dollar / buyRecord.amount) * lastAmt,
                                 amount: lastAmt,
                                 sellDate: tradeDate,
+                                sellPrice: price,
                                 sellDollar: lastDollar,
                                 sellAmount: lastAmt,
                                 profit:
@@ -115,9 +147,13 @@ const Summary = ({ stockList }: Props) => {
             });
         }
 
+        // TODO 庫存 可依相同名稱在統整
+
         return [
             ...inventory.sort((a, b) => b.tradeDate - a.tradeDate),
-            ...result.sort((a, b) => b.sellDate - a.sellDate || b.tradeDate - a.tradeDate),
+            ...result.sort(
+                (a, b) => b.sellDate - a.sellDate || Number(b.tradeDate) - Number(a.tradeDate)
+            ),
         ] as Array<PaymentItem>;
     }, [stockList]);
 
@@ -155,11 +191,12 @@ const Summary = ({ stockList }: Props) => {
                     <TableRow>
                         <TableCell>名稱</TableCell>
                         <TableCell>購買日</TableCell>
+                        <TableCell>購買價格</TableCell>
                         <TableCell>購買成本</TableCell>
                         <TableCell>購買股數</TableCell>
                         <TableCell>售出日</TableCell>
+                        <TableCell>售出價格</TableCell>
                         <TableCell>淨收</TableCell>
-                        <TableCell>售出股數</TableCell>
                         <TableCell>盈虧</TableCell>
                     </TableRow>
                 </TableHead>
@@ -178,11 +215,12 @@ const Summary = ({ stockList }: Props) => {
                             >
                                 <TableCell>{item.itemName}</TableCell>
                                 <TableCell>{formatDate(item.tradeDate)}</TableCell>
+                                <TableCell>{item.price}</TableCell>
                                 <TableCell>{item.dollar?.toLocaleString()}</TableCell>
                                 <TableCell>{item.amount?.toLocaleString()}</TableCell>
                                 <TableCell>{formatDate(item.sellDate)}</TableCell>
+                                <TableCell>{item.sellPrice}</TableCell>
                                 <TableCell>{item.sellDollar?.toLocaleString()}</TableCell>
-                                <TableCell>{item.sellAmount?.toLocaleString()}</TableCell>
                                 <TableCell>{item.profit?.toLocaleString()}</TableCell>
                             </TableRow>
                         );
