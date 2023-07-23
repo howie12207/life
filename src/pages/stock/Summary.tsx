@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { formatDate } from '@/utils/format';
 import { StockListRes } from '@/api/stock';
 
-import { Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { Table, TableHead, TableRow, TableCell, TableBody, Switch } from '@mui/material';
 
 type Props = {
     stockList: StockListRes['list'];
@@ -12,7 +12,7 @@ const Summary = ({ stockList }: Props) => {
     type PaymentItem = {
         itemCode: string;
         itemName: string;
-        tradeDate: number;
+        tradeDate: number | string;
         price: string;
         dollar: number;
         amount: number;
@@ -157,6 +157,31 @@ const Summary = ({ stockList }: Props) => {
         ] as Array<PaymentItem>;
     }, [stockList]);
 
+    const [isGrouped, setIsGrouped] = useState(true);
+    const paymentListGrouped = useMemo(() => {
+        const filter = paymentList.filter(item => item.profit === undefined);
+
+        const result = Object.values(filter).reduce((acc, curr) => {
+            if (!acc[curr.itemCode]) acc[curr.itemCode] = { ...curr };
+            else {
+                acc[curr.itemCode].dollar += curr.dollar;
+                acc[curr.itemCode].amount += curr.amount;
+                acc[curr.itemCode].tradeDate = '';
+                acc[curr.itemCode].price = '';
+                console.log(acc[curr.itemCode].amount);
+            }
+            return acc;
+        }, {} as { [key: string]: PaymentItem });
+
+        return [
+            ...Object.values(result).sort((a, b) => Number(b.tradeDate) - Number(a.tradeDate)),
+            ...paymentList.filter(item => item.profit !== undefined),
+        ];
+    }, [paymentList, isGrouped]);
+    const showList = useMemo(() => {
+        return isGrouped ? paymentListGrouped : paymentList;
+    }, [isGrouped, paymentList, paymentListGrouped]);
+
     const total = useMemo(() => {
         const { buyTotal, sellTotal } = stockList.reduce(
             (acc, current) => {
@@ -175,7 +200,7 @@ const Summary = ({ stockList }: Props) => {
         const lastTotal = buyTotal - sellTotal + profitTotal;
 
         return { buyTotal, sellTotal, profitTotal, lastTotal };
-    }, [stockList, paymentList]);
+    }, [paymentList]);
 
     return (
         <>
@@ -186,6 +211,18 @@ const Summary = ({ stockList }: Props) => {
             <div>last:{total.lastTotal?.toLocaleString()}</div>
 
             {/* TODO 補下載功能 */}
+            <div
+                className={`flex items-center transition ${
+                    isGrouped ? 'text-blue-500' : 'opacity-30'
+                }`}
+            >
+                <Switch
+                    checked={isGrouped}
+                    onChange={e => setIsGrouped(e.target.checked)}
+                    name="jason"
+                />
+                <span>庫存統整</span>
+            </div>
             <Table>
                 <TableHead>
                     <TableRow>
@@ -201,7 +238,7 @@ const Summary = ({ stockList }: Props) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {paymentList.map((item, index) => {
+                    {showList.map((item, index) => {
                         return (
                             <TableRow
                                 key={index}
