@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { formatDate } from '@/utils/format';
 import { StockListRes } from '@/api/stock';
 
-import { Table, TableHead, TableRow, TableCell, TableBody, Switch } from '@mui/material';
+import { Table, TableHead, TableRow, TableCell, TableBody, TableFooter } from '@mui/material';
 
 type Props = {
     stockList: StockListRes['list'];
@@ -11,16 +11,17 @@ type Props = {
 const Summary = ({ stockList }: Props) => {
     type PaymentItem = {
         itemCode: string;
-        itemName: string;
+        itemName?: string;
         tradeDate: number | string;
         price: string;
         dollar: number;
         amount: number;
-        sellDate: number;
-        sellPrice: string;
-        sellDollar: number;
-        sellAmount: number;
-        profit: number;
+        sellDate?: number;
+        sellPrice?: string;
+        sellDollar?: number;
+        sellAmount?: number;
+        profit?: number;
+        details?: Array<{ [key: string]: string | number }>;
     };
     const paymentList = useMemo(() => {
         const result = [];
@@ -147,40 +148,31 @@ const Summary = ({ stockList }: Props) => {
             });
         }
 
-        // TODO 庫存 可依相同名稱在統整
-
-        return [
-            ...inventory.sort((a, b) => b.tradeDate - a.tradeDate),
-            ...result.sort(
-                (a, b) => b.sellDate - a.sellDate || Number(b.tradeDate) - Number(a.tradeDate)
-            ),
-        ] as Array<PaymentItem>;
-    }, [stockList]);
-
-    const [isGrouped, setIsGrouped] = useState(true);
-    const paymentListGrouped = useMemo(() => {
-        const filter = paymentList.filter(item => item.profit === undefined);
-
-        const result = Object.values(filter).reduce((acc, curr) => {
-            if (!acc[curr.itemCode]) acc[curr.itemCode] = { ...curr };
+        // 目前庫存
+        const inStock = Object.values(inventory).reduce((acc, curr) => {
+            if (!acc[curr.itemCode]) acc[curr.itemCode] = { ...curr, details: [{ ...curr }] };
             else {
+                acc[curr.itemCode].price = (
+                    (Number(acc[curr.itemCode].price) * acc[curr.itemCode].amount +
+                        Number(curr.price) * curr.amount) /
+                    (acc[curr.itemCode].amount + curr.amount)
+                ).toFixed(2);
                 acc[curr.itemCode].dollar += curr.dollar;
                 acc[curr.itemCode].amount += curr.amount;
                 acc[curr.itemCode].tradeDate = '';
-                acc[curr.itemCode].price = '';
-                console.log(acc[curr.itemCode].amount);
+                acc[curr.itemCode].details?.push(curr);
+                console.log(acc[curr.itemCode]);
             }
             return acc;
         }, {} as { [key: string]: PaymentItem });
 
         return [
-            ...Object.values(result).sort((a, b) => Number(b.tradeDate) - Number(a.tradeDate)),
-            ...paymentList.filter(item => item.profit !== undefined),
-        ];
-    }, [paymentList, isGrouped]);
-    const showList = useMemo(() => {
-        return isGrouped ? paymentListGrouped : paymentList;
-    }, [isGrouped, paymentList, paymentListGrouped]);
+            ...Object.values(inStock).sort((a, b) => Number(b.tradeDate) - Number(a.tradeDate)),
+            ...result.sort(
+                (a, b) => b.sellDate - a.sellDate || Number(b.tradeDate) - Number(a.tradeDate)
+            ),
+        ] as Array<PaymentItem>;
+    }, [stockList]);
 
     const total = useMemo(() => {
         const { buyTotal, sellTotal } = stockList.reduce(
@@ -200,30 +192,12 @@ const Summary = ({ stockList }: Props) => {
         const lastTotal = buyTotal - sellTotal + profitTotal;
 
         return { buyTotal, sellTotal, profitTotal, lastTotal };
-    }, [paymentList]);
+    }, [paymentList, stockList]);
 
     return (
         <>
-            {/* TODO */}
-            <div>buy:{total.buyTotal?.toLocaleString()}</div>
-            <div>sell:{total.sellTotal?.toLocaleString()}</div>
-            <div>profit: {total.profitTotal?.toLocaleString()}</div>
-            <div>last:{total.lastTotal?.toLocaleString()}</div>
-
             {/* TODO 補下載功能 */}
-            <div
-                className={`flex items-center transition ${
-                    isGrouped ? 'text-blue-500' : 'opacity-30'
-                }`}
-            >
-                <Switch
-                    checked={isGrouped}
-                    onChange={e => setIsGrouped(e.target.checked)}
-                    name="jason"
-                />
-                <span>庫存統整</span>
-            </div>
-            <Table>
+            <Table stickyHeader>
                 <TableHead>
                     <TableRow>
                         <TableCell>名稱</TableCell>
@@ -238,31 +212,98 @@ const Summary = ({ stockList }: Props) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {showList.map((item, index) => {
+                    {paymentList.map((item, index) => {
                         return (
                             <TableRow
                                 key={index}
                                 className={`${
-                                    item.profit > 0
+                                    Number(item.profit) > 0
                                         ? 'bg-red-100'
-                                        : item.profit <= 0
+                                        : Number(item.profit) <= 0
                                         ? 'bg-green-100'
                                         : ''
                                 }`}
                             >
                                 <TableCell>{item.itemName}</TableCell>
-                                <TableCell>{formatDate(item.tradeDate)}</TableCell>
-                                <TableCell>{item.price}</TableCell>
-                                <TableCell>{item.dollar?.toLocaleString()}</TableCell>
-                                <TableCell>{item.amount?.toLocaleString()}</TableCell>
-                                <TableCell>{formatDate(item.sellDate)}</TableCell>
-                                <TableCell>{item.sellPrice}</TableCell>
-                                <TableCell>{item.sellDollar?.toLocaleString()}</TableCell>
-                                <TableCell>{item.profit?.toLocaleString()}</TableCell>
+                                <TableCell>
+                                    {Number(item.details?.length) > 1 &&
+                                        item.details?.map(detail => {
+                                            return (
+                                                <>
+                                                    {formatDate(detail.tradeDate)}
+                                                    <br />
+                                                </>
+                                            );
+                                        })}
+                                    {formatDate(item.tradeDate)}
+                                    <br />
+                                </TableCell>
+                                <TableCell align="right">
+                                    {Number(item.details?.length) > 1 &&
+                                        item.details?.map(detail => {
+                                            return (
+                                                <>
+                                                    {detail.price}
+                                                    <br />
+                                                </>
+                                            );
+                                        })}
+                                    {item.price}
+                                    <br />
+                                </TableCell>
+                                <TableCell align="right">
+                                    {Number(item.details?.length) > 1 &&
+                                        item.details?.map(detail => {
+                                            return (
+                                                <>
+                                                    {detail.dollar?.toLocaleString()}
+                                                    <br />
+                                                </>
+                                            );
+                                        })}
+                                    {item.dollar?.toLocaleString()}
+                                    <br />
+                                </TableCell>
+                                <TableCell align="right">
+                                    {Number(item.details?.length) > 1 &&
+                                        item.details?.map(detail => {
+                                            return (
+                                                <>
+                                                    {detail.amount?.toLocaleString()}
+                                                    <br />
+                                                </>
+                                            );
+                                        })}
+                                    {item.amount?.toLocaleString()}
+                                </TableCell>
+                                <TableCell>{formatDate(item.sellDate || '')}</TableCell>
+                                <TableCell align="right">{item.sellPrice}</TableCell>
+                                <TableCell align="right">
+                                    {item.sellDollar?.toLocaleString()}
+                                </TableCell>
+                                <TableCell align="right">{item.profit?.toLocaleString()}</TableCell>
                             </TableRow>
                         );
                     })}
                 </TableBody>
+                <TableFooter>
+                    <TableRow>
+                        <TableCell colSpan={2} align="right">
+                            <div>目前成本</div>
+                            {total.lastTotal?.toLocaleString()}
+                        </TableCell>
+                        <TableCell colSpan={2} align="right">
+                            {total.buyTotal?.toLocaleString()}
+                        </TableCell>
+                        <TableCell colSpan={4} align="right">
+                            {total.sellTotal?.toLocaleString()}
+                        </TableCell>
+                        <TableCell align="right">
+                            <div>目前獲利</div>
+                            {total.profitTotal?.toLocaleString()}
+                        </TableCell>
+                    </TableRow>
+                </TableFooter>
             </Table>
         </>
     );

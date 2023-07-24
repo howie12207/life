@@ -25,7 +25,7 @@ const Stock = () => {
     }, [getStockList]);
 
     return (
-        <section className="p-6">
+        <section className="p-6 pb-20">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">股票清單</h1>
             </div>
