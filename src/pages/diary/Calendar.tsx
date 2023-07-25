@@ -24,6 +24,8 @@ type DisplayItem = {
 const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
     const now = new Date();
     const [displayDate, setDisplayDate] = useState(now);
+    const [monthStart, setMonthStart] = useState(0);
+    const [monthEnd, setMonthEnd] = useState(0);
     const [displayList, setDisplayList] = useState<DisplayItem[]>([]);
 
     const getTimestampArray = (date = new Date()) => {
@@ -53,6 +55,8 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
         // 當月的天數
         for (let day = 1; day <= daysInMonth; day++) {
             const timestamp = new Date(year, month, day).getTime();
+            if (day === 1) setMonthStart(timestamp);
+            else if (day === daysInMonth) setMonthEnd(timestamp);
             timestampArray.push({ time: timestamp, content: [] });
         }
 
@@ -161,6 +165,15 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
     return (
         <>
             <div className="my-4 flex items-center justify-center">
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => setDisplayDate(now)}
+                    className="!absolute left-4"
+                    size="small"
+                >
+                    今天
+                </Button>
                 <KeyboardArrowLeft
                     className="cursor-pointer"
                     onClick={() => changeMonth('previous')}
@@ -170,14 +183,6 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
                     className="cursor-pointer"
                     onClick={() => changeMonth('next')}
                 />
-                <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={() => setDisplayDate(now)}
-                    size="small"
-                >
-                    今天
-                </Button>
                 <Button
                     variant="contained"
                     onClick={download}
@@ -194,9 +199,9 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
                     return (
                         <div
                             className={`border p-1 ${
-                                toStartTime(now).valueOf() === item.time
-                                    ? 'border-red-500 text-red-500'
-                                    : ''
+                                toStartTime(now).valueOf() === item.time ? ' bg-green-200' : ''
+                            } ${
+                                item.time < monthStart || item.time > monthEnd ? 'bg-gray-100' : ''
                             }`}
                             key={item.time}
                             onClick={() =>
