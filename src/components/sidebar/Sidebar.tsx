@@ -1,10 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/app/hook';
 import { updateIsOpenMenu } from '@/app/base';
 import { NavLink } from 'react-router-dom';
 import { apiDownloadDb } from '@/api/base';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 
 import { Fade, Modal, Button } from '@mui/material';
 import { Close, Person } from '@mui/icons-material';
@@ -54,20 +52,19 @@ const Sidebar = () => {
 
     // Download
     const [isloadingDownload, setIsLoadingDownload] = useState(false);
+    const [downloadLink, setDownloadLink] = useState('');
+    const downloadRef = useRef(null);
     const downloadDb = async () => {
         setIsLoadingDownload(true);
         const res = await apiDownloadDb();
-        const zip = new JSZip();
-        Object.entries(res).forEach(item => {
-            zip.file(`${item[0]}.json`, JSON.stringify(item[1]));
-        });
-        zip.generateAsync({ type: 'blob' })
-            .then(content => {
-                saveAs(content, 'data.zip');
-            })
-            .finally(() => {
-                setIsLoadingDownload(false);
-            });
+        if (res) {
+            const url = URL.createObjectURL(res);
+            setDownloadLink(url);
+            setTimeout(() => {
+                if (downloadRef.current) (downloadRef.current as HTMLAnchorElement).click();
+            }, 0);
+        }
+        setIsLoadingDownload(false);
     };
 
     // Popup
@@ -110,6 +107,12 @@ const Sidebar = () => {
                                     );
                                 })}
                             </ul>
+                            <a
+                                ref={downloadRef}
+                                href={downloadLink}
+                                download="db.zip"
+                                className="hidden"
+                            ></a>
                         </nav>
 
                         {isLogin && (

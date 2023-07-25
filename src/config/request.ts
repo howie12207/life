@@ -120,6 +120,7 @@ const request = async (
         let data;
         if (defaultHeaders['Content-Type'] === 'text/html') data = await res.text();
         else if (defaultHeaders['responseType'] === 'arraybuffer') data = await res.arrayBuffer();
+        else if (res.headers.get('content-type') === 'application/zip') data = await res.blob();
         else data = await res.json();
 
         // not 200

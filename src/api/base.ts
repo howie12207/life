@@ -25,8 +25,8 @@ export const apiLogin = async (params: LoginParams) => {
 
 export const apiDownloadDb = async () => {
     const res = await req(`${base}/dbDownload`);
-    if (res?.code === 200) {
+    if (res) {
         SnackbarUtils.success('下載成功');
-        return res.data;
+        return res;
     } else return false;
 };
