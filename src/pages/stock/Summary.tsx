@@ -1,29 +1,48 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useAppSelector } from '@/app/hook';
 import { formatDate } from '@/utils/format';
-import { StockListRes } from '@/api/stock';
+import { apiGetNavList, StockListRes } from '@/api/stock';
 
-import { Table, TableHead, TableRow, TableCell, TableBody, TableFooter } from '@mui/material';
+import { Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 
 type Props = {
     stockList: StockListRes['list'];
 };
 
+const FEE = 0.995575;
+
 const Summary = ({ stockList }: Props) => {
-    type PaymentItem = {
+    const navList = useAppSelector(state => state.stock.navList);
+    useEffect(() => {
+        if (Object.keys(navList).length === 0) apiGetNavList();
+    }, [navList]);
+
+    type InStockItem = {
         itemCode: string;
-        itemName?: string;
+        itemName: string;
         tradeDate: number | string;
         price: string;
         dollar: number;
         amount: number;
-        sellDate?: number;
-        sellPrice?: string;
-        sellDollar?: number;
-        sellAmount?: number;
-        profit?: number;
-        details?: Array<{ [key: string]: string | number }>;
+        details: Array<{ [key: string]: string | number }>;
+        lastPrice: string;
+        lastDollar: number;
+        lastProfit: number;
     };
-    const paymentList = useMemo(() => {
+    type SettleItem = {
+        itemCode: string;
+        itemName: string;
+        tradeDate: number | string;
+        price: string;
+        dollar: number;
+        amount: number;
+        sellDate: number;
+        sellPrice: string;
+        sellDollar: number;
+        sellAmount: number;
+        profit: number;
+    };
+    const resultList = useMemo(() => {
         const result = [];
         const inventory = [];
         const groupedRecords = [...stockList]
@@ -150,81 +169,109 @@ const Summary = ({ stockList }: Props) => {
 
         // 目前庫存
         const inStock = Object.values(inventory).reduce((acc, curr) => {
-            if (!acc[curr.itemCode]) acc[curr.itemCode] = { ...curr, details: [{ ...curr }] };
+            if (!acc[curr.itemCode])
+                acc[curr.itemCode] = {
+                    ...curr,
+                    details: [{ ...curr }],
+                    lastPrice: navList[curr.itemCode]?.price,
+                    lastDollar: Number(navList[curr.itemCode]?.price) * curr.amount * FEE,
+                    lastProfit:
+                        Number(navList[curr.itemCode]?.price) * curr.amount * FEE - curr.dollar,
+                };
             else {
+                const newAmt = acc[curr.itemCode].amount + curr.amount;
                 acc[curr.itemCode].price = (
                     (Number(acc[curr.itemCode].price) * acc[curr.itemCode].amount +
                         Number(curr.price) * curr.amount) /
-                    (acc[curr.itemCode].amount + curr.amount)
+                    newAmt
                 ).toFixed(2);
                 acc[curr.itemCode].dollar += curr.dollar;
                 acc[curr.itemCode].amount += curr.amount;
                 acc[curr.itemCode].tradeDate = '';
                 acc[curr.itemCode].details?.push(curr);
-                console.log(acc[curr.itemCode]);
+                acc[curr.itemCode].lastDollar = Number(acc[curr.itemCode].lastPrice) * newAmt * FEE;
+                acc[curr.itemCode].lastProfit =
+                    Number(acc[curr.itemCode].lastPrice) * newAmt * FEE - acc[curr.itemCode].dollar;
             }
             return acc;
-        }, {} as { [key: string]: PaymentItem });
+        }, {} as { [key: string]: InStockItem });
 
-        return [
-            ...Object.values(inStock).sort((a, b) => Number(b.tradeDate) - Number(a.tradeDate)),
-            ...result.sort(
-                (a, b) => b.sellDate - a.sellDate || Number(b.tradeDate) - Number(a.tradeDate)
-            ),
-        ] as Array<PaymentItem>;
-    }, [stockList]);
-
-    const total = useMemo(() => {
-        const { buyTotal, sellTotal } = stockList.reduce(
+        // 算總和
+        const { totalBuy, totalSell } = stockList.reduce(
             (acc, current) => {
-                if (current.itemType === 'sell') acc.sellTotal += current.dollar;
+                if (current.itemType === 'sell') acc.totalSell += current.dollar;
                 else if (current.itemType === 'buy' || current.itemType === 'allotment')
-                    acc.buyTotal += current.dollar;
+                    acc.totalBuy += current.dollar;
                 return acc;
             },
-            { buyTotal: 0, sellTotal: 0 }
+            { totalBuy: 0, totalSell: 0 }
         );
-
-        const profitTotal = paymentList.reduce((acc, current) => {
+        const totalProfit = result.reduce((acc, current) => {
             return acc + Number(current.profit || 0);
         }, 0);
+        const totalLast = totalBuy - totalSell + totalProfit;
+        const currentProfit = Object.values(inStock).reduce((acc, current) => {
+            return acc + Number(current.lastProfit || 0);
+        }, 0);
 
-        const lastTotal = buyTotal - sellTotal + profitTotal;
-
-        return { buyTotal, sellTotal, profitTotal, lastTotal };
-    }, [paymentList, stockList]);
+        return {
+            inStockList: Object.values(inStock).sort(
+                (a, b) => Number(b.tradeDate) - Number(a.tradeDate)
+            ),
+            settleList: result.sort(
+                (a, b) => b.sellDate - a.sellDate || Number(b.tradeDate) - Number(a.tradeDate)
+            ) as Array<SettleItem>,
+            totalProfit,
+            totalLast,
+            currentProfit,
+        };
+    }, [stockList, navList]);
 
     return (
         <>
             {/* TODO 補下載功能 */}
+            <h2 className="mt-4 text-xl text-blue-500">庫存</h2>
             <Table stickyHeader>
                 <TableHead>
                     <TableRow>
                         <TableCell>名稱</TableCell>
+                        <TableCell>目前價格</TableCell>
                         <TableCell>購買日</TableCell>
                         <TableCell>購買價格</TableCell>
-                        <TableCell>購買成本</TableCell>
+                        <TableCell align="right">
+                            購買成本
+                            <br />
+                            {resultList.totalLast
+                                ? Number(resultList.totalLast?.toFixed()).toLocaleString()
+                                : ''}
+                        </TableCell>
                         <TableCell>購買股數</TableCell>
-                        <TableCell>售出日</TableCell>
-                        <TableCell>售出價格</TableCell>
-                        <TableCell>淨收</TableCell>
-                        <TableCell>盈虧</TableCell>
+                        <TableCell>目前淨收</TableCell>
+                        <TableCell align="right">
+                            目前盈虧
+                            <br />
+                            {resultList.currentProfit
+                                ? Number(resultList.currentProfit?.toFixed()).toLocaleString()
+                                : ''}
+                        </TableCell>
                     </TableRow>
                 </TableHead>
+
                 <TableBody>
-                    {paymentList.map((item, index) => {
+                    {resultList?.inStockList?.map((item, index) => {
                         return (
                             <TableRow
                                 key={index}
                                 className={`${
-                                    Number(item.profit) > 0
+                                    Number(item.lastProfit) > 0
                                         ? 'bg-red-100'
-                                        : Number(item.profit) <= 0
+                                        : Number(item.lastProfit) <= 0
                                         ? 'bg-green-100'
                                         : ''
                                 }`}
                             >
                                 <TableCell>{item.itemName}</TableCell>
+                                <TableCell>{item.lastPrice}</TableCell>
                                 <TableCell>
                                     {Number(item.details?.length) > 1 &&
                                         item.details?.map(detail => {
@@ -276,6 +323,61 @@ const Summary = ({ stockList }: Props) => {
                                         })}
                                     {item.amount?.toLocaleString()}
                                 </TableCell>
+                                <TableCell align="right">
+                                    {item.lastDollar
+                                        ? Number(item.lastDollar.toFixed()).toLocaleString()
+                                        : ''}
+                                </TableCell>
+                                <TableCell align="right">
+                                    {item.lastProfit
+                                        ? Number(item.lastProfit.toFixed()).toLocaleString()
+                                        : ''}
+                                </TableCell>
+                            </TableRow>
+                        );
+                    })}
+                </TableBody>
+            </Table>
+
+            <h2 className="mt-12 text-xl text-blue-500">已實現</h2>
+            <Table stickyHeader>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>名稱</TableCell>
+                        <TableCell>目前價格</TableCell>
+                        <TableCell>購買日</TableCell>
+                        <TableCell>購買價格</TableCell>
+                        <TableCell>購買成本</TableCell>
+                        <TableCell>購買股數</TableCell>
+                        <TableCell>售出日</TableCell>
+                        <TableCell>售出價格</TableCell>
+                        <TableCell>淨收</TableCell>
+                        <TableCell align="right">
+                            盈虧
+                            <br />
+                            {resultList.totalProfit ? resultList.totalProfit?.toLocaleString() : ''}
+                        </TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {resultList?.settleList?.map((item, index) => {
+                        return (
+                            <TableRow
+                                key={index}
+                                className={`${
+                                    Number(item.profit) > 0
+                                        ? 'bg-red-100'
+                                        : Number(item.profit) <= 0
+                                        ? 'bg-green-100'
+                                        : ''
+                                }`}
+                            >
+                                <TableCell>{item.itemName}</TableCell>
+                                <TableCell>{navList?.[item.itemCode]?.price}</TableCell>
+                                <TableCell>{formatDate(item.tradeDate)}</TableCell>
+                                <TableCell align="right"> {item.price}</TableCell>
+                                <TableCell align="right">{item.dollar?.toLocaleString()}</TableCell>
+                                <TableCell align="right">{item.amount?.toLocaleString()}</TableCell>
                                 <TableCell>{formatDate(item.sellDate || '')}</TableCell>
                                 <TableCell align="right">{item.sellPrice}</TableCell>
                                 <TableCell align="right">
@@ -286,24 +388,6 @@ const Summary = ({ stockList }: Props) => {
                         );
                     })}
                 </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TableCell colSpan={2} align="right">
-                            <div>目前成本</div>
-                            {total.lastTotal?.toLocaleString()}
-                        </TableCell>
-                        <TableCell colSpan={2} align="right">
-                            {total.buyTotal?.toLocaleString()}
-                        </TableCell>
-                        <TableCell colSpan={4} align="right">
-                            {total.sellTotal?.toLocaleString()}
-                        </TableCell>
-                        <TableCell align="right">
-                            <div>目前獲利</div>
-                            {total.profitTotal?.toLocaleString()}
-                        </TableCell>
-                    </TableRow>
-                </TableFooter>
             </Table>
         </>
     );

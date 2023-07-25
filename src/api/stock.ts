@@ -2,6 +2,9 @@ import req from '@/config/request';
 import { base } from '@/config/apiPath';
 import SnackbarUtils from '@/utils/snackBar';
 
+import { store } from '@/app/store';
+import { updateNavList } from '@/app/stock';
+
 // 新增股票項目
 export type StockItemParams = {
     itemCode: string;
@@ -13,7 +16,7 @@ export type StockItemParams = {
     note: string;
     _id?: string;
     tradeDateString?: string;
-    itemName?: string;
+    itemName: string;
 };
 export const apiAddStockItem = async (params: StockItemParams) => {
     const res = await req(`${base}/stock/item`, { method: 'POST', body: JSON.stringify(params) });
@@ -47,6 +50,14 @@ export const apiGetStockList = async (params?: ListParams) => {
 export const apiGetStockTable = async () => {
     const res = await req(`${base}/stock/tableName`);
     if (res?.code === 200) return res.data;
+};
+
+// 取得所有淨值清單
+export const apiGetNavList = async () => {
+    const res = await req(`${base}/stock/nav/list`);
+    if (res?.code === 200) {
+        store.dispatch(updateNavList(res.data));
+    }
 };
 
 // 編輯股票項目
