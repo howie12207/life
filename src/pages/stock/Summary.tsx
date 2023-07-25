@@ -254,6 +254,7 @@ const Summary = ({ stockList }: Props) => {
                                 ? Number(resultList.currentProfit?.toFixed()).toLocaleString()
                                 : ''}
                         </TableCell>
+                        <TableCell>目前報酬率</TableCell>
                     </TableRow>
                 </TableHead>
 
@@ -333,6 +334,11 @@ const Summary = ({ stockList }: Props) => {
                                         ? Number(item.lastProfit.toFixed()).toLocaleString()
                                         : ''}
                                 </TableCell>
+                                <TableCell>
+                                    {item.lastProfit
+                                        ? `${((item.lastProfit / item.dollar) * 100).toFixed(2)}%`
+                                        : ''}
+                                </TableCell>
                             </TableRow>
                         );
                     })}
@@ -357,6 +363,7 @@ const Summary = ({ stockList }: Props) => {
                             <br />
                             {resultList.totalProfit ? resultList.totalProfit?.toLocaleString() : ''}
                         </TableCell>
+                        <TableCell>報酬率</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -384,6 +391,17 @@ const Summary = ({ stockList }: Props) => {
                                     {item.sellDollar?.toLocaleString()}
                                 </TableCell>
                                 <TableCell align="right">{item.profit?.toLocaleString()}</TableCell>
+                                <TableCell>
+                                    {((item.profit / item.dollar) * 100).toFixed(2)}%
+                                    <br />
+                                    {(
+                                        ((item.profit / item.dollar) * 100 * 365) /
+                                        ((new Date(item.sellDate).valueOf() -
+                                            new Date(item.tradeDate).valueOf()) /
+                                            86400000)
+                                    ).toFixed(2)}
+                                    %
+                                </TableCell>
                             </TableRow>
                         );
                     })}
