@@ -1,22 +1,42 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useAppSelector } from '@/app/hook';
 import { formatDate } from '@/utils/format';
 import { toXLSX } from '@/utils/toExcel';
 import { apiGetNavList, StockListRes } from '@/api/stock';
 
-import { Button, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { CSSTransition, SwitchTransition } from 'react-transition-group';
+import {
+    Button,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    TableBody,
+    Skeleton,
+    CircularProgress,
+} from '@mui/material';
 import { Download } from '@mui/icons-material';
 
 type Props = {
     stockList: StockListRes['list'];
+    isLoadingStockList: boolean;
 };
 
 const FEE = 0.995575;
 
-const Summary = ({ stockList }: Props) => {
+const Summary = ({ stockList, isLoadingStockList }: Props) => {
+    const nodeRef = useRef(null);
+
+    // Nav List
     const navList = useAppSelector(state => state.stock.navList);
+    const [isLoadingNavList, setIsLoadingNavList] = useState(false);
     useEffect(() => {
-        if (Object.keys(navList).length === 0) apiGetNavList();
+        const getNavList = async () => {
+            setIsLoadingNavList(true);
+            await apiGetNavList();
+            setIsLoadingNavList(false);
+        };
+        if (Object.keys(navList).length === 0) getNavList();
     }, [navList]);
 
     // Download
@@ -277,111 +297,151 @@ const Summary = ({ stockList }: Props) => {
             </div>
 
             <h2 className="mt-4 text-xl text-blue-500">庫存</h2>
-            <Table stickyHeader>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>名稱</TableCell>
-                        <TableCell>目前價格</TableCell>
-                        <TableCell>購買日</TableCell>
-                        <TableCell>購買價格</TableCell>
-                        <TableCell align="right">
-                            購買成本
-                            <br />
-                            {resultList.totalLast
-                                ? Number(resultList.totalLast?.toFixed()).toLocaleString()
-                                : ''}
-                        </TableCell>
-                        <TableCell>購買股數</TableCell>
-                        <TableCell>目前淨收</TableCell>
-                        <TableCell align="right">
-                            目前盈虧
-                            <br />
-                            {resultList.currentProfit
-                                ? Number(resultList.currentProfit?.toFixed()).toLocaleString()
-                                : ''}
-                        </TableCell>
-                        <TableCell>目前報酬率</TableCell>
-                    </TableRow>
-                </TableHead>
-
-                <TableBody>
-                    {resultList?.inStockList?.map((item, index) => {
-                        return (
-                            <TableRow
-                                key={index}
-                                className={`${
-                                    Number(item.lastProfit) > 0
-                                        ? 'bg-red-100'
-                                        : Number(item.lastProfit) <= 0
-                                        ? 'bg-green-100'
-                                        : ''
-                                }`}
-                            >
-                                <TableCell>{item.itemName}</TableCell>
-                                <TableCell>{item.lastPrice}</TableCell>
-                                <TableCell>
-                                    {Number(item.details?.length) > 1 &&
-                                        item.details?.map((detail, detailIndex) => {
-                                            return (
-                                                <div key={detailIndex}>
-                                                    {formatDate(detail.tradeDate)}
-                                                </div>
-                                            );
-                                        })}
-                                    {formatDate(item.tradeDate)}
+            <SwitchTransition>
+                <CSSTransition
+                    key={isLoadingStockList ? '1' : isLoadingNavList ? '2' : '3'}
+                    nodeRef={nodeRef}
+                    timeout={300}
+                    classNames="page"
+                    unmountOnExit
+                >
+                    <Table stickyHeader>
+                        <TableHead>
+                            <TableRow ref={nodeRef}>
+                                <TableCell>名稱</TableCell>
+                                <TableCell>目前價格</TableCell>
+                                <TableCell>購買日</TableCell>
+                                <TableCell>購買價格</TableCell>
+                                <TableCell align="right">
+                                    購買成本
                                     <br />
-                                </TableCell>
-                                <TableCell align="right">
-                                    {Number(item.details?.length) > 1 &&
-                                        item.details?.map((detail, detailIndex) => {
-                                            return <div key={detailIndex}>{detail.price}</div>;
-                                        })}
-                                    {item.price}
-                                    <br />
-                                </TableCell>
-                                <TableCell align="right">
-                                    {Number(item.details?.length) > 1 &&
-                                        item.details?.map((detail, detailIndex) => {
-                                            return (
-                                                <div key={detailIndex}>
-                                                    {detail.dollar?.toLocaleString()}
-                                                </div>
-                                            );
-                                        })}
-                                    {item.dollar?.toLocaleString()}
-                                    <br />
-                                </TableCell>
-                                <TableCell align="right">
-                                    {Number(item.details?.length) > 1 &&
-                                        item.details?.map((detail, detailIndex) => {
-                                            return (
-                                                <div key={detailIndex}>
-                                                    {detail.amount?.toLocaleString()}
-                                                </div>
-                                            );
-                                        })}
-                                    {item.amount?.toLocaleString()}
-                                </TableCell>
-                                <TableCell align="right">
-                                    {item.lastDollar
-                                        ? Number(item.lastDollar.toFixed()).toLocaleString()
+                                    {resultList.totalLast
+                                        ? Number(resultList.totalLast?.toFixed()).toLocaleString()
                                         : ''}
                                 </TableCell>
+                                <TableCell>購買股數</TableCell>
+                                <TableCell>目前淨收</TableCell>
                                 <TableCell align="right">
-                                    {item.lastProfit
-                                        ? Number(item.lastProfit.toFixed()).toLocaleString()
-                                        : ''}
+                                    目前盈虧
+                                    <br />
+                                    {resultList.currentProfit ? (
+                                        Number(resultList.currentProfit?.toFixed()).toLocaleString()
+                                    ) : (
+                                        <Skeleton />
+                                    )}
                                 </TableCell>
-                                <TableCell>
-                                    {item.lastProfit
-                                        ? `${((item.lastProfit / item.dollar) * 100).toFixed(2)}%`
-                                        : ''}
-                                </TableCell>
+                                <TableCell>目前報酬率</TableCell>
                             </TableRow>
-                        );
-                    })}
-                </TableBody>
-            </Table>
+                        </TableHead>
+
+                        <TableBody>
+                            {isLoadingStockList ? (
+                                <TableRow ref={nodeRef}>
+                                    <TableCell colSpan={9} align="center" height={'600px'}>
+                                        <CircularProgress sx={{ color: '#005598' }} size={60} />
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                resultList?.inStockList?.map((item, index) => {
+                                    return (
+                                        <TableRow
+                                            ref={nodeRef}
+                                            key={index}
+                                            className={`${
+                                                Number(item.lastProfit) > 0
+                                                    ? 'bg-red-100'
+                                                    : Number(item.lastProfit) <= 0
+                                                    ? 'bg-green-100'
+                                                    : ''
+                                            }`}
+                                        >
+                                            <TableCell>{item.itemName}</TableCell>
+                                            <TableCell>
+                                                {isLoadingNavList ? <Skeleton /> : item.lastPrice}
+                                            </TableCell>
+                                            <TableCell>
+                                                {Number(item.details?.length) > 1 &&
+                                                    item.details?.map((detail, detailIndex) => {
+                                                        return (
+                                                            <div key={detailIndex}>
+                                                                {formatDate(detail.tradeDate)}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                {formatDate(item.tradeDate)}
+                                                <br />
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {Number(item.details?.length) > 1 &&
+                                                    item.details?.map((detail, detailIndex) => {
+                                                        return (
+                                                            <div key={detailIndex}>
+                                                                {detail.price}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                {item.price}
+                                                <br />
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {Number(item.details?.length) > 1 &&
+                                                    item.details?.map((detail, detailIndex) => {
+                                                        return (
+                                                            <div key={detailIndex}>
+                                                                {detail.dollar?.toLocaleString()}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                {item.dollar?.toLocaleString()}
+                                                <br />
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {Number(item.details?.length) > 1 &&
+                                                    item.details?.map((detail, detailIndex) => {
+                                                        return (
+                                                            <div key={detailIndex}>
+                                                                {detail.amount?.toLocaleString()}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                {item.amount?.toLocaleString()}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {isLoadingNavList ? (
+                                                    <Skeleton />
+                                                ) : (
+                                                    Number(
+                                                        item.lastDollar.toFixed()
+                                                    ).toLocaleString()
+                                                )}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {isLoadingNavList ? (
+                                                    <Skeleton />
+                                                ) : (
+                                                    Number(
+                                                        item.lastProfit.toFixed()
+                                                    ).toLocaleString()
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {isLoadingNavList ? (
+                                                    <Skeleton />
+                                                ) : (
+                                                    `${(
+                                                        (item.lastProfit / item.dollar) *
+                                                        100
+                                                    ).toFixed(2)}%`
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })
+                            )}
+                        </TableBody>
+                    </Table>
+                </CSSTransition>
+            </SwitchTransition>
 
             <h2 className="mt-12 text-xl text-blue-500">已實現</h2>
             <Table stickyHeader>
