@@ -1,9 +1,11 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAppSelector } from '@/app/hook';
 import { formatDate } from '@/utils/format';
+import { toXLSX } from '@/utils/toExcel';
 import { apiGetNavList, StockListRes } from '@/api/stock';
 
-import { Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { Button, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { Download } from '@mui/icons-material';
 
 type Props = {
     stockList: StockListRes['list'];
@@ -16,6 +18,44 @@ const Summary = ({ stockList }: Props) => {
     useEffect(() => {
         if (Object.keys(navList).length === 0) apiGetNavList();
     }, [navList]);
+
+    // Download
+    const [isLoadingDownload, setIsLoadingDownload] = useState(false);
+    const download = async () => {
+        setIsLoadingDownload(true);
+        const result: Array<{ [key: string]: string | number }> = [];
+        resultList.inStockList.forEach(item => {
+            item.details.forEach(detail => {
+                result.push({
+                    代碼: detail.itemCode,
+                    名稱: detail.itemName,
+                    購買日: formatDate(detail.tradeDate),
+                    購買價格: detail.price,
+                    購買成本: detail.dollar,
+                    購買股數: detail.amount,
+                });
+            });
+        });
+        resultList.settleList.forEach(item => {
+            result.push({
+                代碼: item.itemCode,
+                名稱: item.itemName,
+                購買日: formatDate(item.tradeDate),
+                購買價格: item.price,
+                購買成本: item.dollar,
+                購買股數: item.amount,
+                售出日: formatDate(item.sellDate),
+                售出價格: item.sellPrice,
+                淨收: item.sellDollar,
+                盈虧: item.sellDollar - item.dollar,
+            });
+        });
+        toXLSX(result, {
+            sheetName: '股票清單',
+            fileName: `股票清單${formatDate(new Date())}`,
+        });
+        setIsLoadingDownload(false);
+    };
 
     type InStockItem = {
         itemCode: string;
@@ -229,7 +269,13 @@ const Summary = ({ stockList }: Props) => {
 
     return (
         <>
-            {/* TODO 補下載功能 */}
+            <div className="my-2 text-right">
+                <Button variant="contained" onClick={download} disabled={isLoadingDownload}>
+                    <Download className="!text-base" />
+                    下載
+                </Button>
+            </div>
+
             <h2 className="mt-4 text-xl text-blue-500">庫存</h2>
             <Table stickyHeader>
                 <TableHead>
@@ -275,12 +321,11 @@ const Summary = ({ stockList }: Props) => {
                                 <TableCell>{item.lastPrice}</TableCell>
                                 <TableCell>
                                     {Number(item.details?.length) > 1 &&
-                                        item.details?.map(detail => {
+                                        item.details?.map((detail, detailIndex) => {
                                             return (
-                                                <>
+                                                <div key={detailIndex}>
                                                     {formatDate(detail.tradeDate)}
-                                                    <br />
-                                                </>
+                                                </div>
                                             );
                                         })}
                                     {formatDate(item.tradeDate)}
@@ -288,25 +333,19 @@ const Summary = ({ stockList }: Props) => {
                                 </TableCell>
                                 <TableCell align="right">
                                     {Number(item.details?.length) > 1 &&
-                                        item.details?.map(detail => {
-                                            return (
-                                                <>
-                                                    {detail.price}
-                                                    <br />
-                                                </>
-                                            );
+                                        item.details?.map((detail, detailIndex) => {
+                                            return <div key={detailIndex}>{detail.price}</div>;
                                         })}
                                     {item.price}
                                     <br />
                                 </TableCell>
                                 <TableCell align="right">
                                     {Number(item.details?.length) > 1 &&
-                                        item.details?.map(detail => {
+                                        item.details?.map((detail, detailIndex) => {
                                             return (
-                                                <>
+                                                <div key={detailIndex}>
                                                     {detail.dollar?.toLocaleString()}
-                                                    <br />
-                                                </>
+                                                </div>
                                             );
                                         })}
                                     {item.dollar?.toLocaleString()}
@@ -314,12 +353,11 @@ const Summary = ({ stockList }: Props) => {
                                 </TableCell>
                                 <TableCell align="right">
                                     {Number(item.details?.length) > 1 &&
-                                        item.details?.map(detail => {
+                                        item.details?.map((detail, detailIndex) => {
                                             return (
-                                                <>
+                                                <div key={detailIndex}>
                                                     {detail.amount?.toLocaleString()}
-                                                    <br />
-                                                </>
+                                                </div>
                                             );
                                         })}
                                     {item.amount?.toLocaleString()}
