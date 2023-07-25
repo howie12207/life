@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, DragEvent } from 'react';
 import { apiGetDiaryList, apiEditDiaryItem, DiaryItemParams } from '@/api/diary';
-import { formatDate } from '@/utils/format';
+import { formatDate, toStartTime } from '@/utils/format';
 import { toXLSX } from '@/utils/toExcel';
 
 import { Button } from '@mui/material';
@@ -160,7 +160,7 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
 
     return (
         <>
-            <div className="my-1 flex items-center justify-center">
+            <div className="my-4 flex items-center justify-center">
                 <KeyboardArrowLeft
                     className="cursor-pointer"
                     onClick={() => changeMonth('previous')}
@@ -170,6 +170,14 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
                     className="cursor-pointer"
                     onClick={() => changeMonth('next')}
                 />
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => setDisplayDate(now)}
+                    size="small"
+                >
+                    今天
+                </Button>
                 <Button
                     variant="contained"
                     onClick={download}
@@ -181,11 +189,15 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
                     下載
                 </Button>
             </div>
-            <section className="grid h-[calc(100vh-3.5rem-2rem)] grid-cols-7 overflow-hidden text-xs sm:text-base">
+            <section className="grid h-[calc(100vh-5rem-2rem)] grid-cols-7 overflow-hidden text-xs sm:text-base">
                 {displayList.map((item, index) => {
                     return (
                         <div
-                            className={`border p-1`}
+                            className={`border p-1 ${
+                                toStartTime(now).valueOf() === item.time
+                                    ? 'border-red-500 text-red-500'
+                                    : ''
+                            }`}
                             key={item.time}
                             onClick={() =>
                                 handleEditData({
