@@ -9,6 +9,8 @@ import {
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import Cookies from 'js-cookie';
 import { setNavigate } from '@/utils/navigateHelper';
+import { urlBase64ToUint8Array } from './utils/baseFunc';
+import { apiAddSubscription } from './api/subscribe';
 
 import { useAppDispatch } from '@/app/hook';
 import { updateToken } from '@/app/base';
@@ -125,6 +127,34 @@ const App = () => {
         ],
         { basename: import.meta.env.VITE_BASE_URL }
     );
+
+    // TODO
+    const swFunction = () => {
+        const hasGranted = Notification.permission === 'granted';
+        if (!hasGranted) Notification.requestPermission(() => ({}));
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker
+                .register('/sw.js')
+                .then(registration => {
+                    return registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(import.meta.env.VITE_VAPID_KEY),
+                    });
+                })
+                .then(pushSubscription => {
+                    if (!hasGranted) {
+                        apiAddSubscription(pushSubscription);
+                        // window.alert(pushSubscription);
+                    }
+                    console.log(pushSubscription);
+                    return pushSubscription;
+                });
+        }
+    };
+    useEffect(() => {
+        swFunction();
+    }, []);
 
     return <RouterProvider router={router} />;
 };

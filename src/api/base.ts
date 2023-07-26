@@ -30,3 +30,8 @@ export const apiDownloadDb = async () => {
         return res;
     } else return false;
 };
+
+// TODO
+export const apiWebPush = async () => {
+    await req(`${base}/webPush/item`, { method: 'POST' });
+};
