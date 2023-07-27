@@ -135,7 +135,7 @@ const App = () => {
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker
-                .register('/sw.js')
+                .register(`${import.meta.env.VITE_DOMAIN}${import.meta.env.VITE_BASE_URL}/sw.js`)
                 .then(registration => {
                     return registration.pushManager.subscribe({
                         userVisibleOnly: true,
