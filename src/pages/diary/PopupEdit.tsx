@@ -2,10 +2,12 @@ import { useState, useRef, Ref, useEffect, useMemo } from 'react';
 import { useAppDispatch } from '@/app/hook';
 import { updateLoading } from '@/app/base';
 import { useSnackbar } from 'notistack';
-import { formatDate } from '@/utils/format';
+import { formatDate, toStartTime } from '@/utils/format';
 
 import { Modal, Fade, Button, RadioGroup, Radio, FormControlLabel } from '@mui/material';
 import { BaseInput, BaseInputType } from '@/components/baseInput/BaseInput';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 import { isRequired } from '@/utils/validate';
 import {
@@ -36,9 +38,14 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
 
     const [type, setType] = useState('');
 
+    const [selectedTime, setSelectedTime] = useState(toStartTime(new Date()));
+
     useEffect(() => {
         setContent(editData?.content || '');
         setType(String(editData?.type || ''));
+        setSelectedTime(
+            new Date(editData?.remindTime || new Date(editData?.diaryTime || Date.now()))
+        );
     }, [editData]);
 
     // submit
@@ -50,6 +57,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
             diaryTime: editData?.diaryTime || Date.now(),
             content,
             type,
+            remindTime: new Date(selectedTime).valueOf(),
         };
         const res =
             popup === 'add'
@@ -101,7 +109,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                             autoFocus
                             enter={submit}
                         />
-                        <label>類型</label>
+                        <label className="text-gray-700">類型</label>
                         <RadioGroup
                             className="!flex-row"
                             value={type}
@@ -123,9 +131,9 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                                 label="健行"
                             />
                             <FormControlLabel
-                                value={'todo'}
+                                value={'remind'}
                                 control={<Radio size="small" />}
-                                label="待辦"
+                                label="提醒"
                             />
                             <FormControlLabel
                                 value={'sick'}
@@ -133,6 +141,21 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                                 label="不適"
                             />
                         </RadioGroup>
+
+                        {type === 'remind' && (
+                            <>
+                                <label className="mb-1 block text-gray-700">提醒時間</label>
+                                <DatePicker
+                                    selected={selectedTime}
+                                    onChange={date => setSelectedTime(date as Date)}
+                                    showTimeSelect
+                                    showTimeSelectOnly
+                                    timeIntervals={30}
+                                    dateFormat="HH:mm"
+                                    className={`h-10 w-full rounded border px-3 outline-none transition`}
+                                />
+                            </>
+                        )}
                     </div>
 
                     <div className="flex h-auto justify-evenly pt-2">

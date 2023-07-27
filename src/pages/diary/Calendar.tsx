@@ -13,6 +13,7 @@ type Props = {
         diaryTime: number;
         content: string;
         type: string;
+        remindTime: number;
     }) => void;
     getDiaryList: () => void;
 };
@@ -82,6 +83,7 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
                 diaryTime: item.diaryTime,
                 content: item.content,
                 type: item.type,
+                remindTime: item.remindTime,
             });
             setDisplayList(newList);
         });
@@ -147,19 +149,23 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
     const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         if (Object.keys(dragItem).length === 0) return;
-        const res = await apiEditDiaryItem({
-            _id: dragItem._id,
-            diaryTime: Number(event.currentTarget?.dataset?.timestamp as string),
+        const newTime = Number(event.currentTarget?.dataset?.timestamp as string);
+        const params: DiaryItemParams = {
+            _id: dragItem._id || '',
+            diaryTime: newTime,
             content: dragItem.content,
             type: dragItem.type,
-        });
+        };
+        if (dragItem.type === 'remind')
+            params.remindTime = newTime - (dragItem.diaryTime - (dragItem.remindTime || 0));
+        const res = await apiEditDiaryItem(params);
         if (res) getDiaryList();
     };
     const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
     };
-    const handleDragStart = ({ _id, content, type, diaryTime }: DiaryItemParams) => {
-        setDragItem({ _id, content, type, diaryTime });
+    const handleDragStart = ({ _id, content, type, diaryTime, remindTime }: DiaryItemParams) => {
+        setDragItem({ _id, content, type, diaryTime, remindTime });
     };
 
     return (
@@ -209,6 +215,7 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
                                     diaryTime: item.time,
                                     content: '',
                                     type: '',
+                                    remindTime: item.time,
                                 })
                             }
                             onDrop={handleDrop}
@@ -234,7 +241,7 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
                                                 ? 'bg-blue-100'
                                                 : text.type === 'sick'
                                                 ? 'bg-purple-100'
-                                                : text.type === 'todo'
+                                                : text.type === 'remind'
                                                 ? 'bg-yellow-100'
                                                 : ''
                                         }`}
@@ -246,6 +253,7 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
                                                 diaryTime: item.time,
                                                 content: text.content,
                                                 type: text.type,
+                                                remindTime: text.remindTime || item.time,
                                             });
                                         }}
                                         draggable
@@ -255,6 +263,7 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
                                                 diaryTime: item.time,
                                                 content: text.content,
                                                 type: text.type,
+                                                remindTime: text.remindTime,
                                             })
                                         }
                                     >

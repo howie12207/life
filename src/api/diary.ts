@@ -8,6 +8,7 @@ export type DiaryItemParams = {
     diaryTime: number;
     content: string;
     type: string;
+    remindTime?: number;
 };
 export const apiAddDiaryItem = async (params: DiaryItemParams) => {
     const res = await req(`${base}/diary/item`, { method: 'POST', body: JSON.stringify(params) });
