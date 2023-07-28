@@ -32,3 +32,9 @@ export const formatDate = (time: Date | number | string) => {
     time = new Date(time);
     return (formatDateTime(time) as string)?.slice(0, 10);
 };
+
+export const formatTime = (time: Date | number | string) => {
+    if (!time) return time;
+    time = new Date(time);
+    return (formatDateTime(time) as string)?.slice(11, 16);
+};

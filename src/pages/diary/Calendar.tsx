@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, DragEvent } from 'react';
 import { apiGetDiaryList, apiEditDiaryItem, DiaryItemParams } from '@/api/diary';
-import { formatDate, toStartTime } from '@/utils/format';
+import { formatDate, formatTime, toStartTime } from '@/utils/format';
 import { toXLSX } from '@/utils/toExcel';
 
 import { Button } from '@mui/material';
@@ -231,7 +231,9 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
                             {item.content?.map((text: DiaryItemParams, index: number) => {
                                 return (
                                     <div
-                                        title={text.content}
+                                        title={`${formatTime(text.remindTime || '')} ${
+                                            text.content
+                                        }`}
                                         className={`mb-1 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded p-1 ${
                                             text.type === 'out'
                                                 ? 'bg-green-100'

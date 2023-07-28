@@ -150,7 +150,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                                     onChange={date => setSelectedTime(date as Date)}
                                     showTimeSelect
                                     showTimeSelectOnly
-                                    timeIntervals={30}
+                                    timeIntervals={60}
                                     dateFormat="HH:mm"
                                     className={`h-10 w-full rounded border px-3 outline-none transition`}
                                 />
