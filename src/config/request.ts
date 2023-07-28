@@ -1,6 +1,7 @@
 import { navigateTo } from '@/utils/navigateHelper';
 import SnackbarUtils from '@/utils/snackBar';
 import { store } from '@/app/store';
+import { clearToken } from '@/app/base';
 
 type RequestParams = {
     method?: string;
@@ -99,6 +100,7 @@ const request = async (
         // 401 403
         if (res?.status === 401 || res?.status === 403) {
             if (!cancelMsg) SnackbarUtils.error('登入逾時，請重新登入');
+            store.dispatch(clearToken());
             // setTimeout(() => {
             //     const homeUrl = import.meta.env.DEV
             //         ? `${import.meta.env.VITE_DOMAIN}/`

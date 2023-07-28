@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, DragEvent } from 'react';
+import { useAppSelector } from '@/app/hook';
 import { apiGetDiaryList, apiEditDiaryItem, DiaryItemParams } from '@/api/diary';
 import { formatDate, formatTime, toStartTime } from '@/utils/format';
 import { toXLSX } from '@/utils/toExcel';
@@ -23,6 +24,8 @@ type DisplayItem = {
 };
 
 const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
+    const isLogin = useAppSelector(state => state.base.token);
+
     const now = new Date();
     const [displayDate, setDisplayDate] = useState(now);
     const [monthStart, setMonthStart] = useState(0);
@@ -148,7 +151,7 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
     const [dragItem, setDragItem] = useState({} as DiaryItemParams);
     const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        if (Object.keys(dragItem).length === 0) return;
+        if (!isLogin || Object.keys(dragItem).length === 0) return;
         const newTime = Number(event.currentTarget?.dataset?.timestamp as string);
         const params: DiaryItemParams = {
             _id: dragItem._id || '',
