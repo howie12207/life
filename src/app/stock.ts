@@ -5,13 +5,17 @@ export const stockSlice = createSlice({
     initialState: {
         stockTable: {} as { [key: string]: { name: string } },
         navList: {} as { [key: string]: { price: string } },
+        twseDate: '',
+        tpexDate: '',
     },
     reducers: {
         updateStockTable(state, action) {
             state.stockTable = action.payload;
         },
         updateNavList(state, action) {
-            state.navList = action.payload;
+            state.navList = action.payload.list;
+            state.twseDate = action.payload.twseDate.slice(5);
+            state.tpexDate = action.payload.tpexDate.slice(5);
         },
     },
 });

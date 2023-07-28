@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { useAppSelector } from '@/app/hook';
-import { formatDate } from '@/utils/format';
+import { formatDate, formatDateTime } from '@/utils/format';
 import { toXLSX } from '@/utils/toExcel';
 import { apiGetNavList, StockListRes } from '@/api/stock';
 
@@ -26,6 +26,8 @@ const FEE = 0.995575;
 
 const Summary = ({ stockList, isLoadingStockList }: Props) => {
     const nodeRef = useRef(null);
+    const twseDate = useAppSelector(state => state.stock.twseDate);
+    const tpexDate = useAppSelector(state => state.stock.tpexDate);
 
     // Nav List
     const navList = useAppSelector(state => state.stock.navList);
@@ -296,7 +298,15 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                 </Button>
             </div>
 
-            <h2 className="mt-4 text-xl text-blue-500">庫存</h2>
+            <div className="mt-4 flex items-center justify-between">
+                <h2 className="text-xl text-blue-500">庫存</h2>
+                {twseDate && (
+                    <span>
+                        {String(formatDateTime(twseDate)).slice(5, -3)} /{' '}
+                        {String(formatDateTime(tpexDate)).slice(5, -3)}
+                    </span>
+                )}
+            </div>
             <SwitchTransition>
                 <CSSTransition
                     key={isLoadingStockList ? '1' : isLoadingNavList ? '2' : '3'}
