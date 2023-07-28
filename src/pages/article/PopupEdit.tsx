@@ -198,7 +198,9 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
                             defaultValue={content}
                             onChange={setContent}
                             onBlur={blurQuill}
-                            className={quillBlur && !contentIsValid ? 'error-item' : ''}
+                            className={`ql-editor ${
+                                quillBlur && !contentIsValid ? 'error-item' : ''
+                            }`}
                             modules={{
                                 toolbar: {
                                     container: [
