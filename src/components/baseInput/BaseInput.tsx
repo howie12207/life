@@ -24,6 +24,7 @@ type BaseInputProps = {
     autoFocus?: boolean;
     enter?: () => void;
     onBlur?: () => unknown;
+    className?: string;
 };
 export type BaseInputType = {
     validateNow: () => boolean;
@@ -57,6 +58,7 @@ const Input = (
         autoFocus = false,
         enter,
         onBlur,
+        className = '',
     }: BaseInputProps,
     ref: Ref<BaseInputType>
 ) => {
@@ -128,7 +130,9 @@ const Input = (
     });
 
     return (
-        <div className={`max-w-full flex-1 ${!isValid && isBlured ? 'error-item' : ''}`}>
+        <div
+            className={`max-w-full flex-1 ${!isValid && isBlured ? 'error-item' : ''} ${className}`}
+        >
             <>
                 {label && (
                     <label htmlFor={id} className="mb-1 inline-block text-gray-700">

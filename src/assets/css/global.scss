@@ -101,3 +101,8 @@ body {
 .MuiSkeleton-root.skeleton-custom {
     @apply scale-100 rounded-none;
 }
+
+// datePicker
+#root .react-datepicker-popper {
+    z-index: 3;
+}

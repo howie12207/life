@@ -5,6 +5,7 @@ import { updateStockTable } from '@/app/stock';
 import { useSnackbar } from 'notistack';
 import { toStartTime } from '@/utils/format';
 import { apiGetStockTable } from '@/api/stock';
+import { BUY_TOTAL_CHARGE, SELL_TOTAL_CHARGE } from '@/config/constant';
 
 import { Modal, Fade, Button, RadioGroup, Radio, FormControlLabel } from '@mui/material';
 import { BaseDatePicker } from '@/components/baseDatePicker/BaseDatePicker';
@@ -57,6 +58,11 @@ const PopupEdit = ({ popup, setPopup, getStockList, editData, setEditData }: Pro
     const [amount, setAmount] = useState('');
     const [amountIsValid, setAmountIsValid] = useState(false);
     const amountRules = [{ validate: onlyNumber, message: '請輸入正確股數' }];
+    const amountBlur = () => {
+        if (itemType === 'buy')
+            setDollar(Math.floor(Number(price) * Number(amount) * BUY_TOTAL_CHARGE).toString());
+        else setDollar(Math.floor(Number(price) * Number(amount) * SELL_TOTAL_CHARGE).toString());
+    };
 
     const dollarRef: Ref<BaseInputType> = useRef(null);
     const [dollar, setDollar] = useState('');
@@ -242,6 +248,7 @@ const PopupEdit = ({ popup, setPopup, getStockList, editData, setEditData }: Pro
                             rules={amountRules}
                             placeholder="請輸入股數"
                             enter={submit}
+                            onBlur={amountBlur}
                         />
                         <BaseInput
                             ref={dollarRef}
