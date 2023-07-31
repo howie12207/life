@@ -19,14 +19,19 @@ import {
 import { Add, Edit, Download } from '@mui/icons-material';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import PopupEdit from './PopupEdit';
-// import { BaseInputType } from '@/components/baseInput/BaseInput';
-// import { BaseDateRange } from '@/components/baseDateRange/BaseDateRange';
+import SearchBar from './SearchBar';
 
 const Cost = () => {
     const isLogin = useAppSelector(state => state.base.token);
     const nodeRef = useRef(null);
 
     const [isLoadingData, setIsLoadingData] = useState(true);
+
+    // Search
+    const [costStartDate, setCostStartDate] = useState<null | Date>(null);
+    const [costEndDate, setCostEndDate] = useState<null | Date>(null);
+    const [searchName, setSearchName] = useState('');
+    const [searchSwitch, setSearchSwitch] = useState(false);
 
     // Page
     const [totalCount, setTotalCount] = useState(0);
@@ -45,9 +50,9 @@ const Cost = () => {
         Array.from({ length: 15 }, () => ({})) as CostListRes['list']
     );
     const getCostList = useCallback(
-        async ({ page, size }: { page?: number; size?: number } = {}) => {
+        async ({ page, size }: { page?: number; size?: number; searchName?: string } = {}) => {
             setIsLoadingData(true);
-            const params: { [key: string]: number } = {
+            const params: { [key: string]: number | string } = {
                 page: page ?? nowPage,
                 size: size ?? perPage,
             };
@@ -55,6 +60,9 @@ const Cost = () => {
                 delete params.page;
                 delete params.size;
             }
+            if (searchName) params.itemName = searchName;
+            if (costStartDate) params.costStartDate = costStartDate.valueOf();
+            if (costEndDate) params.costEndDate = costEndDate.valueOf();
             const res = await apiGetCostList(params);
             if (res) {
                 setCostList(res.list);
@@ -62,17 +70,11 @@ const Cost = () => {
             }
             setIsLoadingData(false);
         },
-        [nowPage, perPage]
+        [nowPage, perPage, searchSwitch]
     );
     useEffect(() => {
         getCostList();
     }, [getCostList]);
-
-    // Date range 暫無使用TODO
-    // const dateRangeRef: Ref<BaseInputType> = useRef(null);
-    // const [dateRange, setDateRange] = useState([new Date(), new Date()] as Array<Date | null>);
-    // const [dateRangeIsValid, setDateRangeIsValid] = useState(false);
-    // const dateRangeRules = [{ validate: isRequired, message: '請選擇日期' }];
 
     // Download
     const [isLoadingDownload, setIsLoadingDownload] = useState(false);
@@ -231,18 +233,16 @@ const Cost = () => {
                 </Button>
             </div>
 
-            {/* <div className="my-4 sm:text-right">
-                <BaseDateRange
-                    ref={dateRangeRef}
-                    label="花費日期區間"
-                    value={dateRange}
-                    setValue={setDateRange}
-                    isValid={dateRangeIsValid}
-                    setIsValid={setDateRangeIsValid}
-                    rules={dateRangeRules}
-                    placeholder="請選擇花費日期"
-                />
-            </div> */}
+            <SearchBar
+                searchName={searchName}
+                setSearchName={setSearchName}
+                costStartDate={costStartDate}
+                setCostStartDate={setCostStartDate}
+                costEndDate={costEndDate}
+                setCostEndDate={setCostEndDate}
+                searchSwitch={searchSwitch}
+                setSearchSwitch={setSearchSwitch}
+            />
 
             <div className="overflow-x-auto">
                 <Table>
