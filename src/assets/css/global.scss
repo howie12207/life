@@ -102,7 +102,12 @@ body {
     @apply scale-100 rounded-none;
 }
 
+// MUI Accordion
+.MuiAccordion-root {
+    @apply relative z-10;
+}
+
 // datePicker
 #root .react-datepicker-popper {
-    z-index: 3;
+    @apply z-10;
 }
