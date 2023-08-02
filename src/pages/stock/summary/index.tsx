@@ -290,7 +290,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
             }, {} as { [key: string]: InStockItem });
 
         result = result.filter(item => {
-            const nameFilter = item.itemName.includes(itemName);
+            const nameFilter = item.itemName.includes(itemName) || item.itemCode.includes(itemName);
             const buyStartDateFilter = buyStartDate
                 ? buyStartDate.valueOf() <= Number(item.tradeDate)
                 : true;

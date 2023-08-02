@@ -3,8 +3,9 @@ import { apiGetStockList, StockListRes } from '@/api/stock';
 
 import { Tabs, Tab } from '@mui/material';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
-import Summary from './Summary';
-import Detail from './Detail';
+import Summary from './summary';
+import Detail from './detail';
+import Dividend from './dividend';
 
 const Stock = () => {
     const nodeRef = useRef(null);
@@ -36,9 +37,10 @@ const Stock = () => {
                 <h1 className="text-2xl font-bold">股票清單</h1>
             </div>
 
-            <Tabs value={activatedTab} onChange={changeTab}>
+            <Tabs value={activatedTab} onChange={changeTab} className="mb-2">
                 <Tab label="統整" value={'0'} />
                 <Tab label="明細" value={'1'} />
+                <Tab label="配息" value={'2'} />
             </Tabs>
 
             <SwitchTransition>
@@ -59,6 +61,7 @@ const Stock = () => {
                         {activatedTab === '1' && (
                             <Detail stockList={stockList} getStockList={getStockList} />
                         )}
+                        {activatedTab === '2' && <Dividend />}
                     </div>
                 </CSSTransition>
             </SwitchTransition>
