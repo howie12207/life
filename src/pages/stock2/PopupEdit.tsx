@@ -4,14 +4,14 @@ import { updateLoading } from '@/app/base';
 import { updateStockTable } from '@/app/stock';
 import { useSnackbar } from 'notistack';
 import { toStartTime } from '@/utils/format';
-import { isRequired, onlyNumber } from '@/utils/validate';
 import {
     apiGetStockTable,
     apiAddStockItem,
     apiEditStockItem,
     apiDeleteStockItem,
     StockItemParams,
-} from '@/api/stock';
+} from '@/api/stock2';
+import { isRequired, onlyNumber } from '@/utils/validate';
 
 import { Modal, Fade, Button, RadioGroup, Radio, FormControlLabel } from '@mui/material';
 import { BaseDatePicker } from '@/components/baseDatePicker/BaseDatePicker';
