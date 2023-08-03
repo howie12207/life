@@ -3,6 +3,7 @@ import { useAppSelector } from '@/app/hook';
 import { formatDate, formatDateTime } from '@/utils/format';
 import { toXLSX } from '@/utils/toExcel';
 import { apiGetNavList, StockListRes } from '@/api/stock2';
+import { TRADE_TAX_RATE, TRADE_ETF_TAX_RATE, FEE_RATE } from '@/config/constant';
 
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import {
@@ -16,13 +17,12 @@ import {
     CircularProgress,
 } from '@mui/material';
 import { Download } from '@mui/icons-material';
+import SearchBar from './SearchBar';
 
 type Props = {
     stockList: StockListRes['list'];
     isLoadingStockList: boolean;
 };
-
-const FEE = 0.995575;
 
 const Summary = ({ stockList, isLoadingStockList }: Props) => {
     const nodeRef = useRef(null);
@@ -79,6 +79,14 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
         setIsLoadingDownload(false);
     };
 
+    // Search
+    const [itemName, setItemName] = useState('');
+    const [buyStartDate, setBuyStartDate] = useState<null | Date>(null);
+    const [buyEndDate, setBuyEndDate] = useState<null | Date>(null);
+    const [sellStartDate, setSellStartDate] = useState<null | Date>(null);
+    const [sellEndDate, setSellEndDate] = useState<null | Date>(null);
+
+    // Show list
     type InStockItem = {
         itemCode: string;
         itemName: string;
@@ -105,7 +113,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
         profit: number;
     };
     const resultList = useMemo(() => {
-        const result = [];
+        let result = [];
         const inventory = [];
         const groupedRecords = [...stockList]
             .sort((a, b) => a.tradeDate - b.tradeDate)
@@ -230,51 +238,101 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
         }
 
         // 目前庫存
-        const inStock = Object.values(inventory).reduce((acc, curr) => {
-            if (!acc[curr.itemCode])
-                acc[curr.itemCode] = {
-                    ...curr,
-                    details: [{ ...curr }],
-                    lastPrice: navList[curr.itemCode]?.price,
-                    lastDollar: Number(navList[curr.itemCode]?.price) * curr.amount * FEE,
-                    lastProfit:
-                        Number(navList[curr.itemCode]?.price) * curr.amount * FEE - curr.dollar,
-                };
-            else {
-                const newAmt = acc[curr.itemCode].amount + curr.amount;
-                acc[curr.itemCode].price = (
-                    (Number(acc[curr.itemCode].price) * acc[curr.itemCode].amount +
-                        Number(curr.price) * curr.amount) /
-                    newAmt
-                ).toFixed(2);
-                acc[curr.itemCode].dollar += curr.dollar;
-                acc[curr.itemCode].amount += curr.amount;
-                acc[curr.itemCode].tradeDate = '';
-                acc[curr.itemCode].details?.push(curr);
-                acc[curr.itemCode].lastDollar = Number(acc[curr.itemCode].lastPrice) * newAmt * FEE;
-                acc[curr.itemCode].lastProfit =
-                    Number(acc[curr.itemCode].lastPrice) * newAmt * FEE - acc[curr.itemCode].dollar;
-            }
-            return acc;
-        }, {} as { [key: string]: InStockItem });
+        const inStock = Object.values(inventory)
+            .filter(item => {
+                const nameFilter = item.itemName.includes(itemName);
+                const buyStartDateFilter = buyStartDate
+                    ? buyStartDate.valueOf() <= item.tradeDate
+                    : true;
+                const buyEndDateFilter = buyEndDate ? buyEndDate.valueOf() >= item.tradeDate : true;
+                const sellStartDateFilter = !sellStartDate;
+                const sellEndDateFilter = !sellEndDate;
+                return (
+                    nameFilter &&
+                    buyStartDateFilter &&
+                    buyEndDateFilter &&
+                    sellStartDateFilter &&
+                    sellEndDateFilter
+                );
+            })
+            .reduce((acc, curr) => {
+                const taxType = navList[curr.itemCode]?.etf ? TRADE_ETF_TAX_RATE : TRADE_TAX_RATE;
+                if (!acc[curr.itemCode]) {
+                    const fee = Math.floor(
+                        Number(navList[curr.itemCode]?.price) * curr.amount * FEE_RATE
+                    );
+                    const tax = Math.floor(
+                        Number(navList[curr.itemCode]?.price) * curr.amount * taxType
+                    );
+                    acc[curr.itemCode] = {
+                        ...curr,
+                        details: [{ ...curr }],
+                        lastPrice: navList[curr.itemCode]?.price,
+                        lastDollar: Number(navList[curr.itemCode]?.price) * curr.amount - fee - tax,
+                        lastProfit:
+                            Number(navList[curr.itemCode]?.price) * curr.amount -
+                            fee -
+                            tax -
+                            curr.dollar,
+                    };
+                } else {
+                    const newAmt = acc[curr.itemCode].amount + curr.amount;
+                    const fee = Math.floor(
+                        Number(acc[curr.itemCode]?.lastPrice) * newAmt * FEE_RATE
+                    );
+                    const tax = Math.floor(
+                        Number(acc[curr.itemCode]?.lastPrice) * newAmt * taxType
+                    );
+                    acc[curr.itemCode].price = (
+                        (Number(acc[curr.itemCode].price) * acc[curr.itemCode].amount +
+                            Number(curr.price) * curr.amount) /
+                        newAmt
+                    ).toFixed(2);
+                    acc[curr.itemCode].dollar += curr.dollar;
+                    acc[curr.itemCode].amount += curr.amount;
+                    acc[curr.itemCode].tradeDate = '';
+                    acc[curr.itemCode].details?.push(curr);
+                    acc[curr.itemCode].lastDollar =
+                        Number(acc[curr.itemCode].lastPrice) * newAmt - fee - tax;
+                    acc[curr.itemCode].lastProfit =
+                        Number(acc[curr.itemCode].lastPrice) * newAmt -
+                        fee -
+                        tax -
+                        acc[curr.itemCode].dollar;
+                }
+                return acc;
+            }, {} as { [key: string]: InStockItem });
+
+        result = result.filter(item => {
+            const nameFilter = item.itemName.includes(itemName) || item.itemCode.includes(itemName);
+            const buyStartDateFilter = buyStartDate
+                ? buyStartDate.valueOf() <= Number(item.tradeDate)
+                : true;
+            const buyEndDateFilter = buyEndDate
+                ? buyEndDate.valueOf() >= Number(item.tradeDate)
+                : true;
+            const sellStartDateFilter = sellStartDate
+                ? sellStartDate.valueOf() <= Number(item.sellDate)
+                : true;
+            const sellEndDateFilter = sellEndDate
+                ? sellEndDate.valueOf() >= Number(item.sellDate)
+                : true;
+            return (
+                nameFilter &&
+                buyStartDateFilter &&
+                buyEndDateFilter &&
+                sellStartDateFilter &&
+                sellEndDateFilter
+            );
+        });
 
         // 算總和
-        const { totalBuy, totalSell } = stockList.reduce(
-            (acc, current) => {
-                if (current.itemType === 'sell') acc.totalSell += current.dollar;
-                else if (current.itemType === 'buy' || current.itemType === 'allotment')
-                    acc.totalBuy += current.dollar;
-                return acc;
-            },
-            { totalBuy: 0, totalSell: 0 }
+        const totalProfit = result.reduce((acc, current) => acc + Number(current.profit || 0), 0);
+        const totalLast = Object.values(inStock).reduce((acc, current) => acc + current.dollar, 0);
+        const currentProfit = Object.values(inStock).reduce(
+            (acc, current) => acc + Number(current.lastProfit || 0),
+            0
         );
-        const totalProfit = result.reduce((acc, current) => {
-            return acc + Number(current.profit || 0);
-        }, 0);
-        const totalLast = totalBuy - totalSell + totalProfit;
-        const currentProfit = Object.values(inStock).reduce((acc, current) => {
-            return acc + Number(current.lastProfit || 0);
-        }, 0);
 
         return {
             inStockList: Object.values(inStock).sort(
@@ -287,7 +345,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
             totalLast,
             currentProfit,
         };
-    }, [stockList, navList]);
+    }, [stockList, navList, itemName, buyStartDate, buyEndDate, sellStartDate, sellEndDate]);
 
     return (
         <>
@@ -307,6 +365,20 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                     </span>
                 )}
             </div>
+
+            <SearchBar
+                itemName={itemName}
+                setItemName={setItemName}
+                buyStartDate={buyStartDate}
+                setBuyStartDate={setBuyStartDate}
+                buyEndDate={buyEndDate}
+                setBuyEndDate={setBuyEndDate}
+                sellStartDate={sellStartDate}
+                setSellStartDate={setSellStartDate}
+                sellEndDate={sellEndDate}
+                setSellEndDate={setSellEndDate}
+            />
+
             <SwitchTransition>
                 <CSSTransition
                     key={isLoadingStockList ? '1' : isLoadingNavList ? '2' : '3'}

@@ -4,7 +4,7 @@ export const stockSlice = createSlice({
     name: 'stock',
     initialState: {
         stockTable: {} as { [key: string]: { name: string } },
-        navList: {} as { [key: string]: { price: string } },
+        navList: {} as { [key: string]: { price: string; etf?: boolean } },
         twseDate: '',
         tpexDate: '',
     },

@@ -3,7 +3,7 @@ import { useAppSelector } from '@/app/hook';
 import { formatDate, formatDateTime } from '@/utils/format';
 import { toXLSX } from '@/utils/toExcel';
 import { apiGetNavList, StockListRes } from '@/api/stock';
-import { SELL_TOTAL_CHARGE } from '@/config/constant';
+import { TRADE_TAX_RATE, TRADE_ETF_TAX_RATE, FEE_RATE } from '@/config/constant';
 
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import {
@@ -256,21 +256,33 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                 );
             })
             .reduce((acc, curr) => {
-                if (!acc[curr.itemCode])
+                const taxType = navList[curr.itemCode]?.etf ? TRADE_ETF_TAX_RATE : TRADE_TAX_RATE;
+                if (!acc[curr.itemCode]) {
+                    const fee = Math.floor(
+                        Number(navList[curr.itemCode]?.price) * curr.amount * FEE_RATE
+                    );
+                    const tax = Math.floor(
+                        Number(navList[curr.itemCode]?.price) * curr.amount * taxType
+                    );
                     acc[curr.itemCode] = {
                         ...curr,
                         details: [{ ...curr }],
                         lastPrice: navList[curr.itemCode]?.price,
-                        lastDollar:
-                            Number(navList[curr.itemCode]?.price) * curr.amount * SELL_TOTAL_CHARGE,
+                        lastDollar: Number(navList[curr.itemCode]?.price) * curr.amount - fee - tax,
                         lastProfit:
-                            Number(navList[curr.itemCode]?.price) *
-                                curr.amount *
-                                SELL_TOTAL_CHARGE -
+                            Number(navList[curr.itemCode]?.price) * curr.amount -
+                            fee -
+                            tax -
                             curr.dollar,
                     };
-                else {
+                } else {
                     const newAmt = acc[curr.itemCode].amount + curr.amount;
+                    const fee = Math.floor(
+                        Number(acc[curr.itemCode]?.lastPrice) * newAmt * FEE_RATE
+                    );
+                    const tax = Math.floor(
+                        Number(acc[curr.itemCode]?.lastPrice) * newAmt * taxType
+                    );
                     acc[curr.itemCode].price = (
                         (Number(acc[curr.itemCode].price) * acc[curr.itemCode].amount +
                             Number(curr.price) * curr.amount) /
@@ -281,9 +293,11 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                     acc[curr.itemCode].tradeDate = '';
                     acc[curr.itemCode].details?.push(curr);
                     acc[curr.itemCode].lastDollar =
-                        Number(acc[curr.itemCode].lastPrice) * newAmt * SELL_TOTAL_CHARGE;
+                        Number(acc[curr.itemCode].lastPrice) * newAmt - fee - tax;
                     acc[curr.itemCode].lastProfit =
-                        Number(acc[curr.itemCode].lastPrice) * newAmt * SELL_TOTAL_CHARGE -
+                        Number(acc[curr.itemCode].lastPrice) * newAmt -
+                        fee -
+                        tax -
                         acc[curr.itemCode].dollar;
                 }
                 return acc;
