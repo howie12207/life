@@ -6,11 +6,17 @@ import { Button, Pagination, Box } from '@mui/material';
 import { Add } from '@mui/icons-material';
 import PopupEdit from './PopupEdit';
 import ArticleCard from './ArticleCard';
+import SearchBar from './SearchBar';
 
 const Article = () => {
     const isLogin = useAppSelector(state => state.base.token);
 
     const [isLoadingData, setIsLoadingData] = useState(true);
+
+    // Search
+    const [searchName, setSearchName] = useState('');
+    const [searchSort, setSearchSort] = useState([] as Array<string>);
+    const [searchSwitch, setSearchSwitch] = useState(false);
 
     // Page
     const [totalCount, setTotalCount] = useState(0);
@@ -25,11 +31,18 @@ const Article = () => {
     const [articleList, setArticleList] = useState([{}, {}, {}, {}, {}] as ArticleListRes['list']);
     const getArticleList = useCallback(async () => {
         setIsLoadingData(true);
-        const params: { [key: string]: number } = { page: nowPage - 1, size: perPage };
+        const params: { [key: string]: number | string } = {
+            page: nowPage - 1,
+            size: perPage,
+        };
         if (perPage === -1) {
             delete params.page;
             delete params.size;
         }
+
+        if (searchName) params.name = searchName;
+        if (searchSort.length !== 0) params.sorts = JSON.stringify(searchSort);
+
         const res = await apiGetArticleList(params);
         if (res) {
             setArticleList(res.list);
@@ -37,7 +50,7 @@ const Article = () => {
             setTotalPage(res.totalPage);
         }
         setIsLoadingData(false);
-    }, [nowPage, perPage]);
+    }, [nowPage, perPage, searchSwitch]);
     useEffect(() => {
         getArticleList();
     }, [getArticleList]);
@@ -61,6 +74,15 @@ const Article = () => {
                     </div>
                 )}
             </div>
+
+            <SearchBar
+                searchName={searchName}
+                setSearchName={setSearchName}
+                searchSort={searchSort}
+                setSearchSort={setSearchSort}
+                searchSwitch={searchSwitch}
+                setSearchSwitch={setSearchSwitch}
+            />
 
             {articleList.map((item, index) => {
                 return (

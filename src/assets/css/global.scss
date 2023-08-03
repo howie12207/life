@@ -101,3 +101,13 @@ body {
 .MuiSkeleton-root.skeleton-custom {
     @apply scale-100 rounded-none;
 }
+
+// MUI Accordion
+.MuiAccordion-root {
+    @apply relative z-10;
+}
+
+// datePicker
+#root .react-datepicker-popper {
+    @apply z-10;
+}

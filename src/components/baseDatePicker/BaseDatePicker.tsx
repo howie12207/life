@@ -13,10 +13,23 @@ type Props = {
     setIsValid: (isValid: boolean) => void;
     rules?: Array<RulesType>;
     placeholder?: string;
+    className?: string;
+    wFull?: boolean;
 };
 
 const Input = (
-    { label, id, value, setValue, isValid, setIsValid, rules = [], placeholder }: Props,
+    {
+        label,
+        id,
+        value,
+        setValue,
+        isValid,
+        setIsValid,
+        rules = [],
+        placeholder,
+        className = '',
+        wFull = true,
+    }: Props,
     ref: Ref<BaseInputType>
 ) => {
     const [isBlured, setIsBlured] = useState(false);
@@ -73,10 +86,10 @@ const Input = (
             )}
             <DatePicker
                 dateFormat="yyyy/MM/dd"
-                wrapperClassName="w-full"
+                wrapperClassName={`${wFull ? 'w-full' : ''}`}
                 className={`h-10 w-full rounded border px-3 outline-none transition ${
                     !isValid && isBlured ? '!border-red-500' : ''
-                }`}
+                } ${className}`}
                 selected={value}
                 onChange={changeHandle}
                 onBlur={blurHandle}

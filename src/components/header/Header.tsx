@@ -38,7 +38,7 @@ const Header = () => {
         <>
             <div className="header h-14" ref={containerRef}>
                 <Slide direction="down" in={show} container={containerRef.current}>
-                    <header className="fixed z-10 flex h-14 w-full items-center bg-amber-400 px-4 shadow">
+                    <header className="fixed z-20 flex h-14 w-full items-center bg-amber-400 px-4 shadow">
                         <span className="text-xl text-white">Howie</span>
                         <div className="!ml-auto">
                             <Menu className="cursor-pointer" onClick={handleMenu} />
