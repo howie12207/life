@@ -257,32 +257,27 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
             })
             .reduce((acc, curr) => {
                 const taxType = navList[curr.itemCode]?.etf ? TRADE_ETF_TAX_RATE : TRADE_TAX_RATE;
+                const fee = Math.floor(
+                    Number(navList[curr.itemCode]?.price) * curr.amount * FEE_RATE
+                );
+                const tax = Math.floor(
+                    Number(navList[curr.itemCode]?.price) * curr.amount * taxType
+                );
+                const currentFee = fee + tax;
                 if (!acc[curr.itemCode]) {
-                    const fee = Math.floor(
-                        Number(navList[curr.itemCode]?.price) * curr.amount * FEE_RATE
-                    );
-                    const tax = Math.floor(
-                        Number(navList[curr.itemCode]?.price) * curr.amount * taxType
-                    );
                     acc[curr.itemCode] = {
                         ...curr,
-                        details: [{ ...curr }],
+                        details: [{ ...curr, totalFee: currentFee }],
                         lastPrice: navList[curr.itemCode]?.price,
-                        lastDollar: Number(navList[curr.itemCode]?.price) * curr.amount - fee - tax,
+                        lastDollar:
+                            Number(navList[curr.itemCode]?.price) * curr.amount - currentFee,
                         lastProfit:
                             Number(navList[curr.itemCode]?.price) * curr.amount -
-                            fee -
-                            tax -
+                            currentFee -
                             curr.dollar,
                     };
                 } else {
                     const newAmt = acc[curr.itemCode].amount + curr.amount;
-                    const fee = Math.floor(
-                        Number(acc[curr.itemCode]?.lastPrice) * newAmt * FEE_RATE
-                    );
-                    const tax = Math.floor(
-                        Number(acc[curr.itemCode]?.lastPrice) * newAmt * taxType
-                    );
                     acc[curr.itemCode].price = (
                         (Number(acc[curr.itemCode].price) * acc[curr.itemCode].amount +
                             Number(curr.price) * curr.amount) /
@@ -291,13 +286,16 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                     acc[curr.itemCode].dollar += curr.dollar;
                     acc[curr.itemCode].amount += curr.amount;
                     acc[curr.itemCode].tradeDate = '';
-                    acc[curr.itemCode].details?.push(curr);
+                    acc[curr.itemCode].details?.push({ ...curr, totalFee: currentFee });
+                    const totalFee = acc[curr.itemCode].details?.reduce(
+                        (acc, current) => acc + Number(current.totalFee),
+                        0
+                    );
                     acc[curr.itemCode].lastDollar =
-                        Number(acc[curr.itemCode].lastPrice) * newAmt - fee - tax;
+                        Number(acc[curr.itemCode].lastPrice) * newAmt - totalFee;
                     acc[curr.itemCode].lastProfit =
                         Number(acc[curr.itemCode].lastPrice) * newAmt -
-                        fee -
-                        tax -
+                        totalFee -
                         acc[curr.itemCode].dollar;
                 }
                 return acc;
