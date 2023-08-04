@@ -44,7 +44,12 @@ const PopupDividendEdit = ({ popup, setPopup, getDividendList, editData, setEdit
     const tradeDateRef: Ref<BaseInputType> = useRef(null);
     const [tradeDate, setTradeDate] = useState<Date | null>(new Date());
     const [tradeDateIsValid, setTradeDateIsValid] = useState(false);
-    const tradeDateRules = [{ validate: isRequired, message: '請選擇日期' }];
+    const tradeDateRules = [{ validate: isRequired, message: '請選擇發放日期' }];
+
+    const exDividendDateRef: Ref<BaseInputType> = useRef(null);
+    const [exDividendDate, setExDividendDate] = useState<Date | null>(new Date());
+    const [exDividendDateIsValid, setExDividendDateIsValid] = useState(false);
+    const exDividendDateRules = [{ validate: isRequired, message: '請選擇除息日期' }];
 
     const dollarRef: Ref<BaseInputType> = useRef(null);
     const [dollar, setDollar] = useState('');
@@ -75,6 +80,7 @@ const PopupDividendEdit = ({ popup, setPopup, getDividendList, editData, setEdit
         setItemCode(editData?.itemCode || '');
         setItemName(editData?.itemName || '');
         setTradeDate(new Date(editData?.tradeDate || new Date()));
+        setExDividendDate(new Date(editData?.exDividendDate || new Date()));
         setDollar(String(editData?.dollar || ''));
         setAmount(String(editData?.amount || ''));
         setNote(editData?.note || '');
@@ -94,6 +100,7 @@ const PopupDividendEdit = ({ popup, setPopup, getDividendList, editData, setEdit
     const submit = async () => {
         const isValid = [
             tradeDateRef.current?.validateNow(),
+            exDividendDateRef.current?.validateNow(),
             itemCodeRef.current?.validateNow(),
             itemNameRef.current?.validateNow(),
             dollarRef.current?.validateNow(),
@@ -105,6 +112,7 @@ const PopupDividendEdit = ({ popup, setPopup, getDividendList, editData, setEdit
             itemCode,
             itemName,
             tradeDate: toStartTime(tradeDate as Date).valueOf(),
+            exDividendDate: toStartTime(exDividendDate as Date).valueOf(),
             dollar: Number(dollar),
             amount: Number(amount),
             note,
@@ -177,13 +185,24 @@ const PopupDividendEdit = ({ popup, setPopup, getDividendList, editData, setEdit
                         <BaseDatePicker
                             ref={tradeDateRef}
                             id="life-tradeDate"
-                            label="配息日期"
+                            label="發放日期"
                             value={tradeDate}
                             setValue={setTradeDate}
                             isValid={tradeDateIsValid}
                             setIsValid={setTradeDateIsValid}
                             rules={tradeDateRules}
-                            placeholder="請選擇配息日期"
+                            placeholder="請選擇發放日期"
+                        />
+                        <BaseDatePicker
+                            ref={exDividendDateRef}
+                            id="life-exDividendDate"
+                            label="除息日期"
+                            value={exDividendDate}
+                            setValue={setExDividendDate}
+                            isValid={exDividendDateIsValid}
+                            setIsValid={setExDividendDateIsValid}
+                            rules={exDividendDateRules}
+                            placeholder="請選擇除息日期"
                         />
                         <BaseInput
                             ref={dollarRef}

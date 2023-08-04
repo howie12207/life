@@ -36,6 +36,7 @@ export type DividendItemParams = {
     itemName: string;
     itemCode: string;
     tradeDate: number;
+    exDividendDate: number;
     dollar: number;
     amount: number;
     note: string;
