@@ -3,7 +3,7 @@ import { useAppDispatch } from '@/app/hook';
 import { updateIsOpenMenu } from '@/app/base';
 import { throttle } from '@/utils/baseFunc';
 
-import { Slide } from '@mui/material';
+import { Slide, IconButton } from '@mui/material';
 import { Menu } from '@mui/icons-material';
 
 const Header = () => {
@@ -40,9 +40,9 @@ const Header = () => {
                 <Slide direction="down" in={show} container={containerRef.current}>
                     <header className="fixed z-20 flex h-14 w-full items-center bg-amber-400 px-4 shadow">
                         <span className="text-xl text-white">Howie</span>
-                        <div className="!ml-auto">
-                            <Menu className="cursor-pointer" onClick={handleMenu} />
-                        </div>
+                        <IconButton onClick={handleMenu} className="!ml-auto">
+                            <Menu />
+                        </IconButton>
                     </header>
                 </Slide>
             </div>

@@ -80,6 +80,7 @@ const App = () => {
     const Portfolio = lazy(() => import('@/pages/portfolio'));
     const Diary = lazy(() => import('@/pages/diary'));
     const Stock = lazy(() => import('@/pages/stock'));
+    const Memo = lazy(() => import('@/pages/memo'));
     const Error = lazy(() => import('@/pages/error'));
 
     const routes = [
@@ -113,6 +114,12 @@ const App = () => {
             path: '/stock',
             Component: Stock,
             title: '股票清單',
+            nodeRef: useRef(null),
+        },
+        {
+            path: '/memo',
+            Component: Memo,
+            title: '便條紙',
             nodeRef: useRef(null),
         },
         { path: '*', Component: Error, nodeRef: useRef(null) },

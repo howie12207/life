@@ -116,9 +116,9 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                             onChange={e => setType(e.target.value)}
                         >
                             <FormControlLabel
-                                value={''}
+                                value={'remind'}
                                 control={<Radio size="small" />}
-                                label="無"
+                                label="提醒"
                             />
                             <FormControlLabel
                                 value={'workout'}
@@ -131,9 +131,14 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                                 label="健行"
                             />
                             <FormControlLabel
-                                value={'remind'}
+                                value={'out'}
                                 control={<Radio size="small" />}
-                                label="提醒"
+                                label="Out"
+                            />
+                            <FormControlLabel
+                                value={''}
+                                control={<Radio size="small" />}
+                                label="無"
                             />
                             <FormControlLabel
                                 value={'sick'}

@@ -33,5 +33,19 @@ export const apiDownloadDb = async () => {
 
 // TODO
 export const apiWebPush = async () => {
-    await req(`${base}/webPush/item`, { method: 'POST' });
+    const res = await req(`${base}/line/reply`, {
+        method: 'POST',
+        body: JSON.stringify({
+            events: [
+                {
+                    type: 'message',
+                    message: {
+                        type: 'text',
+                        text: '24323',
+                    },
+                },
+            ],
+        }),
+    });
+    console.log(111, res);
 };

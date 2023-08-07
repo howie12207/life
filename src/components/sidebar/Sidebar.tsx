@@ -4,7 +4,7 @@ import { updateIsOpenMenu } from '@/app/base';
 import { NavLink } from 'react-router-dom';
 import { apiDownloadDb } from '@/api/base';
 
-import { Fade, Modal, Button } from '@mui/material';
+import { Button, Drawer, IconButton } from '@mui/material';
 import { Close, Person } from '@mui/icons-material';
 import PopupLogin from '@/components/popup/login/PopupLogin';
 
@@ -37,6 +37,10 @@ const Sidebar = () => {
         {
             name: '股票清單',
             link: '/stock',
+        },
+        {
+            name: '便條紙',
+            link: '/memo',
         },
     ];
 
@@ -76,58 +80,58 @@ const Sidebar = () => {
 
     return (
         <>
-            <Modal
+            <Drawer
+                anchor={'right'}
                 open={isOpenSidebar}
                 onClose={() => dispatch(updateIsOpenMenu(false))}
-                closeAfterTransition
             >
-                <Fade in={isOpenSidebar}>
-                    <aside className="fixed right-0 top-0 z-10 flex h-screen w-[15rem] flex-col overflow-y-auto rounded-bl rounded-tl bg-blue-100 outline-none">
-                        <div className="flex h-[4rem] items-center justify-between border-b border-gray-400 px-4">
-                            <LoginBox />
-                            <Close
-                                className="cursor-pointer"
-                                onClick={() => dispatch(updateIsOpenMenu(false))}
-                            />
-                        </div>
+                <aside className="flex h-screen w-[15rem] flex-col overflow-y-auto  bg-gray-400 outline-none">
+                    <div className="flex h-[4rem] items-center justify-between border-b-4 border-red-900 px-4">
+                        <LoginBox />
+                        <IconButton onClick={() => dispatch(updateIsOpenMenu(false))}>
+                            <Close />
+                        </IconButton>
+                    </div>
 
-                        <nav className="flex-grow">
-                            <ul>
-                                {menuList.map(item => {
-                                    return (
-                                        <li className="border-b border-gray-400" key={item.name}>
-                                            <NavLink
-                                                to={item.link}
-                                                className="block p-4"
-                                                onClick={() => dispatch(updateIsOpenMenu(false))}
-                                            >
-                                                {item.name}
-                                            </NavLink>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                            <a
-                                ref={downloadRef}
-                                href={downloadLink}
-                                download="db.zip"
-                                className="hidden"
-                            ></a>
-                        </nav>
+                    <nav className="flex-grow">
+                        <ul>
+                            {menuList.map(item => {
+                                return (
+                                    <li
+                                        className="border-b border-gray-900 transition hover:bg-white hover:text-red-900"
+                                        key={item.name}
+                                    >
+                                        <NavLink
+                                            to={item.link}
+                                            className="block p-4"
+                                            onClick={() => dispatch(updateIsOpenMenu(false))}
+                                        >
+                                            {item.name}
+                                        </NavLink>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                        <a
+                            ref={downloadRef}
+                            href={downloadLink}
+                            download="db.zip"
+                            className="hidden"
+                        />
+                    </nav>
 
-                        {isLogin && (
-                            <Button
-                                variant="contained"
-                                className="!mb-4 self-center"
-                                onClick={downloadDb}
-                                disabled={isloadingDownload}
-                            >
-                                下載
-                            </Button>
-                        )}
-                    </aside>
-                </Fade>
-            </Modal>
+                    {isLogin && (
+                        <Button
+                            variant="contained"
+                            className="!mb-4 self-center"
+                            onClick={downloadDb}
+                            disabled={isloadingDownload}
+                        >
+                            下載
+                        </Button>
+                    )}
+                </aside>
+            </Drawer>
             <PopupLogin popup={popup} setPopup={setPopup} />
         </>
     );
