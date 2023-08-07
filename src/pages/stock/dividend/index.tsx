@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAppSelector } from '@/app/hook';
 import { apiGetDividendList, DividendItemParams, DividendListRes } from '@/api/stock';
+import { formatDate } from '@/utils/format';
 
 import { Button, Table, TableHead, TableRow, TableCell, TableBody, Skeleton } from '@mui/material';
 import { Add, Edit } from '@mui/icons-material';
@@ -81,7 +82,8 @@ const Dividend = () => {
             <Table stickyHeader>
                 <TableHead>
                     <TableRow ref={nodeRef}>
-                        <TableCell>配息日</TableCell>
+                        <TableCell>發放日</TableCell>
+                        <TableCell>除息日</TableCell>
                         <TableCell>名稱</TableCell>
                         <TableCell>持有股數</TableCell>
                         <TableCell align="right">
@@ -100,6 +102,13 @@ const Dividend = () => {
                             <TableRow key={index}>
                                 <TableCell>
                                     {isLoadingDividendList ? <Skeleton /> : item.tradeDateString}
+                                </TableCell>
+                                <TableCell>
+                                    {isLoadingDividendList ? (
+                                        <Skeleton />
+                                    ) : (
+                                        formatDate(item.exDividendDate)
+                                    )}
                                 </TableCell>
                                 <TableCell>
                                     {isLoadingDividendList ? <Skeleton /> : item.itemName}
