@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useRef } from 'react';
 import { useAppSelector } from '@/app/hook';
 import { formatDate, formatDateTime } from '@/utils/format';
 import { toXLSX } from '@/utils/toExcel';
-import { apiGetNavList, StockListRes } from '@/api/stock';
+import { apiGetNavList, StockListRes, DividendListRes } from '@/api/stock';
 import { TRADE_TAX_RATE, TRADE_ETF_TAX_RATE, FEE_RATE } from '@/config/constant';
 
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
@@ -22,9 +22,10 @@ import SearchBar from './SearchBar';
 type Props = {
     stockList: StockListRes['list'];
     isLoadingStockList: boolean;
+    dividendList: DividendListRes['list'];
 };
 
-const Summary = ({ stockList, isLoadingStockList }: Props) => {
+const Summary = ({ stockList, isLoadingStockList, dividendList }: Props) => {
     const nodeRef = useRef(null);
     const twseDate = useAppSelector(state => state.stock.twseDate);
     const tpexDate = useAppSelector(state => state.stock.tpexDate);
@@ -98,6 +99,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
         lastPrice: string;
         lastDollar: number;
         lastProfit: number;
+        dividend: number;
     };
     type SettleItem = {
         itemCode: string;
@@ -111,6 +113,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
         sellDollar: number;
         sellAmount: number;
         profit: number;
+        dividend: number;
     };
     const resultList = useMemo(() => {
         let result = [];
@@ -126,7 +129,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
         for (const code in groupedRecords) {
             const recordItem = groupedRecords[code];
             if (recordItem.length === 1) {
-                inventory.push(recordItem[0]);
+                inventory.push({ ...recordItem[0], dividend: 0 });
                 continue;
             }
 
@@ -155,6 +158,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                             sellPrice: price,
                             sellDollar: lastDollar,
                             sellAmount: lastAmt,
+                            dividend: 0,
                             profit: lastDollar - Number(target?.dollar),
                         });
                         continue;
@@ -179,6 +183,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                                 sellPrice: price,
                                 sellDollar: lastDollar,
                                 sellAmount: lastAmt,
+                                dividend: 0,
                                 profit: lastDollar - buyRecord.dollar,
                             });
                             break;
@@ -195,6 +200,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                                 sellPrice: price,
                                 sellDollar: (lastDollar / lastAmt) * buyRecord.amount,
                                 sellAmount: buyRecord.amount,
+                                dividend: 0,
                                 profit:
                                     (lastDollar / lastAmt) * buyRecord.amount - buyRecord.dollar,
                             });
@@ -223,6 +229,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                                 sellPrice: price,
                                 sellDollar: lastDollar,
                                 sellAmount: lastAmt,
+                                dividend: 0,
                                 profit:
                                     lastDollar - (buyRecord.dollar / buyRecord.amount) * lastAmt,
                             });
@@ -233,20 +240,26 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
             }
 
             buyRecords.forEach(item => {
-                inventory.push(item);
+                inventory.push({ ...item, dividend: 0 });
             });
         }
 
-        // 目前庫存
-        const inStock = Object.values(inventory)
+        result = result
             .filter(item => {
-                const nameFilter = item.itemName.includes(itemName);
+                const nameFilter =
+                    String(item.itemName).includes(itemName) || item.itemCode.includes(itemName);
                 const buyStartDateFilter = buyStartDate
-                    ? buyStartDate.valueOf() <= item.tradeDate
+                    ? buyStartDate.valueOf() <= Number(item.tradeDate)
                     : true;
-                const buyEndDateFilter = buyEndDate ? buyEndDate.valueOf() >= item.tradeDate : true;
-                const sellStartDateFilter = !sellStartDate;
-                const sellEndDateFilter = !sellEndDate;
+                const buyEndDateFilter = buyEndDate
+                    ? buyEndDate.valueOf() >= Number(item.tradeDate)
+                    : true;
+                const sellStartDateFilter = sellStartDate
+                    ? sellStartDate.valueOf() <= Number(item.sellDate)
+                    : true;
+                const sellEndDateFilter = sellEndDate
+                    ? sellEndDate.valueOf() >= Number(item.sellDate)
+                    : true;
                 return (
                     nameFilter &&
                     buyStartDateFilter &&
@@ -255,74 +268,118 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                     sellEndDateFilter
                 );
             })
-            .reduce((acc, curr) => {
-                const taxType = navList[curr.itemCode]?.etf ? TRADE_ETF_TAX_RATE : TRADE_TAX_RATE;
-                const fee = Math.floor(
-                    Number(navList[curr.itemCode]?.price) * curr.amount * FEE_RATE
-                );
-                const tax = Math.floor(
-                    Number(navList[curr.itemCode]?.price) * curr.amount * taxType
-                );
-                const currentFee = fee + tax;
-                if (!acc[curr.itemCode]) {
-                    acc[curr.itemCode] = {
-                        ...curr,
-                        details: [{ ...curr, totalFee: currentFee }],
-                        lastPrice: navList[curr.itemCode]?.price,
-                        lastDollar:
-                            Number(navList[curr.itemCode]?.price) * curr.amount - currentFee,
-                        lastProfit:
-                            Number(navList[curr.itemCode]?.price) * curr.amount -
-                            currentFee -
-                            curr.dollar,
-                    };
-                } else {
-                    const newAmt = acc[curr.itemCode].amount + curr.amount;
-                    acc[curr.itemCode].price = (
-                        (Number(acc[curr.itemCode].price) * acc[curr.itemCode].amount +
-                            Number(curr.price) * curr.amount) /
-                        newAmt
-                    ).toFixed(2);
-                    acc[curr.itemCode].dollar += curr.dollar;
-                    acc[curr.itemCode].amount += curr.amount;
-                    acc[curr.itemCode].tradeDate = '';
-                    acc[curr.itemCode].details?.push({ ...curr, totalFee: currentFee });
-                    const totalFee = acc[curr.itemCode].details?.reduce(
-                        (acc, current) => acc + Number(current.totalFee),
-                        0
-                    );
-                    acc[curr.itemCode].lastDollar =
-                        Number(acc[curr.itemCode].lastPrice) * newAmt - totalFee;
-                    acc[curr.itemCode].lastProfit =
-                        Number(acc[curr.itemCode].lastPrice) * newAmt -
-                        totalFee -
-                        acc[curr.itemCode].dollar;
-                }
-                return acc;
-            }, {} as { [key: string]: InStockItem });
+            .sort((a, b) => b.sellDate - a.sellDate || Number(b.tradeDate) - Number(a.tradeDate));
 
-        result = result.filter(item => {
-            const nameFilter = item.itemName.includes(itemName) || item.itemCode.includes(itemName);
-            const buyStartDateFilter = buyStartDate
-                ? buyStartDate.valueOf() <= Number(item.tradeDate)
-                : true;
-            const buyEndDateFilter = buyEndDate
-                ? buyEndDate.valueOf() >= Number(item.tradeDate)
-                : true;
-            const sellStartDateFilter = sellStartDate
-                ? sellStartDate.valueOf() <= Number(item.sellDate)
-                : true;
-            const sellEndDateFilter = sellEndDate
-                ? sellEndDate.valueOf() >= Number(item.sellDate)
-                : true;
-            return (
-                nameFilter &&
-                buyStartDateFilter &&
-                buyEndDateFilter &&
-                sellStartDateFilter &&
-                sellEndDateFilter
-            );
-        });
+        // 目前庫存
+        const inStock = Object.values(
+            Object.values(inventory)
+                .filter(item => {
+                    const nameFilter = item.itemName.includes(itemName);
+                    const buyStartDateFilter = buyStartDate
+                        ? buyStartDate.valueOf() <= item.tradeDate
+                        : true;
+                    const buyEndDateFilter = buyEndDate
+                        ? buyEndDate.valueOf() >= item.tradeDate
+                        : true;
+                    const sellStartDateFilter = !sellStartDate;
+                    const sellEndDateFilter = !sellEndDate;
+                    return (
+                        nameFilter &&
+                        buyStartDateFilter &&
+                        buyEndDateFilter &&
+                        sellStartDateFilter &&
+                        sellEndDateFilter
+                    );
+                })
+                .reduce((acc, curr) => {
+                    const taxType = navList[curr.itemCode]?.etf
+                        ? TRADE_ETF_TAX_RATE
+                        : TRADE_TAX_RATE;
+                    const fee = Math.floor(
+                        Number(navList[curr.itemCode]?.price) * curr.amount * FEE_RATE
+                    );
+                    const tax = Math.floor(
+                        Number(navList[curr.itemCode]?.price) * curr.amount * taxType
+                    );
+                    const currentFee = fee + tax;
+                    if (!acc[curr.itemCode]) {
+                        acc[curr.itemCode] = {
+                            ...curr,
+                            details: [{ ...curr, totalFee: currentFee }],
+                            lastPrice: navList[curr.itemCode]?.price,
+                            lastDollar:
+                                Number(navList[curr.itemCode]?.price) * curr.amount - currentFee,
+                            lastProfit:
+                                Number(navList[curr.itemCode]?.price) * curr.amount -
+                                currentFee -
+                                curr.dollar,
+                        };
+                    } else {
+                        const newAmt = acc[curr.itemCode].amount + curr.amount;
+                        acc[curr.itemCode].price = (
+                            (Number(acc[curr.itemCode].price) * acc[curr.itemCode].amount +
+                                Number(curr.price) * curr.amount) /
+                            newAmt
+                        ).toFixed(2);
+                        acc[curr.itemCode].dollar += curr.dollar;
+                        acc[curr.itemCode].amount += curr.amount;
+                        acc[curr.itemCode].tradeDate = '';
+                        acc[curr.itemCode].details?.push({ ...curr, totalFee: currentFee });
+                        const totalFee = acc[curr.itemCode].details?.reduce(
+                            (acc, current) => acc + Number(current.totalFee),
+                            0
+                        );
+                        acc[curr.itemCode].lastDollar =
+                            Number(acc[curr.itemCode].lastPrice) * newAmt - totalFee;
+                        acc[curr.itemCode].lastProfit =
+                            Number(acc[curr.itemCode].lastPrice) * newAmt -
+                            totalFee -
+                            acc[curr.itemCode].dollar;
+                    }
+                    return acc;
+                }, {} as { [key: string]: InStockItem })
+        ).sort((a, b) => Number(b.tradeDate) - Number(a.tradeDate));
+
+        // 配息處理
+        const dividendRecord = [...dividendList].sort(
+            (a, b) => a.exDividendDate - b.exDividendDate
+        );
+        for (let i = 0; i < dividendRecord.length; i++) {
+            const { itemCode, dollar, amount, exDividendDate, itemName } = dividendRecord[i];
+            let lastAmt = amount;
+            let lastDollar = dollar;
+            let done = false;
+
+            for (let j = result.length - 1; j >= 0; j--) {
+                const codeFilter = result[j].itemCode === itemCode;
+                const dateBuyFilter = Number(result[j].tradeDate) < exDividendDate;
+                const dateSellFilter = Number(result[j].sellDate) >= exDividendDate;
+                if (codeFilter && dateBuyFilter && dateSellFilter) {
+                    console.log(111, i, j, itemName, lastDollar);
+                    if (result[j].amount === lastAmt) {
+                        console.log(222, i, j, itemName, lastDollar);
+                        result[j].dividend += lastDollar;
+                        done = true;
+                        break;
+                    } else if (Number(result[j].amount) < lastAmt) {
+                        result[j].dividend += (lastDollar / lastAmt) * Number(result[j].amount);
+                        lastDollar = lastDollar - (lastDollar / lastAmt) * Number(result[j].amount);
+                        lastAmt = lastAmt - Number(result[j].amount);
+                        continue;
+                    }
+                }
+            }
+
+            if (done) continue;
+
+            for (let j = inStock.length - 1; j >= 0; j--) {
+                const codeFilter = inStock[j].itemCode === itemCode;
+                const dateBuyFilter = Number(inStock[j].tradeDate) < exDividendDate;
+                if (codeFilter && dateBuyFilter) {
+                    inStock[j].dividend += lastDollar;
+                }
+            }
+        }
 
         // 算總和
         const totalProfit = result.reduce((acc, current) => acc + Number(current.profit || 0), 0);
@@ -333,17 +390,22 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
         );
 
         return {
-            inStockList: Object.values(inStock).sort(
-                (a, b) => Number(b.tradeDate) - Number(a.tradeDate)
-            ),
-            settleList: result.sort(
-                (a, b) => b.sellDate - a.sellDate || Number(b.tradeDate) - Number(a.tradeDate)
-            ) as Array<SettleItem>,
+            inStockList: inStock,
+            settleList: result as Array<SettleItem>,
             totalProfit,
             totalLast,
             currentProfit,
         };
-    }, [stockList, navList, itemName, buyStartDate, buyEndDate, sellStartDate, sellEndDate]);
+    }, [
+        stockList,
+        navList,
+        itemName,
+        buyStartDate,
+        buyEndDate,
+        sellStartDate,
+        sellEndDate,
+        dividendList,
+    ]);
 
     return (
         <>
@@ -400,7 +462,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                                         : ''}
                                 </TableCell>
                                 <TableCell>購買股數</TableCell>
-                                <TableCell>目前淨收</TableCell>
+                                <TableCell>淨收</TableCell>
                                 <TableCell align="right">
                                     目前盈虧
                                     <br />
@@ -410,7 +472,8 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                                         <Skeleton />
                                     )}
                                 </TableCell>
-                                <TableCell>目前報酬率</TableCell>
+                                <TableCell>報酬率</TableCell>
+                                <TableCell align="right">配息</TableCell>
                             </TableRow>
                         </TableHead>
 
@@ -514,6 +577,11 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                                                     ).toFixed(2)}%`
                                                 )}
                                             </TableCell>
+                                            <TableCell align="right">
+                                                {(
+                                                    Math.round(item.dividend * 100) / 100
+                                                )?.toLocaleString()}
+                                            </TableCell>
                                         </TableRow>
                                     );
                                 })
@@ -541,7 +609,7 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                             <br />
                             {resultList.totalProfit ? resultList.totalProfit?.toLocaleString() : ''}
                         </TableCell>
-                        <TableCell>報酬率</TableCell>
+                        <TableCell align="right">配息</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -568,12 +636,31 @@ const Summary = ({ stockList, isLoadingStockList }: Props) => {
                                 <TableCell align="right">
                                     {item.sellDollar?.toLocaleString()}
                                 </TableCell>
-                                <TableCell align="right">{item.profit?.toLocaleString()}</TableCell>
-                                <TableCell>
+                                <TableCell align="right">
+                                    {item.profit?.toLocaleString()}
+                                    <br />
                                     {((item.profit / item.dollar) * 100).toFixed(2)}%
                                     <br />
                                     {(
                                         ((item.profit / item.dollar) * 100 * 365) /
+                                        ((new Date(item.sellDate).valueOf() -
+                                            new Date(item.tradeDate).valueOf()) /
+                                            86400000)
+                                    ).toFixed(2)}
+                                    %
+                                </TableCell>
+                                <TableCell align="right">
+                                    {(Math.round(item.dividend * 100) / 100)?.toLocaleString()}
+                                    <br />
+                                    {(((item.profit + item.dividend) / item.dollar) * 100).toFixed(
+                                        2
+                                    )}
+                                    %
+                                    <br />
+                                    {(
+                                        (((item.profit + item.dividend) / item.dollar) *
+                                            100 *
+                                            365) /
                                         ((new Date(item.sellDate).valueOf() -
                                             new Date(item.tradeDate).valueOf()) /
                                             86400000)

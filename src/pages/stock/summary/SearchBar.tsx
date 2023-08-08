@@ -29,7 +29,7 @@ const SearchBar = ({
     setSellEndDate,
 }: Props) => {
     return (
-        <Accordion className="mt-2">
+        <Accordion className="my-2">
             <AccordionSummary expandIcon={<ExpandMore />}>搜尋</AccordionSummary>
             <AccordionDetails>
                 <BaseInput

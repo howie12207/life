@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useAppSelector } from '@/app/hook';
-import { apiGetDividendList, DividendItemParams, DividendListRes } from '@/api/stock';
+import { DividendItemParams, DividendListRes } from '@/api/stock';
 import { formatDate } from '@/utils/format';
 
 import { Button, Table, TableHead, TableRow, TableCell, TableBody, Skeleton } from '@mui/material';
@@ -8,7 +8,13 @@ import { Add, Edit } from '@mui/icons-material';
 import PopupDividendEdit from './PopupEdit';
 import SearchBar from './SearchBar';
 
-const Dividend = () => {
+type Props = {
+    dividendList: DividendListRes['list'];
+    getDividendList: () => void;
+    isLoadingDividendList: boolean;
+};
+
+const Dividend = ({ dividendList, getDividendList, isLoadingDividendList }: Props) => {
     const nodeRef = useRef(null);
     const isLogin = useAppSelector(state => state.base.token);
 
@@ -18,9 +24,6 @@ const Dividend = () => {
     const [endDate, setEndDate] = useState<null | Date>(null);
 
     // list
-    const [dividendList, setDividendList] = useState(
-        Array.from({ length: 15 }, () => ({ itemName: '' })) as DividendListRes['list']
-    );
     const filterList = useMemo(() => {
         return dividendList.filter(item => {
             const nameFilter =
@@ -32,18 +35,6 @@ const Dividend = () => {
             return nameFilter && startDateFilter && endDateFilter;
         });
     }, [dividendList, itemName, startDate, endDate]);
-    const [isLoadingDividendList, setIsLoadingDividendList] = useState(true);
-    const getDividendList = useCallback(async () => {
-        setIsLoadingDividendList(true);
-        const res = await apiGetDividendList();
-        if (res) {
-            setDividendList(res.list);
-        }
-        setIsLoadingDividendList(false);
-    }, []);
-    useEffect(() => {
-        getDividendList();
-    }, [getDividendList]);
 
     const totalDollar = useMemo(() => {
         return filterList.reduce((acc, current) => {

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, SyntheticEvent, useRef } from 'react';
-import { apiGetStockList, StockListRes } from '@/api/stock';
+import { apiGetStockList, StockListRes, apiGetDividendList, DividendListRes } from '@/api/stock';
 
 import { Tabs, Tab } from '@mui/material';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
@@ -16,7 +16,7 @@ const Stock = () => {
         setActivatedTab(value);
     };
 
-    // list
+    // stock list
     const [stockList, setStockList] = useState([] as StockListRes['list']);
     const [isLoadingStockList, setIsLoadingStockList] = useState(true);
     const getStockList = useCallback(async () => {
@@ -30,6 +30,21 @@ const Stock = () => {
     useEffect(() => {
         getStockList();
     }, [getStockList]);
+
+    // dividend list
+    const [dividendList, setDividendList] = useState([] as DividendListRes['list']);
+    const [isLoadingDividendList, setIsLoadingDividendList] = useState(true);
+    const getDividendList = useCallback(async () => {
+        setIsLoadingDividendList(true);
+        const res = await apiGetDividendList();
+        if (res) {
+            setDividendList(res.list);
+        }
+        setIsLoadingDividendList(false);
+    }, []);
+    useEffect(() => {
+        getDividendList();
+    }, [getDividendList]);
 
     return (
         <section className="p-6 pb-20">
@@ -55,13 +70,20 @@ const Stock = () => {
                         {activatedTab === '0' && (
                             <Summary
                                 stockList={stockList}
+                                dividendList={dividendList}
                                 isLoadingStockList={isLoadingStockList}
                             />
                         )}
                         {activatedTab === '1' && (
                             <Detail stockList={stockList} getStockList={getStockList} />
                         )}
-                        {activatedTab === '2' && <Dividend />}
+                        {activatedTab === '2' && (
+                            <Dividend
+                                dividendList={dividendList}
+                                getDividendList={getDividendList}
+                                isLoadingDividendList={isLoadingDividendList}
+                            />
+                        )}
                     </div>
                 </CSSTransition>
             </SwitchTransition>
