@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import { readFileSync, writeFileSync, unlinkSync, rename } from 'fs';
+import { readFileSync, writeFileSync, rename } from 'fs';
 import path, { dirname } from 'path';
 
 const rootPath = path.resolve(dirname(fileURLToPath(import.meta.url)), '../..');

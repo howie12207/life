@@ -7,6 +7,7 @@
         "dev": "vite",
         "build": "tsc && node ./src/build/cleanDist.js && vite build && node ./src/build/buildTime.js",
         "build:mom": "tsc && node ./src/build/cleanDist.js && node ./src/build/buildForMom.js && vite build && node ./src/build/buildTime.js",
+        "build:sample": "tsc && node ./src/build/cleanDist.js && node ./src/build/buildForSample.js && vite build && node ./src/build/buildTime.js",
         "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "lint:ts": "tsc --noEmit -p tsconfig.json --composite false",
         "preview": "vite preview",
