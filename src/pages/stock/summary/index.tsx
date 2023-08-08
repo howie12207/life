@@ -345,7 +345,7 @@ const Summary = ({ stockList, isLoadingStockList, dividendList }: Props) => {
             (a, b) => a.exDividendDate - b.exDividendDate
         );
         for (let i = 0; i < dividendRecord.length; i++) {
-            const { itemCode, dollar, amount, exDividendDate, itemName } = dividendRecord[i];
+            const { itemCode, dollar, amount, exDividendDate } = dividendRecord[i];
             let lastAmt = amount;
             let lastDollar = dollar;
             let done = false;
@@ -355,9 +355,7 @@ const Summary = ({ stockList, isLoadingStockList, dividendList }: Props) => {
                 const dateBuyFilter = Number(result[j].tradeDate) < exDividendDate;
                 const dateSellFilter = Number(result[j].sellDate) >= exDividendDate;
                 if (codeFilter && dateBuyFilter && dateSellFilter) {
-                    console.log(111, i, j, itemName, lastDollar);
                     if (result[j].amount === lastAmt) {
-                        console.log(222, i, j, itemName, lastDollar);
                         result[j].dividend += lastDollar;
                         done = true;
                         break;
