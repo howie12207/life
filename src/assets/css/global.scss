@@ -111,3 +111,19 @@ body {
 #root .react-datepicker-popper {
     @apply z-10;
 }
+
+// scrollbar
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+    &:hover {
+        background: #555;
+    }
+}
