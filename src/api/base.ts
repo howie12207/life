@@ -17,7 +17,7 @@ export const apiLogin = async (params: LoginParams) => {
         SnackbarUtils.success('登入成功');
         store.dispatch(updateToken(res.data?.token));
         Cookies.set('token', res.data?.token, {
-            expires: new Date(Date.now() + 60 * 60 * 24 * 1000),
+            expires: new Date(Date.now() + 60 * 60 * 24 * 1000 * 7),
         });
         return true;
     } else return false;
