@@ -13,7 +13,7 @@ export type ArticleItemParams = {
     _id?: string;
 };
 export const apiAddArticleItem = async (params: ArticleItemParams) => {
-    const res = await req(`${base}/article/item`, { method: 'POST', body: JSON.stringify(params) });
+    const res = await req(`${base}/article`, { method: 'POST', body: JSON.stringify(params) });
     if (res?.code === 200) {
         SnackbarUtils.success('新增成功');
         return true;
@@ -35,21 +35,21 @@ export const apiGetArticleList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/article/list${query}`);
+    const res = await req(`${base}/articleList${query}`);
     if (res?.code === 200) return res.data as ArticleListRes;
     else return false;
 };
 
 // 取得指定文章
 export const apiGetArticleItem = async (_id: string) => {
-    const res = await req(`${base}/article/item/${_id}`);
+    const res = await req(`${base}/article?_id=${_id}`);
     if (res?.code === 200) return res.data as ArticleItemParams;
     else return false;
 };
 
 // 編輯文章
 export const apiEditArticleItem = async (params: ArticleItemParams) => {
-    const res = await req(`${base}/article/item/${params._id}`, {
+    const res = await req(`${base}/article?_id=${params._id}`, {
         method: 'PATCH',
         body: JSON.stringify(params),
     });
@@ -61,7 +61,7 @@ export const apiEditArticleItem = async (params: ArticleItemParams) => {
 
 // 刪除文章
 export const apiDeleteArticleItem = async (_id: string) => {
-    const res = await req(`${base}/article/item/${_id}`, {
+    const res = await req(`${base}/article?_id=${_id}`, {
         method: 'DELETE',
     });
     if (res?.code === 200) {

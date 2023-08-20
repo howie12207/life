@@ -12,7 +12,7 @@ export type CostItemParams = {
     _id?: string;
 };
 export const apiAddCostItem = async (params: CostItemParams) => {
-    const res = await req(`${base}/cost/item`, { method: 'POST', body: JSON.stringify(params) });
+    const res = await req(`${base}/cost`, { method: 'POST', body: JSON.stringify(params) });
     if (res?.code === 200) {
         SnackbarUtils.success('新增成功');
         return true;
@@ -34,14 +34,14 @@ export const apiGetCostList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/cost/list${query}`);
+    const res = await req(`${base}/costList${query}`);
     if (res?.code === 200) return res.data as CostListRes;
     else return false;
 };
 
 // 編輯花費項目
 export const apiEditCostItem = async (params: CostItemParams) => {
-    const res = await req(`${base}/cost/item/${params._id}`, {
+    const res = await req(`${base}/cost?_id=${params._id}`, {
         method: 'PATCH',
         body: JSON.stringify(params),
     });
@@ -53,7 +53,7 @@ export const apiEditCostItem = async (params: CostItemParams) => {
 
 // 刪除花費項目
 export const apiDeleteCostItem = async (_id: string) => {
-    const res = await req(`${base}/cost/item/${_id}`, {
+    const res = await req(`${base}/cost?_id=${_id}`, {
         method: 'DELETE',
     });
     if (res?.code === 200) {

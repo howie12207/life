@@ -12,7 +12,7 @@ export type MemoItemParams = {
     _id?: string;
 };
 export const apiAddMemoItem = async (params: MemoItemParams) => {
-    const res = await req(`${base}/memo/item`, { method: 'POST', body: JSON.stringify(params) });
+    const res = await req(`${base}/memo`, { method: 'POST', body: JSON.stringify(params) });
     if (res?.code === 200) {
         SnackbarUtils.success('新增成功');
         return true;
@@ -34,14 +34,14 @@ export const apiGetMemoList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/memo/list${query}`);
+    const res = await req(`${base}/memoList${query}`);
     if (res?.code === 200) return res.data?.list as MemoListRes['list'];
     else return false;
 };
 
 // 編輯便條紙
 export const apiEditMemoItem = async (params: MemoItemParams) => {
-    const res = await req(`${base}/memo/item/${params._id}`, {
+    const res = await req(`${base}/memo?_id=${params._id}`, {
         method: 'PATCH',
         body: JSON.stringify(params),
     });
@@ -53,7 +53,7 @@ export const apiEditMemoItem = async (params: MemoItemParams) => {
 
 // 刪除便條紙項目
 export const apiDeleteMemoItem = async (_id: string) => {
-    const res = await req(`${base}/memo/item/${_id}`, {
+    const res = await req(`${base}/memo?_id=${_id}`, {
         method: 'DELETE',
     });
     if (res?.code === 200) {

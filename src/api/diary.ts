@@ -11,7 +11,7 @@ export type DiaryItemParams = {
     remindTime?: number;
 };
 export const apiAddDiaryItem = async (params: DiaryItemParams) => {
-    const res = await req(`${base}/diary/item`, { method: 'POST', body: JSON.stringify(params) });
+    const res = await req(`${base}/diary`, { method: 'POST', body: JSON.stringify(params) });
     if (res?.code === 200) {
         SnackbarUtils.success('新增成功');
         return true;
@@ -28,14 +28,14 @@ export const apiGetDiaryList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/diary/list${query}`);
+    const res = await req(`${base}/diaryList${query}`);
     if (res?.code === 200) return res.data as Array<DiaryItemParams>;
     else return false;
 };
 
 // 編輯日記項目
 export const apiEditDiaryItem = async (params: DiaryItemParams) => {
-    const res = await req(`${base}/diary/item/${params._id}`, {
+    const res = await req(`${base}/diary?_id=${params._id}`, {
         method: 'PATCH',
         body: JSON.stringify(params),
     });
@@ -47,7 +47,7 @@ export const apiEditDiaryItem = async (params: DiaryItemParams) => {
 
 // 刪除日記項目
 export const apiDeleteDiaryItem = async (_id: string) => {
-    const res = await req(`${base}/diary/item/${_id}`, {
+    const res = await req(`${base}/diary?_id=${_id}`, {
         method: 'DELETE',
     });
     if (res?.code === 200) {

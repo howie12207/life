@@ -2,7 +2,7 @@ import req from '@/config/request';
 import { base } from '@/config/apiPath';
 
 export const apiAddSubscription = async (params: object) => {
-    const res = await req(`${base}/subscribe/subscription`, {
+    const res = await req(`${base}/subscribe`, {
         method: 'POST',
         body: JSON.stringify(params),
     });

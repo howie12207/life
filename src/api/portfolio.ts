@@ -18,7 +18,7 @@ export type PortfolioItemParams = {
     _id?: string;
 };
 export const apiAddPortfolioItem = async (params: PortfolioItemParams) => {
-    const res = await req(`${base}/portfolio/item`, {
+    const res = await req(`${base}/portfolio`, {
         method: 'POST',
         body: JSON.stringify(params),
     });
@@ -43,14 +43,14 @@ export const apiGetPortfolioList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/portfolio/list${query}`);
+    const res = await req(`${base}/portfolioList${query}`);
     if (res?.code === 200) return res.data as PortfolioListRes;
     else return false;
 };
 
 // 編輯作品項目
 export const apiEditPortfolioItem = async (params: PortfolioItemParams) => {
-    const res = await req(`${base}/portfolio/item/${params._id}`, {
+    const res = await req(`${base}/portfolio?_id=${params._id}`, {
         method: 'PATCH',
         body: JSON.stringify(params),
     });
@@ -62,7 +62,7 @@ export const apiEditPortfolioItem = async (params: PortfolioItemParams) => {
 
 // 刪除作品項目
 export const apiDeletePortfolioItem = async (_id: string) => {
-    const res = await req(`${base}/portfolio/item/${_id}`, {
+    const res = await req(`${base}/portfolio?_id=${_id}`, {
         method: 'DELETE',
     });
     if (res?.code === 200) {
