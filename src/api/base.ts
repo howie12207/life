@@ -9,7 +9,7 @@ import { updateToken } from '@/app/base';
 // 登入
 type LoginParams = { account: string; password: string };
 export const apiLogin = async (params: LoginParams) => {
-    const res = await req(`${base}/user/login`, {
+    const res = await req(`${base}/login`, {
         method: 'POST',
         body: JSON.stringify(params),
     });

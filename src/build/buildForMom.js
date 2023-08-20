@@ -30,7 +30,7 @@ writeFileSync(targetPath, content);
 // /api/stock.ts
 targetPath = path.resolve(rootPath, 'src/api/stock.ts');
 content = readFileSync(targetPath, 'utf-8');
-content = content.replace(/apiPath = 'stock'/, "apiPath = 'stock2'");
+content = content.replace(/apiPath = ''/, "apiPath = '2'");
 writeFileSync(targetPath, content);
 
 // /config/constant.ts

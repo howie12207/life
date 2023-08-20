@@ -5,7 +5,7 @@ import SnackbarUtils from '@/utils/snackBar';
 import { store } from '@/app/store';
 import { updateNavList } from '@/app/stock';
 
-const apiPath = 'stock';
+const apiPath = '';
 
 // 新增股票項目
 export type StockItemParams = {
@@ -21,7 +21,7 @@ export type StockItemParams = {
     itemName: string;
 };
 export const apiAddStockItem = async (params: StockItemParams) => {
-    const res = await req(`${base}/${apiPath}/item`, {
+    const res = await req(`${base}/stock${apiPath}`, {
         method: 'POST',
         body: JSON.stringify(params),
     });
@@ -44,7 +44,7 @@ export type DividendItemParams = {
     tradeDateString?: string;
 };
 export const apiAddDividendItem = async (params: DividendItemParams) => {
-    const res = await req(`${base}/${apiPath}/dividend/item`, {
+    const res = await req(`${base}/stockDividend${apiPath}`, {
         method: 'POST',
         body: JSON.stringify(params),
     });
@@ -69,7 +69,7 @@ export const apiGetStockList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/${apiPath}/list${query}`);
+    const res = await req(`${base}/stockList${apiPath}${query}`);
     if (res?.code === 200) return res.data as StockListRes;
     else return false;
 };
@@ -88,20 +88,20 @@ export const apiGetDividendList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/${apiPath}/dividend/list${query}`);
+    const res = await req(`${base}/stockDividendList${apiPath}${query}`);
     if (res?.code === 200) return res.data as DividendListRes;
     else return false;
 };
 
 // 取得股票名稱對照表
 export const apiGetStockTable = async () => {
-    const res = await req(`${base}/stock/tableName`);
+    const res = await req(`${base}/stockTable`);
     if (res?.code === 200) return res.data;
 };
 
 // 取得所有淨值清單
 export const apiGetNavList = async () => {
-    const res = await req(`${base}/stock/nav/list`);
+    const res = await req(`${base}/stockNavList`);
     if (res?.code === 200) {
         store.dispatch(updateNavList(res.data));
     }
@@ -109,7 +109,7 @@ export const apiGetNavList = async () => {
 
 // 編輯股票項目
 export const apiEditStockItem = async (params: StockItemParams) => {
-    const res = await req(`${base}/${apiPath}/item/${params._id}`, {
+    const res = await req(`${base}/stock${apiPath}?_id=${params._id}`, {
         method: 'PATCH',
         body: JSON.stringify(params),
     });
@@ -121,7 +121,7 @@ export const apiEditStockItem = async (params: StockItemParams) => {
 
 // 編輯配息項目
 export const apiEditDividendItem = async (params: DividendItemParams) => {
-    const res = await req(`${base}/${apiPath}/dividend/item/${params._id}`, {
+    const res = await req(`${base}/stockDividend${apiPath}?_id=${params._id}`, {
         method: 'PATCH',
         body: JSON.stringify(params),
     });
@@ -133,7 +133,7 @@ export const apiEditDividendItem = async (params: DividendItemParams) => {
 
 // 刪除股票項目
 export const apiDeleteStockItem = async (_id: string) => {
-    const res = await req(`${base}/${apiPath}/item/${_id}`, {
+    const res = await req(`${base}/stock${apiPath}?_id=${_id}`, {
         method: 'DELETE',
     });
     if (res?.code === 200) {
@@ -144,7 +144,7 @@ export const apiDeleteStockItem = async (_id: string) => {
 
 // 刪除配息項目
 export const apiDeleteDividendItem = async (_id: string) => {
-    const res = await req(`${base}/${apiPath}/dividend/item/${_id}`, {
+    const res = await req(`${base}/stockDividend${apiPath}?_id=${_id}`, {
         method: 'DELETE',
     });
     if (res?.code === 200) {

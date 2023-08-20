@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
         server: {
             proxy: {
                 '/proxyBase': {
-                    target: 'http://localhost:7071/api',
+                    target: 'http://localhost:7071',
                     changeOrigin: true,
                     secure: false,
                     rewrite: path => path.replace(/^\/proxyBase/, ''),

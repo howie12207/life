@@ -26,7 +26,7 @@
 -   deploy.bat 或 deploy.sh 路徑改成 /mom.git
 -   404.html 路徑改成 /mom
 -   .env.production VITE_BASE_URL = /mom
--   src/api/stock apiPath = stock2
+-   src/api/stock apiPath = '2'
 -   src/config/constant FEE_RATE = 0.001425 \* 0.6
 -   src/App.tsx 屏蔽多餘的頁面
 
