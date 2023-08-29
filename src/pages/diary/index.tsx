@@ -10,12 +10,13 @@ const Diary = () => {
     const dispatch = useAppDispatch();
     const isLogin = useAppSelector(state => state.base.token);
 
+    const [range, setRange] = useState<Array<number>>([]);
     const [diaryList, setDiaryList] = useState([] as Array<DiaryItemParams>);
     const getDiaryList = useCallback(async (params?: { [key: string]: number }) => {
         dispatch(updateLoading(true));
         const res = await apiGetDiaryList({
-            startTime: params?.startTime,
-            endTime: params?.endTime,
+            startTime: params?.startTime || range[0],
+            endTime: params?.endTime || range[1],
         });
         if (res) setDiaryList(res);
         dispatch(updateLoading(false));
@@ -37,6 +38,7 @@ const Diary = () => {
                 list={diaryList}
                 handleEditData={handleEditData}
                 getDiaryList={getDiaryList}
+                setRange={setRange}
             />
 
             <PopupEdit

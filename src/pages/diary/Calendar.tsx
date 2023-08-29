@@ -17,13 +17,14 @@ type Props = {
         remindTime: number;
     }) => void;
     getDiaryList: (params?: { [key: string]: number }) => void;
+    setRange: (range: Array<number>) => void;
 };
 type DisplayItem = {
     time: number;
     content: Array<DiaryItemParams>;
 };
 
-const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
+const Calendar = ({ list, handleEditData, getDiaryList, setRange }: Props) => {
     const isLogin = useAppSelector(state => state.base.token);
 
     const now = new Date();
@@ -80,6 +81,7 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
     const handleDisplayList = useCallback(() => {
         const newList: Array<DisplayItem> = getTimestampArray(displayDate);
         setDisplayList(newList);
+        setRange([newList[0].time, newList[newList.length - 1].time + 86400000 - 1]);
         getDiaryList({
             startTime: newList[0].time,
             endTime: newList[newList.length - 1].time + 86400000 - 1,
@@ -88,6 +90,7 @@ const Calendar = ({ list, handleEditData, getDiaryList }: Props) => {
 
     useEffect(() => {
         const newList = [...displayList];
+        newList.forEach(item => (item.content = []));
         list?.forEach(item => {
             const index = newList.findIndex(date => date.time === item.diaryTime);
             newList[index]?.content.push({

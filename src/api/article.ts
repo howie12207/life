@@ -31,7 +31,7 @@ export const apiGetArticleList = async (params?: ListParams) => {
     const searchParams = new URLSearchParams();
     if (params) {
         Object.entries(params).forEach(([key, value]) => {
-            searchParams.append(key, String(value));
+            if (value !== undefined) searchParams.append(key, String(value));
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
