@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { updateLoading } from '@/app/base';
 import { apiGetDiaryList, DiaryItemParams } from '@/api/diary';
@@ -11,15 +11,15 @@ const Diary = () => {
     const isLogin = useAppSelector(state => state.base.token);
 
     const [diaryList, setDiaryList] = useState([] as Array<DiaryItemParams>);
-    const getDiaryList = useCallback(async () => {
+    const getDiaryList = useCallback(async (params?: { [key: string]: number }) => {
         dispatch(updateLoading(true));
-        const res = await apiGetDiaryList();
+        const res = await apiGetDiaryList({
+            startTime: params?.startTime,
+            endTime: params?.endTime,
+        });
         if (res) setDiaryList(res);
         dispatch(updateLoading(false));
     }, []);
-    useEffect(() => {
-        getDiaryList();
-    }, [getDiaryList]);
 
     // Popup
     const [popup, setPopup] = useState('');

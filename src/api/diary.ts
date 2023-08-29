@@ -19,7 +19,7 @@ export const apiAddDiaryItem = async (params: DiaryItemParams) => {
 };
 
 // 取得日記清單
-type ListParams = { startTime?: string; endTime?: string };
+type ListParams = { startTime?: number; endTime?: number };
 export const apiGetDiaryList = async (params?: ListParams) => {
     const searchParams = new URLSearchParams();
     if (params) {
