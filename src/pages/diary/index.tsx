@@ -12,15 +12,19 @@ const Diary = () => {
 
     const [range, setRange] = useState<Array<number>>([]);
     const [diaryList, setDiaryList] = useState([] as Array<DiaryItemParams>);
-    const getDiaryList = useCallback(async (params?: { [key: string]: number }) => {
-        dispatch(updateLoading(true));
-        const res = await apiGetDiaryList({
-            startTime: params?.startTime || range[0],
-            endTime: params?.endTime || range[1],
-        });
-        if (res) setDiaryList(res);
-        dispatch(updateLoading(false));
-    }, []);
+    const getDiaryList = useCallback(
+        async (params?: { [key: string]: number }) => {
+            dispatch(updateLoading(true));
+            const res = await apiGetDiaryList({
+                startTime: params?.startTime || range[0],
+                endTime: params?.endTime || range[1],
+            });
+
+            if (res) setDiaryList(res);
+            dispatch(updateLoading(false));
+        },
+        [range]
+    );
 
     // Popup
     const [popup, setPopup] = useState('');
