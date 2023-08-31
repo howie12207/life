@@ -6,6 +6,7 @@ import { formatDate, toStartTime } from '@/utils/format';
 
 import { Modal, Fade, Button, RadioGroup, Radio, FormControlLabel } from '@mui/material';
 import { BaseInput, BaseInputType } from '@/components/baseInput/BaseInput';
+import { BaseDatePicker } from '@/components/baseDatePicker/BaseDatePicker';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -30,6 +31,10 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
     const { enqueueSnackbar } = useSnackbar();
 
     const dateString = useMemo(() => formatDate(editData?.diaryTime || ''), [editData?.diaryTime]);
+    const diaryDateRef: Ref<BaseInputType> = useRef(null);
+    const [diaryDate, setDiaryDate] = useState<Date | null>(null);
+    const [diaryDateIsValid, setDiaryDateIsValid] = useState(false);
+    const diaryDateRules = [{ validate: isRequired, message: '請輸入日記日期' }];
 
     const contentRef: Ref<BaseInputType> = useRef(null);
     const [content, setContent] = useState('');
@@ -41,6 +46,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
     const [selectedTime, setSelectedTime] = useState(toStartTime(new Date()));
 
     useEffect(() => {
+        setDiaryDate(new Date(editData?.diaryTime || Date.now()));
         setContent(editData?.content || '');
         setType(String(editData?.type || ''));
         setSelectedTime(
@@ -53,11 +59,12 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
         const isValid = [contentRef.current?.validateNow()];
         if (!isValid.every(item => item)) return enqueueSnackbar('請確認紅框處內容');
         dispatch(updateLoading(true));
+        const diff = (diaryDate as Date).valueOf() - Number(editData?.diaryTime);
         const params: DiaryItemParams = {
-            diaryTime: editData?.diaryTime || Date.now(),
+            diaryTime: (diaryDate as Date).valueOf(),
             content,
             type,
-            remindTime: new Date(selectedTime).valueOf(),
+            remindTime: new Date(selectedTime).valueOf() + diff,
         };
         const res =
             popup === 'add'
@@ -96,6 +103,17 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                     </h1>
 
                     <div className="overflow-y-auto">
+                        <BaseDatePicker
+                            ref={diaryDateRef}
+                            id="life-diaryDate"
+                            label="日記日期"
+                            value={diaryDate}
+                            setValue={setDiaryDate}
+                            isValid={diaryDateIsValid}
+                            setIsValid={setDiaryDateIsValid}
+                            rules={diaryDateRules}
+                            placeholder="請選擇日記日期"
+                        />
                         <BaseInput
                             ref={contentRef}
                             id="life-content"
@@ -126,11 +144,6 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                                 label="健身"
                             />
                             <FormControlLabel
-                                value={'hike'}
-                                control={<Radio size="small" />}
-                                label="健行"
-                            />
-                            <FormControlLabel
                                 value={'out'}
                                 control={<Radio size="small" />}
                                 label="Out"
@@ -152,7 +165,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                                 <label className="mb-1 block text-gray-700">提醒時間</label>
                                 <DatePicker
                                     selected={selectedTime}
-                                    onChange={date => setSelectedTime(date as Date)}
+                                    onChange={(date: Date) => setSelectedTime(date)}
                                     showTimeSelect
                                     showTimeSelectOnly
                                     timeIntervals={60}
