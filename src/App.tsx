@@ -81,6 +81,7 @@ const App = () => {
     const Diary = lazy(() => import('@/pages/diary'));
     const Stock = lazy(() => import('@/pages/stock'));
     const Memo = lazy(() => import('@/pages/memo'));
+    const Test = lazy(() => import('@/pages/test'));
     const Error = lazy(() => import('@/pages/error'));
 
     const routes = [
@@ -120,6 +121,13 @@ const App = () => {
             path: '/memo',
             Component: Memo,
             title: '便條紙',
+            nodeRef: useRef(null),
+        },
+        // TODO
+        {
+            path: '/test',
+            Component: Test,
+            title: '測試',
             nodeRef: useRef(null),
         },
         { path: '*', Component: Error, nodeRef: useRef(null) },

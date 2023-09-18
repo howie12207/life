@@ -2,6 +2,9 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import { fileURLToPath, URL } from 'url';
 
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
+
 export default defineConfig(({ mode }) => {
     process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
@@ -24,6 +27,21 @@ export default defineConfig(({ mode }) => {
                     secure: false,
                     rewrite: path => path.replace(/^\/proxyBase/, ''),
                 },
+            },
+        },
+        optimizeDeps: {
+            esbuildOptions: {
+                // Node.js global to browser globalThis
+                define: {
+                    global: 'globalThis',
+                },
+                // Enable esbuild polyfill plugins
+                plugins: [
+                    NodeGlobalsPolyfillPlugin({
+                        process: true,
+                    }),
+                    NodeModulesPolyfillPlugin(),
+                ],
             },
         },
     };
