@@ -42,6 +42,10 @@ const Sidebar = () => {
             name: '便條紙',
             link: '/memo',
         },
+        {
+            name: '計算機',
+            link: '/calculator',
+        },
     ];
 
     const LoginBox = () => {

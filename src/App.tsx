@@ -9,8 +9,8 @@ import {
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import Cookies from 'js-cookie';
 import { setNavigate } from '@/utils/navigateHelper';
-import { urlBase64ToUint8Array } from './utils/baseFunc';
-import { apiAddSubscription } from './api/subscribe';
+// import { urlBase64ToUint8Array } from './utils/baseFunc';
+// import { apiAddSubscription } from './api/subscribe';
 
 import { useAppDispatch } from '@/app/hook';
 import { updateToken } from '@/app/base';
@@ -82,6 +82,7 @@ const App = () => {
     const Stock = lazy(() => import('@/pages/stock'));
     const Memo = lazy(() => import('@/pages/memo'));
     const Test = lazy(() => import('@/pages/test'));
+    const Calculator = lazy(() => import('@/pages/calculator'));
     const Error = lazy(() => import('@/pages/error'));
 
     const routes = [
@@ -130,6 +131,12 @@ const App = () => {
             title: '測試',
             nodeRef: useRef(null),
         },
+        {
+            path: '/calculator',
+            Component: Calculator,
+            title: '計算機',
+            nodeRef: useRef(null),
+        },
         { path: '*', Component: Error, nodeRef: useRef(null) },
     ];
     const router = createBrowserRouter(
@@ -144,32 +151,32 @@ const App = () => {
     );
 
     // TODO
-    const swFunction = () => {
-        const hasGranted = Notification.permission === 'granted';
-        if (!hasGranted) Notification.requestPermission(() => ({}));
+    // const swFunction = () => {
+    //     const hasGranted = Notification.permission === 'granted';
+    //     if (!hasGranted) Notification.requestPermission(() => ({}));
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker
-                .register(`${import.meta.env.VITE_DOMAIN}${import.meta.env.VITE_BASE_URL}/sw.js`)
-                .then(registration => {
-                    return registration.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: urlBase64ToUint8Array(import.meta.env.VITE_VAPID_KEY),
-                    });
-                })
-                .then(pushSubscription => {
-                    if (!hasGranted) {
-                        apiAddSubscription(pushSubscription);
-                        // window.alert(pushSubscription);
-                    }
-                    console.log(pushSubscription);
-                    return pushSubscription;
-                });
-        }
-    };
-    useEffect(() => {
-        swFunction();
-    }, []);
+    //     if ('serviceWorker' in navigator) {
+    //         navigator.serviceWorker
+    //             .register(`${import.meta.env.VITE_DOMAIN}${import.meta.env.VITE_BASE_URL}/sw.js`)
+    //             .then(registration => {
+    //                 return registration.pushManager.subscribe({
+    //                     userVisibleOnly: true,
+    //                     applicationServerKey: urlBase64ToUint8Array(import.meta.env.VITE_VAPID_KEY),
+    //                 });
+    //             })
+    //             .then(pushSubscription => {
+    //                 if (!hasGranted) {
+    //                     apiAddSubscription(pushSubscription);
+    //                     // window.alert(pushSubscription);
+    //                 }
+    //                 console.log(pushSubscription);
+    //                 return pushSubscription;
+    //             });
+    //     }
+    // };
+    // useEffect(() => {
+    //     swFunction();
+    // }, []);
 
     return <RouterProvider router={router} />;
 };
