@@ -1,5 +1,5 @@
 import { useState, useRef, Ref, useEffect, useMemo } from 'react';
-import { useAppDispatch } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { updateLoading } from '@/app/base';
 import { useSnackbar } from 'notistack';
 import { formatDate, toStartTime } from '@/utils/format';
@@ -29,6 +29,7 @@ type Props = {
 const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Props) => {
     const dispatch = useAppDispatch();
     const { enqueueSnackbar } = useSnackbar();
+    const autoReload = useAppSelector(state => state.base.autoReload);
 
     const dateString = useMemo(() => formatDate(editData?.diaryTime || ''), [editData?.diaryTime]);
     const diaryDateRef: Ref<BaseInputType> = useRef(null);
@@ -73,7 +74,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
 
         dispatch(updateLoading(false));
         if (res) {
-            getDiaryList();
+            if (autoReload) getDiaryList();
             closeHandle();
         }
     };
@@ -84,7 +85,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
         const res = await apiDeleteDiaryItem(editData?._id as string);
         dispatch(updateLoading(false));
         if (res) {
-            getDiaryList();
+            if (autoReload) getDiaryList();
             closeHandle();
         }
     };

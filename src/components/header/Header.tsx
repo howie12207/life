@@ -1,13 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
-import { useAppDispatch } from '@/app/hook';
-import { updateIsOpenMenu } from '@/app/base';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useAppDispatch, useAppSelector } from '@/app/hook';
+import { updateIsOpenMenu, updateAutoReload } from '@/app/base';
 import { throttle } from '@/utils/baseFunc';
 
-import { Slide, IconButton } from '@mui/material';
+import { Slide, IconButton, Switch } from '@mui/material';
 import { Menu } from '@mui/icons-material';
 
 const Header = () => {
     const dispatch = useAppDispatch();
+    const autoReload = useAppSelector(state => state.base.autoReload);
     const [show, setShow] = useState(true);
     const lastScrollYRef = useRef(0);
 
@@ -30,6 +31,11 @@ const Header = () => {
         };
     }, [show]);
 
+    // Switch for reload when update
+    const changeAutoReload = (e: ChangeEvent<HTMLInputElement>) => {
+        dispatch(updateAutoReload(e.target.checked));
+    };
+
     const handleMenu = () => {
         dispatch(updateIsOpenMenu(true));
     };
@@ -40,7 +46,12 @@ const Header = () => {
                 <Slide direction="down" in={show} container={containerRef.current}>
                     <header className="fixed z-20 flex h-14 w-full items-center bg-amber-400 px-4 shadow">
                         <span className="text-xl text-white">Howie</span>
-                        <IconButton onClick={handleMenu} className="!ml-auto">
+                        <Switch
+                            className="ml-auto"
+                            checked={autoReload}
+                            onChange={changeAutoReload}
+                        />
+                        <IconButton onClick={handleMenu}>
                             <Menu />
                         </IconButton>
                     </header>

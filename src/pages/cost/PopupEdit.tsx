@@ -1,5 +1,5 @@
 import { useState, useRef, Ref, useEffect } from 'react';
-import { useAppDispatch } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { updateLoading } from '@/app/base';
 import { useSnackbar } from 'notistack';
 
@@ -23,6 +23,7 @@ type Props = {
 const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Props) => {
     const dispatch = useAppDispatch();
     const { enqueueSnackbar } = useSnackbar();
+    const autoReload = useAppSelector(state => state.base.autoReload);
 
     const dateRef: Ref<BaseInputType> = useRef(null);
     const [dateValue, setDateValue] = useState<Date | null>(new Date());
@@ -71,7 +72,7 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
 
         dispatch(updateLoading(false));
         if (res) {
-            getCostList();
+            if (autoReload) getCostList();
             closeHandle();
         }
     };
@@ -83,7 +84,7 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
         const res = await apiDeleteCostItem(editData?._id as string);
         dispatch(updateLoading(false));
         if (res) {
-            getCostList();
+            if (autoReload) getCostList();
             closeHandle();
         }
     };

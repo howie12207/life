@@ -7,6 +7,7 @@ export const baseSlice = createSlice({
         loading: false,
         token: '',
         isOpenMenu: false,
+        autoReload: window.localStorage.getItem('autoReload') !== 'false',
     },
     reducers: {
         updateLoading(state, action) {
@@ -22,8 +23,13 @@ export const baseSlice = createSlice({
         updateIsOpenMenu(state, action) {
             state.isOpenMenu = action.payload;
         },
+        updateAutoReload(state, action) {
+            state.autoReload = action.payload;
+            window.localStorage.setItem('autoReload', String(action.payload));
+        },
     },
 });
 
-export const { updateLoading, updateToken, clearToken, updateIsOpenMenu } = baseSlice.actions;
+export const { updateLoading, updateToken, clearToken, updateIsOpenMenu, updateAutoReload } =
+    baseSlice.actions;
 export default baseSlice.reducer;
