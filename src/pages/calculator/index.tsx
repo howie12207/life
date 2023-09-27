@@ -1,12 +1,14 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Decimal from 'decimal.js-light';
+import { apiGetCryptoPrice } from '@/api/crypto';
+import { formatDateTime } from '@/utils/format';
 
 import { BaseInput } from '@/components/baseInput/BaseInput';
 import { RadioGroup, Radio, FormControlLabel, Button } from '@mui/material';
 
 type InitData = 'costPrice' | 'leverage' | 'calcType' | 'ratioPrice';
 
-// TODO
+const INTERVAL = 30000;
 const Calculator = () => {
     const initData = {
         costPrice: '',
@@ -60,6 +62,43 @@ const Calculator = () => {
         setItemList([...itemList.slice(0, index), ...itemList.slice(index + 1)]);
     };
 
+    const [updateTime, setUpdateTime] = useState(formatDateTime(new Date()));
+    const [inputCrypto, setInputCrypto] = useState(
+        window.localStorage.getItem('cryptoList') || 'BTC'
+    );
+    const [cryptoPriceList, setCryptoPriceList] = useState({});
+    const getCryptoPrice = useCallback(async () => {
+        const res = await apiGetCryptoPrice({ fsyms: inputCrypto });
+        setUpdateTime(formatDateTime(new Date()));
+        if (res) setCryptoPriceList(res);
+    }, [inputCrypto]);
+    useEffect(() => {
+        getCryptoPrice();
+        let timer: ReturnType<typeof setTimeout> = setInterval(() => {
+            getCryptoPrice();
+        }, INTERVAL);
+
+        const handleVisible = () => {
+            if (document.visibilityState === 'visible') {
+                getCryptoPrice();
+                timer = setInterval(() => {
+                    getCryptoPrice();
+                }, INTERVAL);
+            } else clearInterval(timer);
+        };
+        document.addEventListener('visibilitychange', handleVisible);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisible);
+            clearInterval(timer);
+        };
+    }, [getCryptoPrice]);
+
+    const cryptoInputBlur = () => {
+        window.localStorage.setItem('cryptoList', inputCrypto);
+        getCryptoPrice();
+    };
+
     return (
         <section className="p-6 pb-20">
             <div>
@@ -87,7 +126,6 @@ const Calculator = () => {
                                 </Button>
                             </div>
                             <BaseInput
-                                // label="成本價位"
                                 id="life-cost-price"
                                 value={item.costPrice}
                                 setValue={value => handleEdit(index, 'costPrice', value)}
@@ -97,7 +135,6 @@ const Calculator = () => {
                                 className="w-[15rem] flex-none"
                             />
                             <BaseInput
-                                // label="槓桿倍率"
                                 id="life-leverage"
                                 value={item.leverage}
                                 setValue={value => handleEdit(index, 'leverage', value)}
@@ -128,7 +165,7 @@ const Calculator = () => {
                                 setValue={value => handleEdit(index, 'ratioPrice', value)}
                                 isValid={true}
                                 setIsValid={() => ({})}
-                                // placeholder="請輸入比例金額"
+                                placeholder="請輸入比例金額"
                                 className="w-[15rem] flex-none"
                             />
                             <div>
@@ -138,6 +175,28 @@ const Calculator = () => {
                         </section>
                     );
                 })}
+
+                <div className="my-4">
+                    <BaseInput
+                        id="life-crypto-search"
+                        value={inputCrypto}
+                        setValue={setInputCrypto}
+                        isValid={true}
+                        setIsValid={() => ({})}
+                        placeholder="請輸入欲查詢的幣"
+                        className="w-[15rem] flex-none"
+                        onBlur={cryptoInputBlur}
+                    />
+                    <div>{updateTime}</div>
+                    {Object.entries(cryptoPriceList).map(item => {
+                        return (
+                            <div key={item[0]} className="my-1">
+                                <span className="inline-block w-12">{item[0]}:</span>
+                                <span>{Number(item[1]).toLocaleString()}</span>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </section>
     );

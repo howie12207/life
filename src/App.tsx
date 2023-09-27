@@ -150,7 +150,6 @@ const App = () => {
         { basename: import.meta.env.VITE_BASE_URL }
     );
 
-    // TODO
     // const swFunction = () => {
     //     const hasGranted = Notification.permission === 'granted';
     //     if (!hasGranted) Notification.requestPermission(() => ({}));
