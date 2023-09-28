@@ -92,7 +92,7 @@ const Calculator = () => {
             document.removeEventListener('visibilitychange', handleVisible);
             clearInterval(timer);
         };
-    }, [getCryptoPrice]);
+    }, []);
 
     const cryptoInputBlur = () => {
         window.localStorage.setItem('cryptoList', inputCrypto);
