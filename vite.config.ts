@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
             },
         },
         server: {
+            port: 7777,
             proxy: {
                 '/proxyBase': {
                     target: 'http://localhost:7071',

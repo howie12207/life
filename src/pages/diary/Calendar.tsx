@@ -26,6 +26,7 @@ type DisplayItem = {
 
 const Calendar = ({ list, handleEditData, getDiaryList, setRange }: Props) => {
     const isLogin = useAppSelector(state => state.base.token);
+    const autoReload = useAppSelector(state => state.base.autoReload);
 
     const now = new Date();
     const [displayDate, setDisplayDate] = useState(now);
@@ -173,7 +174,7 @@ const Calendar = ({ list, handleEditData, getDiaryList, setRange }: Props) => {
         if (dragItem.type === 'remind')
             params.remindTime = newTime - (dragItem.diaryTime - (dragItem.remindTime || 0));
         const res = await apiEditDiaryItem(params);
-        if (res) getDiaryList();
+        if (res && autoReload) getDiaryList();
     };
     const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
         event.preventDefault();
