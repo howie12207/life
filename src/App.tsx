@@ -48,6 +48,17 @@ const App = () => {
             document.title = `${title} | Howie`;
         }, [location.pathname]);
 
+        // BfCache
+        useEffect(() => {
+            const handleBfCache = (e: PageTransitionEvent) => {
+                if (e.persisted) window.location.reload();
+            };
+            window.addEventListener('pageshow', handleBfCache);
+            return () => {
+                window.removeEventListener('pageshow', handleBfCache);
+            };
+        }, []);
+
         return (
             <>
                 <Header />
