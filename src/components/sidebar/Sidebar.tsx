@@ -46,6 +46,10 @@ const Sidebar = () => {
             name: '計算機',
             link: '/calculator',
         },
+        {
+            name: '價目表',
+            link: '/priceList',
+        },
     ];
 
     const LoginBox = () => {

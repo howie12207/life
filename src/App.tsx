@@ -94,6 +94,7 @@ const App = () => {
     const Memo = lazy(() => import('@/pages/memo'));
     // const Test = lazy(() => import('@/pages/test'));
     const Calculator = lazy(() => import('@/pages/calculator'));
+    const PriceList = lazy(() => import('@/pages/priceList'));
     const Error = lazy(() => import('@/pages/error'));
 
     const routes = [
@@ -146,6 +147,12 @@ const App = () => {
             path: '/calculator',
             Component: Calculator,
             title: '計算機',
+            nodeRef: useRef(null),
+        },
+        {
+            path: '/priceList',
+            Component: PriceList,
+            title: '價目表',
             nodeRef: useRef(null),
         },
         { path: '*', Component: Error, nodeRef: useRef(null) },

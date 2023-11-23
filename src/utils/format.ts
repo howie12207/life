@@ -38,3 +38,9 @@ export const formatTime = (time: Date | number | string) => {
     time = new Date(time);
     return (formatDateTime(time) as string)?.slice(11, 16);
 };
+
+export const formatToThousand = (number: number | string) => {
+    const value = Number(number);
+    if (isNaN(value)) return '';
+    return value.toLocaleString();
+};
