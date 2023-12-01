@@ -7,15 +7,15 @@
 //     return self.clients.claim();
 // });
 
-// self.addEventListener('push', function (event) {
-//     const data = event.data.json();
-//     const promiseChain = self.registration
-//         .showNotification(data.title, data.option)
-//         .then(() => {
-//             // console.log('push success');
-//         })
-//         .catch(() => {
-//             // console.log('push fail');
-//         });
-//     event.waitUntil(promiseChain);
-// });
+self.addEventListener('push', function (event) {
+    const data = event.data.json();
+    const promiseChain = self.registration
+        .showNotification(data.title, data.option)
+        .then(() => {
+            // console.log('push success');
+        })
+        .catch(() => {
+            // console.log('push fail');
+        });
+    event.waitUntil(promiseChain);
+});
