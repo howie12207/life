@@ -34,6 +34,12 @@ export default defineConfig(({ mode }) => {
                     secure: false,
                     rewrite: path => path.replace(/^\/proxyMax/, ''),
                 },
+                '/proxyAce': {
+                    target: 'https://ace.io/polarisex',
+                    changeOrigin: true,
+                    secure: false,
+                    rewrite: path => path.replace(/^\/proxyAce/, ''),
+                },
             },
         },
         optimizeDeps: {

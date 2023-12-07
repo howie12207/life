@@ -5,3 +5,4 @@ export const base: string = import.meta.env.DEV
     : import.meta.env.VITE_API_BASE;
 
 export const apiMax = `${local}/proxyMax`;
+export const apiAce = `${local}/proxyAce`;
