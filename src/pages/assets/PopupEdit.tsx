@@ -77,7 +77,7 @@ const PopupEdit = ({ popup, setPopup, getAssetsList }: Props) => {
     const submit = async () => {
         const isValid = [recordDateRef.current?.validateNow()];
         if (!isValid.every(item => item)) return enqueueSnackbar('請確認紅框處內容');
-        // if (tempList.length <= 0) return enqueueSnackbar('請新增資產');
+        if (tempList.length <= 0) return enqueueSnackbar('請新增資產');
         dispatch(updateLoading(true));
         const params: AssetsItemParams = {
             recordDate: toStartTime(recordDate as Date).valueOf(),
