@@ -50,6 +50,10 @@ const Sidebar = () => {
             name: '價目表',
             link: '/priceList',
         },
+        {
+            name: '資產',
+            link: '/assets',
+        },
     ];
 
     const LoginBox = () => {

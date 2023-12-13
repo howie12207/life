@@ -15,7 +15,7 @@ import { CSSTransition, SwitchTransition } from 'react-transition-group';
 type AcePriceListKeys = keyof AcePriceList;
 
 const PriceList = () => {
-    const INTERVAL = 10000;
+    const INTERVAL = 50000;
     const nodeRef = useRef(null);
     const nodeRef2 = useRef(null);
     const [maxPriceList, setMaxPriceList] = useState({} as MaxPriceList);
@@ -90,16 +90,22 @@ const PriceList = () => {
     };
 
     const btctwdCompare = useMemo(() => {
-        const buyAce = Number(acePriceList['BTC/TWD']?.buy);
-        const sellAce = Number(acePriceList['BTC/TWD']?.sell);
-        const buyMax = Number(maxPriceList['btctwd']?.buy);
-        const sellMax = Number(maxPriceList['btctwd']?.sell);
-        const diffA = sellAce - buyMax;
-        const diffB = sellMax - buyAce;
+        const buyAceBTCTWD = Number(acePriceList['BTC/TWD']?.buy);
+        const sellAceBTCTWD = Number(acePriceList['BTC/TWD']?.sell);
+        const buyMaxBTCTWD = Number(maxPriceList['btctwd']?.buy);
+        const sellMaxBTCTWD = Number(maxPriceList['btctwd']?.sell);
+        const diffA = sellAceBTCTWD - buyMaxBTCTWD;
+        const diffB = sellMaxBTCTWD - buyAceBTCTWD;
         if (diffA >= diffB) {
-            return { text: 'Ace買 Max賣', value: diffA ? `${(diffA / sellAce) * 100}%` : '' };
+            return {
+                text: 'BTCTWD Ace買 Max賣',
+                value: diffA ? `${(diffA / sellAceBTCTWD) * 100}%` : '',
+            };
         }
-        return { text: 'Ace賣 Max買', value: diffB ? `${(diffB / sellMax) * 100}%` : '' };
+        return {
+            text: 'BTCTWD Ace賣 Max買',
+            value: diffB ? `${(diffB / sellMaxBTCTWD) * 100}%` : '',
+        };
     }, [maxPriceList]);
     return (
         <section>

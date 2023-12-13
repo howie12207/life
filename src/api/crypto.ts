@@ -1,20 +1,6 @@
 import req from '@/config/request';
 import { base, apiMax, apiAce } from '@/config/apiPath';
 
-// 新增文章
-export type ArticleItemParams = {
-    name: string;
-    content: string;
-    sorts: Array<string>;
-    status: number;
-    createTime?: number;
-    updateTime?: number;
-    _id?: string;
-};
-
-// 取得文章清單
-type ListParams = { fsyms: string; tsyms?: string };
-
 type MaxPriceObj = { buy: string; sell: string; last: string };
 export type MaxPriceList = {
     btctwd: MaxPriceObj;
@@ -39,7 +25,7 @@ export type AceBook = {
     };
 };
 
-export const apiGetCryptoPrice = async (params: ListParams) => {
+export const apiGetCryptoPrice = async (params: object) => {
     const searchParams = new URLSearchParams();
     if (params) {
         Object.entries(params).forEach(([key, value]) => {

@@ -6,5 +6,5 @@ export const isRequired = (value: string | Date) => {
 
 export const onlyNumber = (value: string | Date, canEmpty = false) => {
     if (canEmpty && !isRequired(value)) return true;
-    return /^(?!$)(\d+)*$/.test(value as string);
+    return /^(?!$)(\d+(\.\d+)?|\.\d+)$/.test(value as string);
 };

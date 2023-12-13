@@ -95,6 +95,7 @@ const App = () => {
     // const Test = lazy(() => import('@/pages/test'));
     const Calculator = lazy(() => import('@/pages/calculator'));
     const PriceList = lazy(() => import('@/pages/priceList'));
+    const Assets = lazy(() => import('@/pages/assets'));
     const Error = lazy(() => import('@/pages/error'));
 
     const routes = [
@@ -153,6 +154,12 @@ const App = () => {
             path: '/priceList',
             Component: PriceList,
             title: '價目表',
+            nodeRef: useRef(null),
+        },
+        {
+            path: '/assets',
+            Component: Assets,
+            title: '資產',
             nodeRef: useRef(null),
         },
         { path: '*', Component: Error, nodeRef: useRef(null) },
