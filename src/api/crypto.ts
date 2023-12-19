@@ -1,5 +1,5 @@
 import req from '@/config/request';
-import { base, apiMax, apiAce } from '@/config/apiPath';
+import { base, apiMax, apiAce, apiBito } from '@/config/apiPath';
 
 type MaxPriceObj = { buy: string; sell: string; last: string };
 export type MaxPriceList = {
@@ -56,5 +56,87 @@ export const apiGetAceCryptoBook = async (baseCurrencyId: number, quoteCurrencyI
         `${apiAce}/open/v2/public/getOrderBook?baseCurrencyId=${baseCurrencyId}&quoteCurrencyId=${quoteCurrencyId}&depth=1`
     );
     if (res) return res as AceBook;
+    else return false;
+};
+export const apiAceOrder = async (params: object) => {
+    const res = await req(`${base}/aceOrder`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+    });
+    if (res) return res;
+    else return false;
+};
+export const apiAceOrder2 = async (params: object) => {
+    const res = await req(`${base}/aceOrder2`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+    });
+    if (res) return res;
+    else return false;
+};
+export const apiOrderListAll = async () => {
+    const res = await req(`${base}/orderListAll`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if (res?.data) return res.data;
+    else return false;
+};
+export const apiAceCancelOrder = async (params: object) => {
+    const res = await req(`${base}/aceCancelOrder`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+    });
+    if (res) return res;
+    else return false;
+};
+export const apiAceCancelOrder2 = async (params: object) => {
+    const res = await req(`${base}/aceCancelOrder2`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+    });
+    if (res) return res;
+    else return false;
+};
+
+// Bito
+export const apiGetBitoCryptoBook = async (pair = 'btc_twd', limit = 1) => {
+    const res = await req(`${apiBito}/order-book/${pair}?limit=${limit}`);
+    if (res) return res;
+    else return false;
+};
+export const apiBitoOrder = async (params: object) => {
+    const res = await req(`${base}/bitoOrder`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+    });
+    if (res) return res;
+    else return false;
+};
+export const apiBitoCancelOrder = async (orderId: string) => {
+    const res = await req(`${base}/bitoCancelOrder?orderId=${orderId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if (res) return res;
     else return false;
 };

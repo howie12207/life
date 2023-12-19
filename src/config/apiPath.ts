@@ -6,3 +6,4 @@ export const base: string = import.meta.env.DEV
 
 export const apiMax = `${local}/proxyMax`;
 export const apiAce = `${local}/proxyAce`;
+export const apiBito = `${local}/proxyBito`;

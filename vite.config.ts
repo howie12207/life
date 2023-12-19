@@ -40,6 +40,12 @@ export default defineConfig(({ mode }) => {
                     secure: false,
                     rewrite: path => path.replace(/^\/proxyAce/, ''),
                 },
+                '/proxyBito': {
+                    target: 'https://api.bitopro.com/v3',
+                    changeOrigin: true,
+                    secure: false,
+                    rewrite: path => path.replace(/^\/proxyBito/, ''),
+                },
             },
         },
         optimizeDeps: {
