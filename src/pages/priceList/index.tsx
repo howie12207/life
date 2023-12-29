@@ -40,7 +40,7 @@ type BitoPriceList = {
 };
 
 const PriceList = () => {
-    const INTERVAL = 50000;
+    const INTERVAL = 10000;
     const nodeRef = useRef(null);
     const nodeRef2 = useRef(null);
     const [maxPriceList, setMaxPriceList] = useState({} as MaxPriceList);
@@ -103,13 +103,10 @@ const PriceList = () => {
         }));
     };
 
-    const renderRef = useRef(false);
     useEffect(() => {
-        if (renderRef.current) return;
-        renderRef.current = true;
         getPrice();
         getOrderList();
-        let timer: ReturnType<typeof setTimeout> = setInterval(() => {
+        let timer: ReturnType<typeof setInterval> = setInterval(() => {
             getPrice();
         }, INTERVAL);
 
@@ -157,6 +154,7 @@ const PriceList = () => {
     const [acePrice, setAcePrice] = useState('');
     const [aceAmount, setAceAmount] = useState('0.001');
     const aceSubmit = async () => {
+        setIsLoadingPrice(true);
         await apiAceOrder({
             buyOrSell: aceType,
             price: acePrice,
@@ -164,12 +162,14 @@ const PriceList = () => {
             quoteCurrencyId: '1',
             baseCurrencyId: '2',
         });
+        await getOrderList();
     };
 
     const [ace2Type, setAce2Type] = useState('1');
     const [ace2Price, setAce2Price] = useState('');
     const [ace2Amount, setAce2Amount] = useState('0.001');
     const ace2Submit = async () => {
+        setIsLoadingPrice(true);
         await apiAceOrder2({
             buyOrSell: ace2Type,
             price: ace2Price,
@@ -177,17 +177,20 @@ const PriceList = () => {
             quoteCurrencyId: '14',
             baseCurrencyId: '2',
         });
+        await getOrderList();
     };
 
     const [bitoType, setBitoType] = useState('BUY');
     const [bitoPrice, setBitoPrice] = useState('');
     const [bitoAmount, setBitoAmount] = useState('0.001');
     const bitoSubmit = async () => {
+        setIsLoadingPrice(true);
         await apiBitoOrder({
             action: bitoType,
             price: bitoPrice,
             amount: bitoAmount,
         });
+        await getOrderList();
     };
 
     const [orderListAll, setOrderListAll] = useState({ ace: [], ace2: [], bito: [] });
@@ -420,8 +423,13 @@ const PriceList = () => {
                     <TableBody>
                         {orderListAll?.ace?.map((item: any) => {
                             return (
-                                <TableRow key={item.uid}>
-                                    <TableCell>{item.orderTime}</TableCell>
+                                <TableRow
+                                    key={item.tradeNo || item.orderNo}
+                                    style={
+                                        item.status === 2 ? { textDecoration: 'line-through' } : {}
+                                    }
+                                >
+                                    <TableCell>{item.orderTime || item.tradeTime}</TableCell>
                                     <TableCell>{formatToThousand(item.price)}</TableCell>
                                     <TableCell>
                                         {String(item.buyOrSell) === '1'
@@ -431,10 +439,12 @@ const PriceList = () => {
                                             : ''}
                                     </TableCell>
                                     <TableCell>
-                                        <Close
-                                            className="cursor-pointer"
-                                            onClick={() => cancelOrder('ace', item.orderNo)}
-                                        />
+                                        {item.status !== 2 && (
+                                            <Close
+                                                className="cursor-pointer"
+                                                onClick={() => cancelOrder('ace', item.orderNo)}
+                                            />
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             );
@@ -488,7 +498,7 @@ const PriceList = () => {
                         {orderListAll?.ace2?.map((item: any) => {
                             return (
                                 <TableRow
-                                    key={item.uid}
+                                    key={item.tradeNo || item.orderNo}
                                     style={
                                         item.status === 2 ? { textDecoration: 'line-through' } : {}
                                     }

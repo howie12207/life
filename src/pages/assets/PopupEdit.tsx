@@ -17,6 +17,9 @@ import {
     TableBody,
     TableRow,
     TableCell,
+    Select,
+    MenuItem,
+    SelectChangeEvent,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { BaseDatePicker } from '@/components/baseDatePicker/BaseDatePicker';
@@ -28,6 +31,18 @@ type Props = {
     getAssetsList: () => unknown;
 };
 
+const DEFAULT_OPTIONS = [
+    { name: '中信儲蓄險', currency: 'twd' },
+    { name: '台股', currency: 'twd' },
+    { name: '基富通', currency: 'twd' },
+    { name: '將來銀行', currency: 'twd' },
+    { name: '永豐銀行', currency: 'twd' },
+    { name: '海外券商', currency: 'usd' },
+    { name: '聯邦銀行', currency: 'twd' },
+    { name: '加密貨幣', currency: 'twd' },
+    { name: '複委託', currency: 'twd' },
+];
+
 const PopupEdit = ({ popup, setPopup, getAssetsList }: Props) => {
     const dispatch = useAppDispatch();
     const { enqueueSnackbar } = useSnackbar();
@@ -38,6 +53,16 @@ const PopupEdit = ({ popup, setPopup, getAssetsList }: Props) => {
     const recordDateRules = [{ validate: isRequired, message: '請選擇日期' }];
 
     const [tempList, setTempList] = useState([] as Array<AssetsListItem>);
+
+    const [assetsSelected, setAssetsSelected] = useState('');
+    const handleAssetsChange = (e: SelectChangeEvent) => {
+        const value = e.target.value;
+        const selected = DEFAULT_OPTIONS.find(item => item.name === value);
+        if (!selected) return;
+        setAssetsSelected(value);
+        setItemName(value);
+        setCurrency(selected.currency);
+    };
 
     const itemNameRef: Ref<BaseInputType> = useRef(null);
     const [itemName, setItemName] = useState('');
@@ -68,6 +93,7 @@ const PopupEdit = ({ popup, setPopup, getAssetsList }: Props) => {
         setItemName('');
         setCurrency('twd');
         setDollar('');
+        setAssetsSelected('');
     };
     const deleteOne = (index: number) => {
         setTempList(pre => [...pre.slice(0, index), ...pre.slice(index + 1)]);
@@ -143,6 +169,23 @@ const PopupEdit = ({ popup, setPopup, getAssetsList }: Props) => {
                             placeholder="請輸入南非幣匯率"
                             enter={submit}
                         />
+
+                        <Select
+                            displayEmpty
+                            className="w-80 max-w-full"
+                            labelId="assetOptions"
+                            value={assetsSelected}
+                            onChange={handleAssetsChange}
+                            size="small"
+                        >
+                            {DEFAULT_OPTIONS.map(options => {
+                                return (
+                                    <MenuItem value={options.name} key={options.name}>
+                                        {options.name}
+                                    </MenuItem>
+                                );
+                            })}
+                        </Select>
 
                         <BaseInput
                             ref={itemNameRef}

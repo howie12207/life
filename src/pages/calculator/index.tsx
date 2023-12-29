@@ -1,18 +1,12 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import Decimal from 'decimal.js-light';
-import { apiGetCryptoPrice } from '@/api/crypto';
-import { formatDateTime } from '@/utils/format';
 
 import { BaseInput } from '@/components/baseInput/BaseInput';
-import { RadioGroup, Radio, FormControlLabel, Button, Skeleton } from '@mui/material';
-import { CSSTransition, SwitchTransition } from 'react-transition-group';
+import { RadioGroup, Radio, FormControlLabel, Button } from '@mui/material';
 
 type InitData = 'costPrice' | 'leverage' | 'calcType' | 'ratioPrice';
 
-const INTERVAL = 30000;
 const Calculator = () => {
-    const nodeRef = useRef(null);
-
     const initData = {
         costPrice: '',
         leverage: '1',
@@ -63,47 +57,6 @@ const Calculator = () => {
     // 刪除
     const deleteItem = (index: number) => {
         setItemList([...itemList.slice(0, index), ...itemList.slice(index + 1)]);
-    };
-
-    // 取得加密貨幣
-    const [updateTime, setUpdateTime] = useState(formatDateTime(new Date()));
-    const [isLoadingCrypto, setIsLoadingCrypto] = useState(true);
-    const [inputCrypto, setInputCrypto] = useState(
-        window.localStorage.getItem('cryptoList') || 'BTC'
-    );
-    const [cryptoPriceList, setCryptoPriceList] = useState({});
-    const getCryptoPrice = useCallback(async () => {
-        setIsLoadingCrypto(true);
-        const res = await apiGetCryptoPrice({ fsyms: inputCrypto });
-        setUpdateTime(formatDateTime(new Date()));
-        if (res) setCryptoPriceList(res);
-        setIsLoadingCrypto(false);
-    }, [inputCrypto]);
-    useEffect(() => {
-        getCryptoPrice();
-        let timer: ReturnType<typeof setTimeout> = setInterval(() => {
-            getCryptoPrice();
-        }, INTERVAL);
-
-        const handleVisible = () => {
-            if (document.visibilityState === 'visible') {
-                getCryptoPrice();
-                timer = setInterval(() => {
-                    getCryptoPrice();
-                }, INTERVAL);
-            } else clearInterval(timer);
-        };
-        document.addEventListener('visibilitychange', handleVisible);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisible);
-            clearInterval(timer);
-        };
-    }, []);
-
-    const cryptoInputBlur = () => {
-        window.localStorage.setItem('cryptoList', inputCrypto);
-        getCryptoPrice();
     };
 
     return (
@@ -182,54 +135,6 @@ const Calculator = () => {
                         </section>
                     );
                 })}
-
-                <div className="my-4">
-                    <BaseInput
-                        id="life-crypto-search"
-                        value={inputCrypto}
-                        setValue={setInputCrypto}
-                        isValid={true}
-                        setIsValid={() => ({})}
-                        placeholder="請輸入欲查詢的幣"
-                        className="w-[15rem] flex-none"
-                        onBlur={cryptoInputBlur}
-                    />
-                    <div>{updateTime}</div>
-                    <SwitchTransition>
-                        <CSSTransition
-                            key={isLoadingCrypto ? 'loading' : 'data'}
-                            nodeRef={nodeRef}
-                            timeout={300}
-                            classNames="page"
-                            unmountOnExit
-                        >
-                            <section ref={nodeRef}>
-                                {isLoadingCrypto ? (
-                                    <>
-                                        <Skeleton width={160} />
-                                        <Skeleton width={160} />
-                                        <Skeleton width={160} />
-                                        <Skeleton width={160} />
-                                        <Skeleton width={160} />
-                                        <Skeleton width={160} />
-                                        <Skeleton width={160} />
-                                    </>
-                                ) : (
-                                    Object.entries(cryptoPriceList).map(item => {
-                                        return (
-                                            <div key={item[0]} className="my-1">
-                                                <span className="inline-block w-12">
-                                                    {item[0]}:
-                                                </span>
-                                                <span>{Number(item[1]).toLocaleString()}</span>
-                                            </div>
-                                        );
-                                    })
-                                )}
-                            </section>
-                        </CSSTransition>
-                    </SwitchTransition>
-                </div>
             </div>
         </section>
     );
