@@ -98,7 +98,6 @@ const Assets = () => {
     }) => {
         if (!dollar) return null;
         const money = dollar * Number(exrate);
-        console.log(exrate);
         return (
             <>
                 <br />
