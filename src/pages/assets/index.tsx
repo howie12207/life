@@ -87,6 +87,26 @@ const Assets = () => {
         setAssetsList(data);
     };
 
+    const PercentStr = ({
+        dollar,
+        exrate,
+        total,
+    }: {
+        dollar: number;
+        exrate: string;
+        total: number;
+    }) => {
+        if (!dollar) return null;
+        const money = dollar * Number(exrate);
+        console.log(exrate);
+        return (
+            <>
+                <br />
+                {`${((money / total) * 100).toFixed(0)}%`}
+            </>
+        );
+    };
+
     return (
         <section className="p-4">
             {isLogin && (
@@ -147,6 +167,17 @@ const Assets = () => {
                                                 return (
                                                     <TableCell key={list.combineName}>
                                                         {formatToThousand(list.dollar, '-')}
+                                                        <PercentStr
+                                                            dollar={list.dollar}
+                                                            exrate={
+                                                                list.currency === 'usd'
+                                                                    ? item.forexUSD
+                                                                    : list.currency === 'zar'
+                                                                    ? item.forexZAR
+                                                                    : '1'
+                                                            }
+                                                            total={Number(item.total)}
+                                                        />
                                                     </TableCell>
                                                 );
                                             })}
