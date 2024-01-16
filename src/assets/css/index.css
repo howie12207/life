@@ -13,6 +13,11 @@ input[type='number'] {
     -moz-appearance: textfield;
 }
 
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}
+
 body {
     /* Prevent scroll chaining */
     overscroll-behavior-y: contain;
