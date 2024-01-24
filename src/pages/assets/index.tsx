@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector } from '@/app/hook';
 import { apiGetAssetsList } from '@/api/assets';
-import { formatDate, formatToThousand } from '@/utils/format';
+import { formatDate, formatToThousand, toStartTime } from '@/utils/format';
 
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import { Button, Table, TableHead, TableRow, TableBody, TableCell, Skeleton } from '@mui/material';
@@ -16,7 +16,7 @@ const Assets = () => {
 
     // Search
     const [recordStartDate, setRecordStartDate] = useState<null | Date>(
-        new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 * 6)
+        toStartTime(new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 * 6))
     );
     const [searchSwitch, setSearchSwitch] = useState(false);
 
@@ -25,7 +25,8 @@ const Assets = () => {
     const getAssetsList = useCallback(async () => {
         setIsLoadingData(true);
         const params: { [key: string]: number | string } = {};
-        if (recordStartDate) params.startTime = recordStartDate.valueOf();
+        console.log(111, recordStartDate);
+        if (recordStartDate) params.startTime = toStartTime(recordStartDate).valueOf();
 
         const res = await apiGetAssetsList(params);
         if (res) aseetsListFilter(res);

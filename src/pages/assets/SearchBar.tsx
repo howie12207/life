@@ -22,7 +22,7 @@ const SearchBar = ({
         <Accordion className="mt-1">
             <AccordionSummary expandIcon={<ExpandMore />}>搜尋</AccordionSummary>
             <AccordionDetails>
-                <label className="mb-1 inline-block text-gray-700">花費日期</label>
+                <label className="mb-1 inline-block text-gray-700">紀錄日期開始</label>
                 <div className="mb-6 flex items-center gap-2">
                     <BaseDatePicker
                         id="life-search-record-start-date"

@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
                     rewrite: path => path.replace(/^\/proxyBase/, ''),
                 },
                 '/proxyMax': {
-                    target: 'https://max.maicoin.com/tickers',
+                    target: 'https://max-api.maicoin.com/api/v2/tickers',
                     changeOrigin: true,
                     secure: false,
                     rewrite: path => path.replace(/^\/proxyMax/, ''),
