@@ -20,7 +20,10 @@ const Diary = () => {
                 endTime: params?.endTime || range[1],
             });
 
-            if (res) setDiaryList(res);
+            if (res) {
+                // const filter = res.filter(item => item.type === 'workout');
+                setDiaryList(res);
+            }
             dispatch(updateLoading(false));
         },
         [range]
