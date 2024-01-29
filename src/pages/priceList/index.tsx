@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     apiGetMaxCryptoPrice,
     MaxPriceList,
@@ -34,15 +34,29 @@ import { Close } from '@mui/icons-material';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 
 type AcePriceListKeys = keyof AcePriceList;
+type MaxPriceListKeys = keyof MaxPriceList;
 type BitoPriceList = {
     buy: '';
     sell: '';
 };
 
+const MAX_TABLE_LIST: Array<MaxPriceListKeys> = [
+    'btctwd',
+    'ethtwd',
+    'usdttwd',
+    'btcusdt',
+    'ethusdt',
+];
+const ACE_TABLE_LIST: Array<AcePriceListKeys> = [
+    'BTC/TWD',
+    'ETH/TWD',
+    'USDT/TWD',
+    'BTC/USDT',
+    'ETH/USDT',
+];
+
 const PriceList = () => {
     const INTERVAL = 10000;
-    const nodeRef = useRef(null);
-    const nodeRef2 = useRef(null);
     const [maxPriceList, setMaxPriceList] = useState({} as MaxPriceList);
     const [acePriceList, setAcePriceList] = useState({} as AcePriceList);
     const [bitoPriceList, setBitoPriceList] = useState({} as BitoPriceList);
@@ -128,27 +142,23 @@ const PriceList = () => {
     }, []);
 
     const ValueComponent = (value: string) => {
-        return isLoadingPrice ? <Skeleton /> : <span>{formatToThousand(value)}</span>;
+        return (
+            <SwitchTransition>
+                <CSSTransition
+                    key={isLoadingPrice ? 'loading' : 'data'}
+                    timeout={300}
+                    classNames="page"
+                    unmountOnExit
+                >
+                    {isLoadingPrice ? (
+                        <Skeleton width={80} className="!inline-block" />
+                    ) : (
+                        <span>{formatToThousand(value)}</span>
+                    )}
+                </CSSTransition>
+            </SwitchTransition>
+        );
     };
-
-    // const btctwdCompare = useMemo(() => {
-    //     const buyAceBTCTWD = Number(acePriceList['BTC/TWD']?.buy);
-    //     const sellAceBTCTWD = Number(acePriceList['BTC/TWD']?.sell);
-    //     const buyMaxBTCTWD = Number(maxPriceList['btctwd']?.buy);
-    //     const sellMaxBTCTWD = Number(maxPriceList['btctwd']?.sell);
-    //     const diffA = sellAceBTCTWD - buyMaxBTCTWD;
-    //     const diffB = sellMaxBTCTWD - buyAceBTCTWD;
-    //     if (diffA >= diffB) {
-    //         return {
-    //             text: 'BTCTWD Ace買 Max賣',
-    //             value: diffA ? `${(diffA / sellAceBTCTWD) * 100}%` : '',
-    //         };
-    //     }
-    //     return {
-    //         text: 'BTCTWD Ace賣 Max買',
-    //         value: diffB ? `${(diffB / sellMaxBTCTWD) * 100}%` : '',
-    //     };
-    // }, [maxPriceList]);
 
     const [aceType, setAceType] = useState('1');
     const [acePrice, setAcePrice] = useState('');
@@ -206,11 +216,6 @@ const PriceList = () => {
 
     return (
         <section>
-            {/* <>
-                {btctwdCompare?.text}
-                {btctwdCompare?.value}
-            </> */}
-
             <>
                 <div>Max</div>
                 <Table>
@@ -224,71 +229,39 @@ const PriceList = () => {
                             <TableCell>eth/usdt</TableCell>
                         </TableRow>
                     </TableHead>
-                    <SwitchTransition>
-                        <CSSTransition
-                            key={isLoadingPrice ? 'loading' : 'data'}
-                            nodeRef={nodeRef}
-                            timeout={300}
-                            classNames="page"
-                        >
-                            <TableBody ref={nodeRef}>
-                                <TableRow>
-                                    <TableCell>Last</TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['btctwd']?.last)}
+
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>Last</TableCell>
+                            {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
+                                return (
+                                    <TableCell key={item}>
+                                        {ValueComponent(maxPriceList[item]?.last)}
                                     </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['ethtwd']?.last)}
+                                );
+                            })}
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Buy</TableCell>
+                            {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
+                                return (
+                                    <TableCell key={item}>
+                                        {ValueComponent(maxPriceList[item]?.buy)}
                                     </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['usdttwd']?.last)}
+                                );
+                            })}
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Sell</TableCell>
+                            {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
+                                return (
+                                    <TableCell key={item}>
+                                        {ValueComponent(maxPriceList[item]?.sell)}
                                     </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['btcusdt']?.last)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['ethusdt']?.last)}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Buy</TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['btctwd']?.buy)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['ethtwd']?.buy)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['usdttwd']?.buy)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['btcusdt']?.buy)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['ethusdt']?.buy)}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Sell</TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['btctwd']?.sell)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['ethtwd']?.sell)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['usdttwd']?.sell)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['btcusdt']?.sell)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(maxPriceList['ethusdt']?.sell)}
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </CSSTransition>
-                    </SwitchTransition>
+                                );
+                            })}
+                        </TableRow>
+                    </TableBody>
                 </Table>
             </>
 
@@ -305,78 +278,45 @@ const PriceList = () => {
                             <TableCell>eth/usdt</TableCell>
                         </TableRow>
                     </TableHead>
-                    <SwitchTransition>
-                        <CSSTransition
-                            key={isLoadingPrice ? 'loading' : 'data'}
-                            nodeRef={nodeRef2}
-                            timeout={300}
-                            classNames="page"
-                        >
-                            <TableBody ref={nodeRef2}>
-                                <TableRow>
-                                    <TableCell>Last</TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['BTC/TWD']?.last_price)}
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>Last</TableCell>
+                            {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
+                                return (
+                                    <TableCell key={item}>
+                                        {ValueComponent(acePriceList[item]?.last_price)}
                                     </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['ETH/TWD']?.last_price)}
+                                );
+                            })}
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Buy</TableCell>
+                            {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
+                                return (
+                                    <TableCell key={item}>
+                                        {ValueComponent(acePriceList[item]?.buy)}
                                     </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['USDT/TWD']?.last_price)}
+                                );
+                            })}
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Sell</TableCell>
+                            {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
+                                return (
+                                    <TableCell key={item}>
+                                        {ValueComponent(acePriceList[item]?.sell)}
                                     </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['BTC/USDT']?.last_price)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['ETH/USDT']?.last_price)}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Buy</TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['BTC/TWD']?.buy)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['ETH/TWD']?.buy)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['USDT/TWD']?.buy)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['BTC/USDT']?.buy)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['ETH/USDT']?.buy)}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Sell</TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['BTC/TWD']?.sell)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['ETH/TWD']?.sell)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['USDT/TWD']?.sell)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['BTC/USDT']?.sell)}
-                                    </TableCell>
-                                    <TableCell>
-                                        {ValueComponent(acePriceList['ETH/USDT']?.sell)}
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </CSSTransition>
-                    </SwitchTransition>
+                                );
+                            })}
+                        </TableRow>
+                    </TableBody>
                 </Table>
             </>
 
             <div className="my-4">
                 <span>Bito</span>
-                <span className="mx-4">Buy: {formatToThousand(bitoPriceList.buy)}</span>
-                <span>Sell: {formatToThousand(bitoPriceList.sell)}</span>
+                <span className="mx-4">Buy: {ValueComponent(bitoPriceList.buy)}</span>
+                <span>Sell: {ValueComponent(bitoPriceList.sell)}</span>
             </div>
 
             <section>
