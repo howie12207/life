@@ -25,7 +25,6 @@ const Assets = () => {
     const getAssetsList = useCallback(async () => {
         setIsLoadingData(true);
         const params: { [key: string]: number | string } = {};
-        console.log(111, recordStartDate);
         if (recordStartDate) params.startTime = toStartTime(recordStartDate).valueOf();
 
         const res = await apiGetAssetsList(params);

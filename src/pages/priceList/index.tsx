@@ -163,13 +163,14 @@ const PriceList = () => {
     const [aceType, setAceType] = useState('1');
     const [acePrice, setAcePrice] = useState('');
     const [aceAmount, setAceAmount] = useState('0.001');
+    const [aceCurrency, setAceCurrency] = useState('1');
     const aceSubmit = async () => {
         setIsLoadingPrice(true);
         await apiAceOrder({
             buyOrSell: aceType,
             price: acePrice,
             num: aceAmount,
-            quoteCurrencyId: '1',
+            quoteCurrencyId: aceCurrency,
             baseCurrencyId: '2',
         });
         await getOrderList();
@@ -328,6 +329,14 @@ const PriceList = () => {
                 >
                     <FormControlLabel value={'1'} control={<Radio size="small" />} label="買" />
                     <FormControlLabel value={'2'} control={<Radio size="small" />} label="賣" />
+                </RadioGroup>
+                <RadioGroup
+                    className="!flex-row"
+                    value={aceCurrency}
+                    onChange={e => setAceCurrency(e.target.value)}
+                >
+                    <FormControlLabel value={'1'} control={<Radio size="small" />} label="TWD" />
+                    <FormControlLabel value={'14'} control={<Radio size="small" />} label="USD" />
                 </RadioGroup>
                 <TextField
                     label="價格"
