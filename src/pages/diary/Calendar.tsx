@@ -4,7 +4,7 @@ import { apiGetDiaryList, apiEditDiaryItem, DiaryItemParams } from '@/api/diary'
 import { formatDate, formatTime, toStartTime } from '@/utils/format';
 import { toXLSX } from '@/utils/toExcel';
 
-import { Button } from '@mui/material';
+import { Button, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import { KeyboardArrowLeft, KeyboardArrowRight, Download } from '@mui/icons-material';
 
 type Props = {
@@ -23,6 +23,15 @@ type DisplayItem = {
     time: number;
     content: Array<DiaryItemParams>;
 };
+
+const DEFAULT_OPTIONS = [
+    { name: '全選', value: 'all' },
+    { name: '健身', value: 'workout' },
+    { name: '提醒', value: 'remind' },
+    { name: 'Out', value: 'out' },
+    { name: '生病', value: 'sick' },
+    { name: '無', value: '' },
+];
 
 const Calendar = ({ list, handleEditData, getDiaryList, setRange }: Props) => {
     const isLogin = useAppSelector(state => state.base.token);
@@ -89,10 +98,19 @@ const Calendar = ({ list, handleEditData, getDiaryList, setRange }: Props) => {
         });
     }, [displayDate]);
 
+    // Option
+    const [typeSelected, setTypeSelected] = useState('all');
+    const handleTypeChange = (e: SelectChangeEvent) => {
+        const value = e.target.value;
+        const selected = DEFAULT_OPTIONS.find(item => item.value === value);
+        if (!selected) return;
+        setTypeSelected(value);
+    };
+
     useEffect(() => {
         const newList = [...displayList];
         newList.forEach(item => (item.content = []));
-        list?.forEach(item => {
+        list?.filter(item => typeSelected === 'all' || item.type === typeSelected).forEach(item => {
             const index = newList.findIndex(date => date.time === item.diaryTime);
             newList[index]?.content.push({
                 _id: item._id,
@@ -103,7 +121,7 @@ const Calendar = ({ list, handleEditData, getDiaryList, setRange }: Props) => {
             });
         });
         setDisplayList(newList);
-    }, [list]);
+    }, [list, typeSelected]);
     useEffect(() => {
         handleDisplayList();
     }, [handleDisplayList]);
@@ -214,6 +232,21 @@ const Calendar = ({ list, handleEditData, getDiaryList, setRange }: Props) => {
                     <Download className="!text-base" />
                     下載
                 </Button>
+                <Select
+                    displayEmpty
+                    labelId="typeOptions"
+                    value={typeSelected}
+                    onChange={handleTypeChange}
+                    size="small"
+                >
+                    {DEFAULT_OPTIONS.map(options => {
+                        return (
+                            <MenuItem value={options.value} key={options.name}>
+                                {options.name}
+                            </MenuItem>
+                        );
+                    })}
+                </Select>
             </div>
             <section className="grid h-[calc(100vh-5rem-2rem)] grid-cols-7 overflow-hidden text-xs sm:text-base">
                 {displayList.map((item, index) => {
