@@ -118,8 +118,9 @@ const PriceList = () => {
     };
 
     useEffect(() => {
-        getPrice();
         getOrderList();
+        if (import.meta.env.PROD) return;
+        getPrice();
         let timer: ReturnType<typeof setInterval> = setInterval(() => {
             getPrice();
         }, INTERVAL);
