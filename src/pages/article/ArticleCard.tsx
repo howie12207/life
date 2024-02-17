@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import { formatDate } from '@/utils/format';
 import { ArticleItemParams } from '@/api/article';
+import DOMPurify from 'dompurify';
 
 import { Skeleton } from '@mui/material';
 import { NavigateNext } from '@mui/icons-material';
@@ -64,7 +65,9 @@ const ArticleCard = ({ data, className, isLoadingData }: Props) => {
                         ) : (
                             <div
                                 className={`line-clamp-6 overflow-hidden overflow-ellipsis ${style.content}`}
-                                dangerouslySetInnerHTML={{ __html: data.content }}
+                                dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(data.content),
+                                }}
                             ></div>
                         )}
 
