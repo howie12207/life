@@ -34,15 +34,19 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const edit = useMemo(() => {
+    const isOpen = () => {
         return popup === 'add' || popup === 'edit';
-    }, [popup]);
+    };
+    const [popupType, setPopupType] = useState('');
+    useEffect(() => {
+        if (!popupType) setPopupType(popup);
+    }, [popup, popupType]);
 
     type PopupType = 'add' | 'edit';
     const popupTypeText = useMemo(() => {
         const typeList = { add: '新增', edit: '編輯' };
-        return typeList[popup as PopupType] || '';
-    }, [popup]);
+        return typeList[popupType as PopupType] || '';
+    }, [popupType]);
 
     // Title
     const titleRef: Ref<BaseInputType> = useRef(null);
@@ -67,7 +71,7 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
         }
     }, [dispatch]);
     useEffect(() => {
-        if (sortList.length === 0 && edit) getSortList();
+        if (sortList.length === 0 && isOpen()) getSortList();
     }, [popup, sortList, getSortList]);
     const [sorts, setSorts] = useState<string[]>([]);
     const sortsIsValid = useMemo(() => sorts?.length > 0, [sorts]);
@@ -170,8 +174,8 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
     };
 
     return (
-        <Modal open={edit} closeAfterTransition>
-            <Fade in={edit} timeout={{ enter: 500, exit: 500 }}>
+        <Modal open={isOpen()} closeAfterTransition>
+            <Fade in={isOpen()} timeout={{ enter: 500, exit: 500 }}>
                 <form
                     className={`fixed left-1/2 top-1/2 flex max-h-[80%] w-[90%] -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded bg-white px-4 py-8 text-sm`}
                 >
@@ -242,7 +246,7 @@ const PopupEdit = ({ popup, setPopup, getArticle, editData }: Props) => {
                         <Button variant="contained" onClick={submit}>
                             送出
                         </Button>
-                        {popup === 'edit' && (
+                        {popupType === 'edit' && (
                             <Button color="error" variant="contained" onClick={deleteItem}>
                                 刪除
                             </Button>

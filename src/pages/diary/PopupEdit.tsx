@@ -90,9 +90,18 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
         }
     };
 
+    const [popupType, setPopupType] = useState('');
+    useEffect(() => {
+        if (!popupType) setPopupType(popup);
+    }, [popup, popupType]);
+
     const closeHandle = () => {
         setPopup('');
-        setEditData({} as DiaryItemParams);
+
+        setTimeout(() => {
+            setEditData({} as DiaryItemParams);
+            setPopupType('');
+        }, 500);
     };
 
     return (
@@ -100,7 +109,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
             <Fade in={popup === 'add' || popup === 'edit'} timeout={{ enter: 500, exit: 500 }}>
                 <form className="fixed left-1/2 top-1/2 flex max-h-[80%] w-[90%] max-w-[24rem] -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded bg-white px-4 py-8 text-sm sm:w-96">
                     <h1 className="mb-4 h-auto text-center text-2xl font-bold text-blue-800">
-                        {`${popup === 'add' ? '新增' : '編輯'} ${dateString}`}
+                        {`${popupType === 'add' ? '新增' : '編輯'} ${dateString}`}
                     </h1>
 
                     <div className="overflow-y-auto">
@@ -181,7 +190,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
                         <Button variant="contained" onClick={submit}>
                             送出
                         </Button>
-                        {popup === 'edit' && (
+                        {popupType === 'edit' && (
                             <Button color="error" variant="contained" onClick={deleteItem}>
                                 刪除
                             </Button>

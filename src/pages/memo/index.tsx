@@ -140,7 +140,10 @@ const Memo = () => {
     };
     const close = () => {
         setPopup('');
-        setEditData({} as MemoItemParams);
+
+        setTimeout(() => {
+            setEditData({} as MemoItemParams);
+        }, 500);
     };
 
     return (

@@ -123,9 +123,18 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
         setIsLoading(false);
     };
 
+    const [popupType, setPopupType] = useState('');
+    useEffect(() => {
+        if (!popupType) setPopupType(popup);
+    }, [popup, popupType]);
+
     const closeHandle = () => {
         setPopup('');
-        setEditData({} as PortfolioItemParams);
+
+        setTimeout(() => {
+            setEditData({} as PortfolioItemParams);
+            setPopupType('');
+        }, 500);
     };
 
     const changeIsRecommend = (e: ChangeEvent<HTMLInputElement>) => {
@@ -137,7 +146,7 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
             <Fade in={popup === 'add' || popup === 'edit'} timeout={{ enter: 500, exit: 500 }}>
                 <form className="fixed left-1/2 top-1/2 flex max-h-[80%] w-[90%] max-w-[24rem] -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded bg-white px-4 py-8 text-sm sm:w-96">
                     <h1 className="mb-4 h-auto text-center text-2xl font-bold text-blue-800">
-                        {`${popup === 'add' ? '新增' : '編輯'}作品項目`}
+                        {`${popupType === 'add' ? '新增' : '編輯'}作品項目`}
                     </h1>
 
                     <div className="overflow-y-auto">
@@ -245,7 +254,7 @@ const PopupEdit = ({ popup, setPopup, getPortfolioList, editData, setEditData }:
                         <Button variant="contained" onClick={submit} disabled={isLoading}>
                             送出
                         </Button>
-                        {popup === 'edit' && (
+                        {popupType === 'edit' && (
                             <Button
                                 variant="contained"
                                 color="error"
