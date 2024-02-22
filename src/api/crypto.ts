@@ -24,6 +24,11 @@ export type AceBook = {
         asks: Array<Array<string>>;
     };
 };
+export type Wallet = {
+    ace: Array<{ currencyName: string; cashAmount: string }>;
+    ace2: Array<{ currencyName: string; cashAmount: string }>;
+    bito: Array<{ currency: string; available: string }>;
+};
 
 export const apiGetCryptoPrice = async (params: object) => {
     const searchParams = new URLSearchParams();
@@ -80,16 +85,6 @@ export const apiAceOrder2 = async (params: object) => {
     if (res) return res;
     else return false;
 };
-export const apiOrderListAll = async () => {
-    const res = await req(`${base}/orderListAll`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-    if (res?.data) return res.data;
-    else return false;
-};
 export const apiAceCancelOrder = async (params: object) => {
     const res = await req(`${base}/aceCancelOrder`, {
         method: 'POST',
@@ -138,5 +133,26 @@ export const apiBitoCancelOrder = async (orderId: string) => {
         },
     });
     if (res) return res;
+    else return false;
+};
+
+export const apiOrderListAll = async () => {
+    const res = await req(`${base}/orderListAll`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if (res?.data) return res.data;
+    else return false;
+};
+export const apiFetchBalanceAll = async () => {
+    const res = await req(`${base}/balanceAll`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if (res?.data) return res.data as Wallet;
     else return false;
 };

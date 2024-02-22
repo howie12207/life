@@ -14,6 +14,8 @@ import {
     apiAceOrder,
     apiAceOrder2,
     apiBitoOrder,
+    apiFetchBalanceAll,
+    Wallet,
 } from '@/api/crypto';
 import { formatToThousand, formatDateTime } from '@/utils/format';
 
@@ -106,6 +108,13 @@ const PriceList = () => {
         setIsLoadingPrice(false);
     }, []);
 
+    // Wallet
+    const [wallet, setWallet] = useState({} as Wallet);
+    const getBalance = useCallback(async () => {
+        const res = await apiFetchBalanceAll();
+        if (res) setWallet(res);
+    }, []);
+
     const handleAceBook = (target: AcePriceListKeys, data: AceBook) => {
         setAcePriceList(preState => ({
             ...preState,
@@ -121,6 +130,7 @@ const PriceList = () => {
         getOrderList();
         if (import.meta.env.PROD) return;
         getPrice();
+        getBalance();
         let timer: ReturnType<typeof setInterval> = setInterval(() => {
             getPrice();
         }, INTERVAL);
@@ -163,7 +173,7 @@ const PriceList = () => {
 
     const [aceType, setAceType] = useState('1');
     const [acePrice, setAcePrice] = useState('');
-    const [aceAmount, setAceAmount] = useState('0.001');
+    const [aceAmount, setAceAmount] = useState('0.0007');
     const [aceCurrency, setAceCurrency] = useState('1');
     const aceSubmit = async () => {
         setIsLoadingPrice(true);
@@ -174,12 +184,12 @@ const PriceList = () => {
             quoteCurrencyId: aceCurrency,
             baseCurrencyId: '2',
         });
-        await getOrderList();
+        await Promise.all([getOrderList(), getBalance()]);
     };
 
     const [ace2Type, setAce2Type] = useState('1');
     const [ace2Price, setAce2Price] = useState('');
-    const [ace2Amount, setAce2Amount] = useState('0.001');
+    const [ace2Amount, setAce2Amount] = useState('0.0008');
     const ace2Submit = async () => {
         setIsLoadingPrice(true);
         await apiAceOrder2({
@@ -189,7 +199,7 @@ const PriceList = () => {
             quoteCurrencyId: '14',
             baseCurrencyId: '2',
         });
-        await getOrderList();
+        await Promise.all([getOrderList(), getBalance()]);
     };
 
     const [bitoType, setBitoType] = useState('BUY');
@@ -202,7 +212,7 @@ const PriceList = () => {
             price: bitoPrice,
             amount: bitoAmount,
         });
-        await getOrderList();
+        await Promise.all([getOrderList(), getBalance()]);
     };
 
     const [orderListAll, setOrderListAll] = useState({ ace: [], ace2: [], bito: [] });
@@ -541,6 +551,60 @@ const PriceList = () => {
                                 </TableRow>
                             );
                         })}
+                    </TableBody>
+                </Table>
+            </section>
+
+            <section className="mt-4">
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>錢包</TableCell>
+                            <TableCell>BTC</TableCell>
+                            <TableCell>TWD</TableCell>
+                            <TableCell>USDT</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>Ace</TableCell>
+                            <TableCell>
+                                {wallet.ace?.find(item => item.currencyName === 'BTC')?.cashAmount}
+                            </TableCell>
+                            <TableCell>
+                                {wallet.ace?.find(item => item.currencyName === 'TWD')?.cashAmount}
+                            </TableCell>
+                            <TableCell>
+                                {wallet.ace?.find(item => item.currencyName === 'USDT')?.cashAmount}
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Ace2</TableCell>
+                            <TableCell>
+                                {wallet.ace2?.find(item => item.currencyName === 'BTC')?.cashAmount}
+                            </TableCell>
+                            <TableCell>
+                                {wallet.ace2?.find(item => item.currencyName === 'TWD')?.cashAmount}
+                            </TableCell>
+                            <TableCell>
+                                {
+                                    wallet.ace2?.find(item => item.currencyName === 'USDT')
+                                        ?.cashAmount
+                                }
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Bito</TableCell>
+                            <TableCell>
+                                {wallet.bito?.find(item => item.currency === 'btc')?.available}
+                            </TableCell>
+                            <TableCell>
+                                {wallet.bito?.find(item => item.currency === 'twd')?.available}
+                            </TableCell>
+                            <TableCell>
+                                {wallet.bito?.find(item => item.currency === 'usdt')?.available}
+                            </TableCell>
+                        </TableRow>
                     </TableBody>
                 </Table>
             </section>
