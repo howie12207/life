@@ -18,7 +18,7 @@ export const baseSlice = createSlice({
         },
         clearToken(state) {
             state.token = '';
-            Cookies.remove('token');
+            Cookies.remove('accessToken');
         },
         updateIsOpenMenu(state, action) {
             state.isOpenMenu = action.payload;

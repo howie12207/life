@@ -189,7 +189,7 @@ const PriceList = () => {
 
     const [ace2Type, setAce2Type] = useState('1');
     const [ace2Price, setAce2Price] = useState('');
-    const [ace2Amount, setAce2Amount] = useState('0.0008');
+    const [ace2Amount, setAce2Amount] = useState('0.0007');
     const ace2Submit = async () => {
         setIsLoadingPrice(true);
         await apiAceOrder2({
@@ -204,7 +204,7 @@ const PriceList = () => {
 
     const [bitoType, setBitoType] = useState('BUY');
     const [bitoPrice, setBitoPrice] = useState('');
-    const [bitoAmount, setBitoAmount] = useState('0.001');
+    const [bitoAmount, setBitoAmount] = useState('0.0008');
     const bitoSubmit = async () => {
         setIsLoadingPrice(true);
         await apiBitoOrder({
@@ -518,7 +518,6 @@ const PriceList = () => {
                 <Button variant="contained" onClick={bitoSubmit}>
                     下單
                 </Button>
-
                 <Table>
                     <TableHead>
                         <TableRow>

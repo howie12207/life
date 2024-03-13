@@ -21,7 +21,7 @@ import LoadingFull from '@/components/loadingFull/LoadingFull';
 const App = () => {
     const dispatch = useAppDispatch();
     useEffect(() => {
-        const token = Cookies.get('token');
+        const token = Cookies.get('accessToken');
         if (token) dispatch(updateToken(token));
     }, [dispatch]);
 
