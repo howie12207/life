@@ -1,4 +1,4 @@
-import { useRef, useEffect, lazy, Suspense } from 'react';
+import { useRef, lazy, Suspense } from 'react';
 import {
     createBrowserRouter,
     RouterProvider,
@@ -22,10 +22,8 @@ import LoadingFull from '@/components/loadingFull/LoadingFull';
 
 const App = () => {
     const dispatch = useAppDispatch();
-    useEffect(() => {
-        const token = Cookies.get('accessToken');
-        if (token) dispatch(updateToken(token));
-    }, [dispatch]);
+    const token = Cookies.get('accessToken');
+    if (token) dispatch(updateToken(token));
 
     const Root = () => {
         // navigate without hooks
@@ -39,25 +37,18 @@ const App = () => {
             nodeRef: emptyRef,
         };
 
-        useEffect(() => {
-            let pathname = location.pathname;
-            const articleIdReg = /^\/article\/.+$/;
-            if (articleIdReg.test(pathname)) pathname = '/article/:id';
+        let pathname = location.pathname;
+        const articleIdReg = /^\/article\/.+$/;
+        if (articleIdReg.test(pathname)) pathname = '/article/:id';
 
-            const title = routes.find(route => route.path === pathname)?.title || '錯誤頁';
-            document.title = `${title} | Howie`;
-        }, [location.pathname]);
+        const title = routes.find(route => route.path === pathname)?.title || '錯誤頁';
+        document.title = `${title} | Howie`;
 
         // BfCache
-        useEffect(() => {
-            const handleBfCache = (e: PageTransitionEvent) => {
-                if (e.persisted) window.location.reload();
-            };
-            window.addEventListener('pageshow', handleBfCache);
-            return () => {
-                window.removeEventListener('pageshow', handleBfCache);
-            };
-        }, []);
+        const handleBfCache = (e: PageTransitionEvent) => {
+            if (e.persisted) window.location.reload();
+        };
+        window.addEventListener('pageshow', handleBfCache);
 
         return (
             <>
