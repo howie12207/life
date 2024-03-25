@@ -17,6 +17,7 @@ import PopupEdit from './PopupEdit';
 const Memo = () => {
     const dispatch = useAppDispatch();
     const isLogin = useAppSelector(state => state.base.token);
+    const autoReload = useAppSelector(state => state.base.autoReload);
 
     const [newText, setNewText] = useState('');
 
@@ -105,8 +106,8 @@ const Memo = () => {
     // Submit
     const submitAdd = async () => {
         const res = await apiAddMemoItem({ content: newText.trim(), color: palette });
-        await fetchMemoList();
         if (res) {
+            if (autoReload) await fetchMemoList();
             setNewText('');
             setPalette('');
         }
@@ -115,7 +116,7 @@ const Memo = () => {
         dispatch(updateLoading(true));
         const res = await apiEditMemoItem(data);
         if (res) {
-            fetchMemoList();
+            if (autoReload) fetchMemoList();
             close();
         }
         dispatch(updateLoading(false));
