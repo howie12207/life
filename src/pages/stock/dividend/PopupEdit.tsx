@@ -111,8 +111,8 @@ const PopupDividendEdit = ({ popup, setPopup, getDividendList, editData, setEdit
         const params: DividendItemParams = {
             itemCode,
             itemName,
-            tradeDate: toStartTime(tradeDate as Date).valueOf(),
-            exDividendDate: toStartTime(exDividendDate as Date).valueOf(),
+            tradeDate: (toStartTime(tradeDate) as Date).valueOf(),
+            exDividendDate: (toStartTime(exDividendDate) as Date).valueOf(),
             dollar: Number(dollar),
             amount: Number(amount),
             note,

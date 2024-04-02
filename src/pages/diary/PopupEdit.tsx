@@ -44,7 +44,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
 
     const [type, setType] = useState('');
 
-    const [selectedTime, setSelectedTime] = useState(toStartTime(new Date()));
+    const [selectedTime, setSelectedTime] = useState(toStartTime(new Date()) as Date);
 
     useEffect(() => {
         setDiaryDate(new Date(editData?.diaryTime || Date.now()));
@@ -65,7 +65,7 @@ const PopupEdit = ({ popup, setPopup, getDiaryList, editData, setEditData }: Pro
             diaryTime: (diaryDate as Date).valueOf(),
             content,
             type,
-            remindTime: new Date(selectedTime).valueOf() + diff,
+            remindTime: new Date(selectedTime as Date).valueOf() + diff,
         };
         const res =
             popup === 'add'

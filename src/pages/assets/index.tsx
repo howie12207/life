@@ -16,7 +16,7 @@ const Assets = () => {
 
     // Search
     const [recordStartDate, setRecordStartDate] = useState<null | Date>(
-        toStartTime(new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 * 6))
+        toStartTime(new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 * 3)) as Date
     );
     const [searchSwitch, setSearchSwitch] = useState(false);
 
@@ -25,7 +25,7 @@ const Assets = () => {
     const getAssetsList = useCallback(async () => {
         setIsLoadingData(true);
         const params: { [key: string]: number | string } = {};
-        if (recordStartDate) params.startTime = toStartTime(recordStartDate).valueOf();
+        if (recordStartDate) params.startTime = (toStartTime(recordStartDate) as Date).valueOf();
 
         const res = await apiGetAssetsList(params);
         if (res) aseetsListFilter(res);

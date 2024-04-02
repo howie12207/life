@@ -1,4 +1,4 @@
-export const toStartTime = (time: Date) => {
+export const toStartTime = (time: Date | number | null) => {
     if (!time) return time;
     time = new Date(time);
 
@@ -43,4 +43,13 @@ export const formatToThousand = (number: number | string, type = '0') => {
     const value = Number(number);
     if (isNaN(value) || value === 0) return type;
     return value.toLocaleString();
+};
+
+export const settleTimezone = (time: Date | null | number, minus?: boolean) => {
+    if (!time) return time;
+    const localTime = new Date(time);
+    const localOffset = localTime.getTimezoneOffset();
+    const targetOffset = 8 * 60;
+    const timeDiff = (localOffset + targetOffset) * 60 * 1000;
+    return minus ? time.valueOf() - timeDiff : time.valueOf() + timeDiff;
 };

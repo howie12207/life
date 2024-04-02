@@ -253,7 +253,9 @@ const Calendar = ({ list, handleEditData, getDiaryList, setRange }: Props) => {
                     return (
                         <div
                             className={`border p-1 ${
-                                toStartTime(now).valueOf() === item.time ? ' bg-green-200' : ''
+                                (toStartTime(now) as Date).valueOf() === item.time
+                                    ? ' bg-green-200'
+                                    : ''
                             } ${
                                 item.time < monthStart || item.time > monthEnd ? 'bg-gray-100' : ''
                             }`}

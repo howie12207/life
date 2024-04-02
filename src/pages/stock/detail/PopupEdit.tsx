@@ -114,7 +114,7 @@ const PopupEdit = ({ popup, setPopup, getStockList, editData, setEditData }: Pro
             itemCode,
             itemName,
             itemType,
-            tradeDate: toStartTime(tradeDate as Date).valueOf(),
+            tradeDate: (toStartTime(tradeDate) as Date).valueOf(),
             price,
             amount: Number(amount),
             dollar: Number(dollar),

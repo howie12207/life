@@ -90,7 +90,7 @@ const Input = (
                 className={`h-10 w-full rounded border px-3 outline-none transition ${
                     !isValid && isBlured ? '!border-red-500' : ''
                 } ${className}`}
-                selected={value}
+                selected={value as Date}
                 onChange={changeHandle}
                 onBlur={blurHandle}
                 {...(placeholder ? { placeholderText: placeholder } : {})}

@@ -60,7 +60,7 @@ const PopupEdit = ({ popup, setPopup, getCostList, editData, setEditData }: Prop
         if (!isValid.every(item => item)) return enqueueSnackbar('請確認紅框處內容');
         dispatch(updateLoading(true));
         const params: CostItemParams = {
-            costTime: toStartTime(dateValue as Date).valueOf(),
+            costTime: (toStartTime(dateValue) as Date).valueOf(),
             itemName,
             price: Number(price),
             note,

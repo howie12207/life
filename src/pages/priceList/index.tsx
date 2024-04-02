@@ -17,7 +17,7 @@ import {
     apiFetchBalanceAll,
     Wallet,
 } from '@/api/crypto';
-import { formatToThousand, formatDateTime } from '@/utils/format';
+import { formatToThousand, formatDateTime, settleTimezone, toStartTime } from '@/utils/format';
 
 import {
     Table,
@@ -34,6 +34,7 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
+import { BaseDatePicker } from '@/components/baseDatePicker/BaseDatePicker';
 
 type AcePriceListKeys = keyof AcePriceList;
 type MaxPriceListKeys = keyof MaxPriceList;
@@ -65,6 +66,7 @@ const PriceList = () => {
     const [isLoadingPrice, setIsLoadingPrice] = useState(true);
 
     const getPrice = useCallback(async () => {
+        if (import.meta.env.PROD) return;
         setIsLoadingPrice(true);
         const [
             resMax,
@@ -101,16 +103,19 @@ const PriceList = () => {
         setIsLoadingPrice(false);
     }, []);
 
+    const [orderStartDate, setOrderStartDate] = useState<Date | null>(new Date());
+
     const getOrderList = useCallback(async () => {
-        setIsLoadingPrice(true);
-        const orderList = await apiOrderListAll();
+        const orderList = await apiOrderListAll({
+            startTime: settleTimezone(toStartTime(settleTimezone(orderStartDate)), true),
+        });
         setOrderListAll(orderList);
-        setIsLoadingPrice(false);
-    }, []);
+    }, [orderStartDate]);
 
     // Wallet
     const [wallet, setWallet] = useState({} as Wallet);
     const getBalance = useCallback(async () => {
+        if (import.meta.env.PROD) return;
         const res = await apiFetchBalanceAll();
         if (res) setWallet(res);
     }, []);
@@ -128,7 +133,6 @@ const PriceList = () => {
 
     useEffect(() => {
         getOrderList();
-        if (import.meta.env.PROD) return;
         getPrice();
         getBalance();
         let timer: ReturnType<typeof setInterval> = setInterval(() => {
@@ -176,7 +180,6 @@ const PriceList = () => {
     const [aceAmount, setAceAmount] = useState('0.0007');
     const [aceCurrency, setAceCurrency] = useState('1');
     const aceSubmit = async () => {
-        setIsLoadingPrice(true);
         await apiAceOrder({
             buyOrSell: aceType,
             price: acePrice,
@@ -191,7 +194,6 @@ const PriceList = () => {
     const [ace2Price, setAce2Price] = useState('');
     const [ace2Amount, setAce2Amount] = useState('0.0007');
     const ace2Submit = async () => {
-        setIsLoadingPrice(true);
         await apiAceOrder2({
             buyOrSell: ace2Type,
             price: ace2Price,
@@ -206,7 +208,6 @@ const PriceList = () => {
     const [bitoPrice, setBitoPrice] = useState('');
     const [bitoAmount, setBitoAmount] = useState('0.0008');
     const bitoSubmit = async () => {
-        setIsLoadingPrice(true);
         await apiBitoOrder({
             action: bitoType,
             price: bitoPrice,
@@ -329,6 +330,21 @@ const PriceList = () => {
                 <span>Bito</span>
                 <span className="mx-4">Buy: {ValueComponent(bitoPriceList.buy)}</span>
                 <span>Sell: {ValueComponent(bitoPriceList.sell)}</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+                <BaseDatePicker
+                    id="life-search-cost-start-date"
+                    value={orderStartDate}
+                    setValue={setOrderStartDate}
+                    isValid={true}
+                    setIsValid={() => ({})}
+                    placeholder="下單日期起始"
+                    wFull={false}
+                />
+                <Button variant="contained" onClick={getOrderList}>
+                    查詢
+                </Button>
             </div>
 
             <section>

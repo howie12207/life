@@ -136,8 +136,15 @@ export const apiBitoCancelOrder = async (orderId: string) => {
     else return false;
 };
 
-export const apiOrderListAll = async () => {
-    const res = await req(`${base}/orderListAll`, {
+export const apiOrderListAll = async (params?: object) => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) searchParams.append(key, String(value));
+        });
+    }
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    const res = await req(`${base}/orderListAll${query}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

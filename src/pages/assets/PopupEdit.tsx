@@ -106,7 +106,7 @@ const PopupEdit = ({ popup, setPopup, getAssetsList }: Props) => {
         if (tempList.length <= 0) return enqueueSnackbar('請新增資產');
         dispatch(updateLoading(true));
         const params: AssetsItemParams = {
-            recordDate: toStartTime(recordDate as Date).valueOf(),
+            recordDate: (toStartTime(recordDate) as Date)?.valueOf(),
             list: tempList,
             forexUSD,
             forexZAR,
