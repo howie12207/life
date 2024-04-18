@@ -177,7 +177,7 @@ const PriceList = () => {
 
     const [aceType, setAceType] = useState('1');
     const [acePrice, setAcePrice] = useState('');
-    const [aceAmount, setAceAmount] = useState('0.0007');
+    const [aceAmount, setAceAmount] = useState('0.0005');
     const [aceCurrency, setAceCurrency] = useState('1');
     const aceSubmit = async () => {
         await apiAceOrder({
@@ -192,7 +192,7 @@ const PriceList = () => {
 
     const [ace2Type, setAce2Type] = useState('1');
     const [ace2Price, setAce2Price] = useState('');
-    const [ace2Amount, setAce2Amount] = useState('0.0007');
+    const [ace2Amount, setAce2Amount] = useState('0.0005');
     const ace2Submit = async () => {
         await apiAceOrder2({
             buyOrSell: ace2Type,
@@ -206,7 +206,7 @@ const PriceList = () => {
 
     const [bitoType, setBitoType] = useState('BUY');
     const [bitoPrice, setBitoPrice] = useState('');
-    const [bitoAmount, setBitoAmount] = useState('0.0008');
+    const [bitoAmount, setBitoAmount] = useState('0.0005');
     const bitoSubmit = async () => {
         await apiBitoOrder({
             action: bitoType,

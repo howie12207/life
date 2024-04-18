@@ -7,11 +7,10 @@ import {
     useNavigate,
 } from 'react-router-dom';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
-import Cookies from 'js-cookie';
 import { setNavigate } from '@/utils/navigateHelper';
+import { getToken } from '@/utils/lsHandle';
 
 import { useAppDispatch } from '@/app/hook';
-import { updateToken } from '@/app/base';
 
 import Header from '@/components/header/Header';
 import Sidebar from '@/components/sidebar/Sidebar';
@@ -21,8 +20,7 @@ import LoadingFull from '@/components/loadingFull/LoadingFull';
 const App = () => {
     const dispatch = useAppDispatch();
     useEffect(() => {
-        const token = Cookies.get('accessToken');
-        if (token) dispatch(updateToken(token));
+        getToken();
     }, [dispatch]);
 
     const Root = () => {

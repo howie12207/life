@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import Cookies from 'js-cookie';
 
 export const baseSlice = createSlice({
     name: 'base',
@@ -18,7 +17,7 @@ export const baseSlice = createSlice({
         },
         clearToken(state) {
             state.token = '';
-            Cookies.remove('accessToken');
+            localStorage.removeItem('accessToken');
         },
         updateIsOpenMenu(state, action) {
             state.isOpenMenu = action.payload;
