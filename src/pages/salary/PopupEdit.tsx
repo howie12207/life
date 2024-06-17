@@ -1,9 +1,14 @@
 import { useState, useRef, Ref, useEffect } from 'react';
-import { useAppDispatch } from '@/app/hook';
+import { useAppDispatch, useAppSelector } from '@/app/hook';
 import { updateLoading } from '@/app/base';
 import { useSnackbar } from 'notistack';
-import { toStartTime } from '@/utils/format';
-import { apiAddSalaryItem, SalaryItemParams } from '@/api/salary';
+import { toStartTime, formatDate } from '@/utils/format';
+import {
+    apiAddSalaryItem,
+    apiEditSalaryItem,
+    apiDeleteSalaryItem,
+    SalaryItemParams,
+} from '@/api/salary';
 import { isRequired, onlyNumber } from '@/utils/validate';
 
 import { Modal, Fade, Button } from '@mui/material';
@@ -14,11 +19,14 @@ type Props = {
     popup: string;
     setPopup: (value: string) => void;
     getSalaryList: () => unknown;
+    editData?: SalaryItemParams;
+    setEditData: (data: SalaryItemParams) => void;
 };
 
-const PopupEdit = ({ popup, setPopup, getSalaryList }: Props) => {
+const PopupEdit = ({ popup, setPopup, getSalaryList, editData, setEditData }: Props) => {
     const dispatch = useAppDispatch();
     const { enqueueSnackbar } = useSnackbar();
+    const autoReload = useAppSelector(state => state.base.autoReload);
 
     const getDateRef: Ref<BaseInputType> = useRef(null);
     const [getDate, setGetDate] = useState<Date | null>(new Date());
@@ -43,6 +51,14 @@ const PopupEdit = ({ popup, setPopup, getSalaryList }: Props) => {
     const remarkRef: Ref<BaseInputType> = useRef(null);
     const [remark, setRemark] = useState('');
 
+    useEffect(() => {
+        setGetDate(new Date(editData?.getDate || new Date()));
+        setPlace(editData?.place || '');
+        setContent(editData?.content || '');
+        setDollar(String(editData?.dollar || ''));
+        setRemark(editData?.remark || '');
+    }, [editData]);
+
     // submit
     const submit = async () => {
         const isValid = [getDateRef.current?.validateNow()];
@@ -55,7 +71,11 @@ const PopupEdit = ({ popup, setPopup, getSalaryList }: Props) => {
             dollar: Number(dollar),
             remark,
         };
-        const res = await apiAddSalaryItem(params);
+
+        const res =
+            popup === 'add'
+                ? await apiAddSalaryItem(params)
+                : await apiEditSalaryItem({ ...params, _id: editData?._id });
 
         dispatch(updateLoading(false));
         if (res) {
@@ -64,8 +84,27 @@ const PopupEdit = ({ popup, setPopup, getSalaryList }: Props) => {
         }
     };
 
+    const deleteItem = async () => {
+        const isConfirm = window.confirm(
+            `確定要刪除 ${formatDate(editData?.getDate || new Date())} 嗎?`
+        );
+        if (!isConfirm) return;
+        dispatch(updateLoading(true));
+        const res = await apiDeleteSalaryItem(editData?._id as string);
+        dispatch(updateLoading(false));
+        if (res) {
+            if (autoReload) getSalaryList();
+            closeHandle();
+        }
+    };
+
     const closeHandle = () => {
         setPopup('');
+
+        setTimeout(() => {
+            setEditData({} as SalaryItemParams);
+            setPopupType('');
+        }, 500);
     };
 
     const [popupType, setPopupType] = useState('');
@@ -146,6 +185,11 @@ const PopupEdit = ({ popup, setPopup, getSalaryList }: Props) => {
                         <Button variant="contained" onClick={submit}>
                             送出
                         </Button>
+                        {popupType === 'edit' && (
+                            <Button color="error" variant="contained" onClick={deleteItem}>
+                                刪除
+                            </Button>
+                        )}
                         <Button color="info" variant="contained" onClick={closeHandle}>
                             取消
                         </Button>

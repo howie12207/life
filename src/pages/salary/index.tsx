@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector } from '@/app/hook';
-import { apiGetSalaryList } from '@/api/salary';
+import { apiGetSalaryList, SalaryItemParams } from '@/api/salary';
 import { formatDate, formatToThousand, toStartTime } from '@/utils/format';
 
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
@@ -14,10 +14,9 @@ import {
     TableFooter,
     TablePagination,
 } from '@mui/material';
-import { Add } from '@mui/icons-material';
+import { Add, Edit } from '@mui/icons-material';
 import PopupEdit from './PopupEdit';
 import SearchBar from './SearchBar';
-import { SalaryItemParams } from '@/api/salary';
 
 const Salary = () => {
     const nodeRef = useRef(null);
@@ -75,6 +74,11 @@ const Salary = () => {
 
     // Popup
     const [popup, setPopup] = useState('');
+    const [editData, setEditData] = useState({} as SalaryItemParams);
+    const openHandle = (list: SalaryItemParams, target: string) => {
+        setEditData(list);
+        setPopup(target);
+    };
 
     return (
         <section className="p-4">
@@ -112,6 +116,7 @@ const Salary = () => {
                                     <TableCell>工作內容</TableCell>
                                     <TableCell className="w-20">金額</TableCell>
                                     <TableCell>備註</TableCell>
+                                    <TableCell>操作</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -125,50 +130,71 @@ const Salary = () => {
                                                 {formatToThousand(item.dollar)}
                                             </TableCell>
                                             <TableCell>{item.remark}</TableCell>
+                                            <TableCell>
+                                                <Edit
+                                                    className="cursor-pointer"
+                                                    color="primary"
+                                                    onClick={() =>
+                                                        openHandle(item as SalaryItemParams, 'edit')
+                                                    }
+                                                />
+                                            </TableCell>
                                         </TableRow>
                                     );
                                 })}
                             </TableBody>
-                            <TableFooter>
-                                <TableRow>
-                                    <TableCell>總計：</TableCell>
-                                    <TableCell colSpan={3} align="right">
-                                        {formatToThousand(
-                                            salaryList.reduce((prev, next) => prev + next.dollar, 0)
-                                        )}
-                                    </TableCell>
-                                    <TableCell></TableCell>
-                                </TableRow>
+                            {salaryList.length > 0 && (
+                                <TableFooter>
+                                    <TableRow>
+                                        <TableCell>總計：</TableCell>
+                                        <TableCell colSpan={3} align="right">
+                                            {formatToThousand(
+                                                salaryList.reduce(
+                                                    (prev, next) => prev + next.dollar,
+                                                    0
+                                                )
+                                            )}
+                                        </TableCell>
+                                        <TableCell></TableCell>
+                                        <TableCell></TableCell>
+                                    </TableRow>
 
-                                <TableRow>
-                                    <TablePagination
-                                        rowsPerPageOptions={[
-                                            10,
-                                            20,
-                                            50,
-                                            { label: 'All', value: -1 },
-                                        ]}
-                                        colSpan={5}
-                                        count={totalCount}
-                                        rowsPerPage={perPage}
-                                        page={nowPage}
-                                        SelectProps={{
-                                            inputProps: {
-                                                'aria-label': 'rows per page',
-                                            },
-                                            native: true,
-                                        }}
-                                        onPageChange={changePage}
-                                        onRowsPerPageChange={changePerPage}
-                                    />
-                                </TableRow>
-                            </TableFooter>
+                                    <TableRow>
+                                        <TablePagination
+                                            rowsPerPageOptions={[
+                                                10,
+                                                20,
+                                                50,
+                                                { label: 'All', value: -1 },
+                                            ]}
+                                            colSpan={6}
+                                            count={totalCount}
+                                            rowsPerPage={perPage}
+                                            page={nowPage}
+                                            SelectProps={{
+                                                inputProps: {
+                                                    'aria-label': 'rows per page',
+                                                },
+                                                native: true,
+                                            }}
+                                            onPageChange={changePage}
+                                            onRowsPerPageChange={changePerPage}
+                                        />
+                                    </TableRow>
+                                </TableFooter>
+                            )}
                         </Table>
                     </CSSTransition>
                 </SwitchTransition>
             </div>
 
-            <PopupEdit popup={popup} setPopup={setPopup} getSalaryList={getSalaryList} />
+            <PopupEdit
+                popup={popup}
+                setPopup={setPopup}
+                getSalaryList={getSalaryList}
+                editData={editData}
+                setEditData={setEditData}
+            />
         </section>
     );
 };
