@@ -42,10 +42,10 @@ const Sidebar = () => {
             name: '便條紙',
             link: '/memo',
         },
-        {
-            name: '計算機',
-            link: '/calculator',
-        },
+        // {
+        //     name: '計算機',
+        //     link: '/calculator',
+        // },
         {
             name: '價目表',
             link: '/priceList',
@@ -53,6 +53,11 @@ const Sidebar = () => {
         {
             name: '資產',
             link: '/assets',
+        },
+        {
+            name: '薪水',
+            link: '/salary',
+            auth: true,
         },
     ];
 
@@ -107,22 +112,24 @@ const Sidebar = () => {
 
                     <nav className="flex-grow">
                         <ul>
-                            {menuList.map(item => {
-                                return (
-                                    <li
-                                        className="border-b border-gray-900 transition hover:bg-white hover:text-red-900"
-                                        key={item.name}
-                                    >
-                                        <NavLink
-                                            to={item.link}
-                                            className="block p-4"
-                                            onClick={() => dispatch(updateIsOpenMenu(false))}
+                            {menuList
+                                .filter(item => !item.auth || isLogin)
+                                .map(item => {
+                                    return (
+                                        <li
+                                            className="border-b border-gray-900 transition hover:bg-white hover:text-red-900"
+                                            key={item.name}
                                         >
-                                            {item.name}
-                                        </NavLink>
-                                    </li>
-                                );
-                            })}
+                                            <NavLink
+                                                to={item.link}
+                                                className="block p-4"
+                                                onClick={() => dispatch(updateIsOpenMenu(false))}
+                                            >
+                                                {item.name}
+                                            </NavLink>
+                                        </li>
+                                    );
+                                })}
                         </ul>
                         <a
                             ref={downloadRef}

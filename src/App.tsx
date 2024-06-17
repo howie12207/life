@@ -59,7 +59,9 @@ const App = () => {
                         unmountOnExit
                     >
                         <Suspense>
-                            <main ref={nodeRef}>{outlet}</main>
+                            <main className="pb-10" ref={nodeRef}>
+                                {outlet}
+                            </main>
                         </Suspense>
                     </CSSTransition>
                 </SwitchTransition>
@@ -82,6 +84,7 @@ const App = () => {
     const Calculator = lazy(() => import('@/pages/calculator'));
     const PriceList = lazy(() => import('@/pages/priceList'));
     const Assets = lazy(() => import('@/pages/assets'));
+    const Salary = lazy(() => import('@/pages/salary'));
     const Error = lazy(() => import('@/pages/error'));
 
     const routes = [
@@ -146,6 +149,12 @@ const App = () => {
             path: '/assets',
             Component: Assets,
             title: '資產',
+            nodeRef: useRef(null),
+        },
+        {
+            path: '/salary',
+            Component: Salary,
+            title: '薪水',
             nodeRef: useRef(null),
         },
         { path: '*', Component: Error, nodeRef: useRef(null) },
