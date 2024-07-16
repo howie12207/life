@@ -44,7 +44,14 @@ const PopupDividendEdit = ({ popup, setPopup, getDividendList, editData, setEdit
     const tradeDateRef: Ref<BaseInputType> = useRef(null);
     const [tradeDate, setTradeDate] = useState<Date | null>(new Date());
     const [tradeDateIsValid, setTradeDateIsValid] = useState(false);
-    const tradeDateRules = [{ validate: isRequired, message: '請選擇發放日期' }];
+    const tradeDateRules = [
+        { validate: isRequired, message: '請選擇發放日期' },
+        {
+            validate: (val: string | Date) =>
+                Number(val?.valueOf()) >= Number(exDividendDate?.valueOf()),
+            message: '發放日期不應早於除息日期',
+        },
+    ];
 
     const exDividendDateRef: Ref<BaseInputType> = useRef(null);
     const [exDividendDate, setExDividendDate] = useState<Date | null>(new Date());
@@ -192,17 +199,6 @@ const PopupDividendEdit = ({ popup, setPopup, getDividendList, editData, setEdit
                         />
 
                         <BaseDatePicker
-                            ref={tradeDateRef}
-                            id="life-tradeDate"
-                            label="發放日期"
-                            value={tradeDate}
-                            setValue={setTradeDate}
-                            isValid={tradeDateIsValid}
-                            setIsValid={setTradeDateIsValid}
-                            rules={tradeDateRules}
-                            placeholder="請選擇發放日期"
-                        />
-                        <BaseDatePicker
                             ref={exDividendDateRef}
                             id="life-exDividendDate"
                             label="除息日期"
@@ -212,6 +208,17 @@ const PopupDividendEdit = ({ popup, setPopup, getDividendList, editData, setEdit
                             setIsValid={setExDividendDateIsValid}
                             rules={exDividendDateRules}
                             placeholder="請選擇除息日期"
+                        />
+                        <BaseDatePicker
+                            ref={tradeDateRef}
+                            id="life-tradeDate"
+                            label="發放日期"
+                            value={tradeDate}
+                            setValue={setTradeDate}
+                            isValid={tradeDateIsValid}
+                            setIsValid={setTradeDateIsValid}
+                            rules={tradeDateRules}
+                            placeholder="請選擇發放日期"
                         />
                         <BaseInput
                             ref={dollarRef}

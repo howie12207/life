@@ -54,11 +54,10 @@ const Sidebar = () => {
             name: '資產',
             link: '/assets',
         },
-        {
-            name: '薪水',
-            link: '/salary',
-            auth: true,
-        },
+        // {
+        //     name: '薪水',
+        //     link: '/salary',
+        // },
     ];
 
     const LoginBox = () => {
@@ -112,24 +111,22 @@ const Sidebar = () => {
 
                     <nav className="flex-grow">
                         <ul>
-                            {menuList
-                                .filter(item => !item.auth || isLogin)
-                                .map(item => {
-                                    return (
-                                        <li
-                                            className="border-b border-gray-900 transition hover:bg-white hover:text-red-900"
-                                            key={item.name}
+                            {menuList.map(item => {
+                                return (
+                                    <li
+                                        className="border-b border-gray-900 transition hover:bg-white hover:text-red-900"
+                                        key={item.name}
+                                    >
+                                        <NavLink
+                                            to={item.link}
+                                            className="block p-4"
+                                            onClick={() => dispatch(updateIsOpenMenu(false))}
                                         >
-                                            <NavLink
-                                                to={item.link}
-                                                className="block p-4"
-                                                onClick={() => dispatch(updateIsOpenMenu(false))}
-                                            >
-                                                {item.name}
-                                            </NavLink>
-                                        </li>
-                                    );
-                                })}
+                                            {item.name}
+                                        </NavLink>
+                                    </li>
+                                );
+                            })}
                         </ul>
                         <a
                             ref={downloadRef}
