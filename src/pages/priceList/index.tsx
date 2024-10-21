@@ -209,7 +209,11 @@ const PriceList = () => {
         else if (target === 'ace2') res = await apiAceCancelOrder2({ orderNo });
         else if (target === 'bito') res = await apiBitoCancelOrder(orderNo);
 
-        if (res) await Promise.all([getOrderList(), getBalance()]);
+        if (res) {
+            setTimeout(() => {
+                Promise.all([getOrderList(), getBalance()]);
+            }, 1000);
+        }
     };
 
     return (
