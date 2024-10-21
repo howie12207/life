@@ -36,7 +36,7 @@ export const apiGetAssetsList = async (params?: object) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/assetsList${query}`);
+    const res = await req(`${base}/assets/list${query}`);
     if (res?.code === 200) return res.data.list as Array<AssetsItemParams>;
     else return false;
 };

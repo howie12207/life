@@ -34,7 +34,7 @@ export const apiGetCostList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/costList${query}`);
+    const res = await req(`${base}/cost/list${query}`);
     if (res?.code === 200) return res.data as CostListRes;
     else return false;
 };

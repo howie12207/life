@@ -43,7 +43,7 @@ const request = async (
         cache = 'default',
         retries = 2,
         retryDelay = 1000,
-        timeout = 12000,
+        timeout = 30000,
         cancelMsg,
     } = options;
 

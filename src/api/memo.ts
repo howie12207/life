@@ -34,7 +34,7 @@ export const apiGetMemoList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/memoList${query}`);
+    const res = await req(`${base}/memo/list${query}`);
     if (res?.code === 200) return res.data?.list as MemoListRes['list'];
     else return false;
 };

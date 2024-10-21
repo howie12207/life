@@ -13,7 +13,7 @@ export type SortListRes = {
     totalCount: number;
 };
 export const apiGetSortList = async () => {
-    const res = await req(`${base}/sortList`);
+    const res = await req(`${base}/sort/list`);
     if (res?.code === 200) return res.data as SortListRes;
     else return false;
 };

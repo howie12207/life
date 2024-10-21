@@ -64,7 +64,7 @@ export const apiGetAceCryptoBook = async (baseCurrencyId: number, quoteCurrencyI
     else return false;
 };
 export const apiAceOrder = async (params: object) => {
-    const res = await req(`${base}/aceOrder`, {
+    const res = await req(`${base}/cryptoAce`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ export const apiAceOrder = async (params: object) => {
     else return false;
 };
 export const apiAceOrder2 = async (params: object) => {
-    const res = await req(`${base}/aceOrder2`, {
+    const res = await req(`${base}/cryptoAce?accountType=2`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -86,8 +86,15 @@ export const apiAceOrder2 = async (params: object) => {
     else return false;
 };
 export const apiAceCancelOrder = async (params: object) => {
-    const res = await req(`${base}/aceCancelOrder`, {
-        method: 'POST',
+    const searchParams = new URLSearchParams();
+    if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) searchParams.append(key, String(value));
+        });
+    }
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    const res = await req(`${base}/cryptoAce${query}`, {
+        method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -97,8 +104,17 @@ export const apiAceCancelOrder = async (params: object) => {
     else return false;
 };
 export const apiAceCancelOrder2 = async (params: object) => {
-    const res = await req(`${base}/aceCancelOrder2`, {
-        method: 'POST',
+    const searchParams = new URLSearchParams();
+    if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) searchParams.append(key, String(value));
+        });
+    }
+    const query = searchParams.toString()
+        ? `?${searchParams.toString()}&accountType=2`
+        : '?accountType=2';
+    const res = await req(`${base}/cryptoAce${query}`, {
+        method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -115,7 +131,7 @@ export const apiGetBitoCryptoBook = async (pair = 'btc_twd', limit = 1) => {
     else return false;
 };
 export const apiBitoOrder = async (params: object) => {
-    const res = await req(`${base}/bitoOrder`, {
+    const res = await req(`${base}/cryptoBito`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -126,7 +142,7 @@ export const apiBitoOrder = async (params: object) => {
     else return false;
 };
 export const apiBitoCancelOrder = async (orderId: string) => {
-    const res = await req(`${base}/bitoCancelOrder?orderId=${orderId}`, {
+    const res = await req(`${base}/cryptoBito?orderId=${orderId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -144,7 +160,7 @@ export const apiOrderListAll = async (params?: object) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/orderListAll${query}`, {
+    const res = await req(`${base}/cryptoAll/orderList${query}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -154,7 +170,7 @@ export const apiOrderListAll = async (params?: object) => {
     else return false;
 };
 export const apiFetchBalanceAll = async () => {
-    const res = await req(`${base}/balanceAll`, {
+    const res = await req(`${base}/cryptoAll/balance`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

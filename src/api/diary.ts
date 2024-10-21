@@ -28,7 +28,7 @@ export const apiGetDiaryList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/diaryList${query}`);
+    const res = await req(`${base}/diary/list${query}`);
     if (res?.code === 200) return res.data as Array<DiaryItemParams>;
     else return false;
 };

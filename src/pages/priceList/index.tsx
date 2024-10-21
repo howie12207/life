@@ -43,20 +43,8 @@ type BitoPriceList = {
     sell: '';
 };
 
-const MAX_TABLE_LIST: Array<MaxPriceListKeys> = [
-    'btctwd',
-    'ethtwd',
-    'usdttwd',
-    'btcusdt',
-    'ethusdt',
-];
-const ACE_TABLE_LIST: Array<AcePriceListKeys> = [
-    'BTC/TWD',
-    'ETH/TWD',
-    'USDT/TWD',
-    'BTC/USDT',
-    'ETH/USDT',
-];
+const MAX_TABLE_LIST: Array<MaxPriceListKeys> = ['btctwd', 'usdttwd', 'btcusdt', 'ethusdt'];
+const ACE_TABLE_LIST: Array<AcePriceListKeys> = ['BTC/TWD', 'USDT/TWD', 'BTC/USDT', 'ETH/USDT'];
 
 const PriceList = () => {
     const INTERVAL = 10000;
@@ -72,7 +60,6 @@ const PriceList = () => {
             resMax,
             resAcePrice,
             resAceBTCTWD,
-            resAceETHTWD,
             resAceBTCUSDT,
             resAceETHUSDT,
             resAceUSDTTWD,
@@ -81,7 +68,6 @@ const PriceList = () => {
             apiGetMaxCryptoPrice(),
             apiGetAceCryptoPrice(),
             apiGetAceCryptoBook(2, 1),
-            apiGetAceCryptoBook(4, 1),
             apiGetAceCryptoBook(2, 14),
             apiGetAceCryptoBook(4, 14),
             apiGetAceCryptoBook(14, 1),
@@ -90,7 +76,6 @@ const PriceList = () => {
         if (resMax) setMaxPriceList(resMax);
         if (resAcePrice) setAcePriceList(resAcePrice);
         if (resAceBTCTWD) handleAceBook('BTC/TWD', resAceBTCTWD);
-        if (resAceETHTWD) handleAceBook('ETH/TWD', resAceETHTWD);
         if (resAceBTCUSDT) handleAceBook('BTC/USDT', resAceBTCUSDT);
         if (resAceETHUSDT) handleAceBook('ETH/USDT', resAceETHUSDT);
         if (resAceUSDTTWD) handleAceBook('USDT/TWD', resAceUSDTTWD);
@@ -177,8 +162,8 @@ const PriceList = () => {
 
     const [aceType, setAceType] = useState('1');
     const [acePrice, setAcePrice] = useState('');
-    const [aceAmount, setAceAmount] = useState('0.0005');
-    const [aceCurrency, setAceCurrency] = useState('1');
+    const [aceAmount, setAceAmount] = useState('0.0006');
+    const [aceCurrency, setAceCurrency] = useState('14');
     const aceSubmit = async () => {
         await apiAceOrder({
             buyOrSell: aceType,
@@ -192,7 +177,7 @@ const PriceList = () => {
 
     const [ace2Type, setAce2Type] = useState('1');
     const [ace2Price, setAce2Price] = useState('');
-    const [ace2Amount, setAce2Amount] = useState('0.0005');
+    const [ace2Amount, setAce2Amount] = useState('0.0006');
     const ace2Submit = async () => {
         await apiAceOrder2({
             buyOrSell: ace2Type,
@@ -224,113 +209,111 @@ const PriceList = () => {
         else if (target === 'ace2') res = await apiAceCancelOrder2({ orderNo });
         else if (target === 'bito') res = await apiBitoCancelOrder(orderNo);
 
-        if (res) await getOrderList();
+        if (res) await Promise.all([getOrderList(), getBalance()]);
     };
 
     return (
-        <section>
-            <>
-                <div>Max</div>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell></TableCell>
-                            <TableCell>btc/twd</TableCell>
-                            <TableCell>eth/twd</TableCell>
-                            <TableCell>usdt/twd</TableCell>
-                            <TableCell>btc/usdt</TableCell>
-                            <TableCell>eth/usdt</TableCell>
-                        </TableRow>
-                    </TableHead>
+        <section className="bg-gray-500">
+            {import.meta.env.DEV && (
+                <>
+                    <div>Max</div>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell></TableCell>
+                                <TableCell>btc/twd</TableCell>
+                                <TableCell>usdt/twd</TableCell>
+                                <TableCell>btc/usdt</TableCell>
+                                <TableCell>eth/usdt</TableCell>
+                            </TableRow>
+                        </TableHead>
 
-                    <TableBody>
-                        <TableRow>
-                            <TableCell>Last</TableCell>
-                            {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
-                                return (
-                                    <TableCell key={item}>
-                                        {ValueComponent(maxPriceList[item]?.last)}
-                                    </TableCell>
-                                );
-                            })}
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>Buy</TableCell>
-                            {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
-                                return (
-                                    <TableCell key={item}>
-                                        {ValueComponent(maxPriceList[item]?.buy)}
-                                    </TableCell>
-                                );
-                            })}
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>Sell</TableCell>
-                            {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
-                                return (
-                                    <TableCell key={item}>
-                                        {ValueComponent(maxPriceList[item]?.sell)}
-                                    </TableCell>
-                                );
-                            })}
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell>Last</TableCell>
+                                {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
+                                    return (
+                                        <TableCell key={item}>
+                                            {ValueComponent(maxPriceList[item]?.last)}
+                                        </TableCell>
+                                    );
+                                })}
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Buy</TableCell>
+                                {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
+                                    return (
+                                        <TableCell key={item}>
+                                            {ValueComponent(maxPriceList[item]?.buy)}
+                                        </TableCell>
+                                    );
+                                })}
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Sell</TableCell>
+                                {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
+                                    return (
+                                        <TableCell key={item}>
+                                            {ValueComponent(maxPriceList[item]?.sell)}
+                                        </TableCell>
+                                    );
+                                })}
+                            </TableRow>
+                        </TableBody>
+                    </Table>
 
-            <>
-                <div className="mt-8">Ace</div>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell></TableCell>
-                            <TableCell>btc/twd</TableCell>
-                            <TableCell>eth/twd</TableCell>
-                            <TableCell>usdt/twd</TableCell>
-                            <TableCell>btc/usdt</TableCell>
-                            <TableCell>eth/usdt</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        <TableRow>
-                            <TableCell>Last</TableCell>
-                            {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
-                                return (
-                                    <TableCell key={item}>
-                                        {ValueComponent(acePriceList[item]?.last_price)}
-                                    </TableCell>
-                                );
-                            })}
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>Buy</TableCell>
-                            {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
-                                return (
-                                    <TableCell key={item}>
-                                        {ValueComponent(acePriceList[item]?.buy)}
-                                    </TableCell>
-                                );
-                            })}
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>Sell</TableCell>
-                            {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
-                                return (
-                                    <TableCell key={item}>
-                                        {ValueComponent(acePriceList[item]?.sell)}
-                                    </TableCell>
-                                );
-                            })}
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </>
+                    <div className="mt-8">Ace</div>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell></TableCell>
+                                <TableCell>btc/twd</TableCell>
+                                <TableCell>usdt/twd</TableCell>
+                                <TableCell>btc/usdt</TableCell>
+                                <TableCell>eth/usdt</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell>Last</TableCell>
+                                {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
+                                    return (
+                                        <TableCell key={item}>
+                                            {ValueComponent(acePriceList[item]?.last_price)}
+                                        </TableCell>
+                                    );
+                                })}
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Buy</TableCell>
+                                {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
+                                    return (
+                                        <TableCell key={item}>
+                                            {ValueComponent(acePriceList[item]?.buy)}
+                                        </TableCell>
+                                    );
+                                })}
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Sell</TableCell>
+                                {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
+                                    return (
+                                        <TableCell key={item}>
+                                            {ValueComponent(acePriceList[item]?.sell)}
+                                        </TableCell>
+                                    );
+                                })}
+                            </TableRow>
+                        </TableBody>
+                    </Table>
 
-            <div className="my-4">
-                <span>Bito</span>
-                <span className="mx-4">Buy: {ValueComponent(bitoPriceList.buy)}</span>
-                <span>Sell: {ValueComponent(bitoPriceList.sell)}</span>
-            </div>
+                    <div className="my-4">
+                        <span>Bito</span>
+                        <span className="mx-4">Buy: {ValueComponent(bitoPriceList.buy)}</span>
+                        <span>Sell: {ValueComponent(bitoPriceList.sell)}</span>
+                    </div>
+                </>
+            )}
 
             <div className="flex items-center gap-2">
                 <BaseDatePicker

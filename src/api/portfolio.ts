@@ -43,7 +43,7 @@ export const apiGetPortfolioList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/portfolioList${query}`);
+    const res = await req(`${base}/portfolio/list${query}`);
     if (res?.code === 200) return res.data as PortfolioListRes;
     else return false;
 };

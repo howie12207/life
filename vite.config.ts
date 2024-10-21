@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
             port: 7777,
             proxy: {
                 '/proxyBase': {
-                    target: 'http://localhost:7071',
+                    target: 'http://localhost:7770',
                     changeOrigin: true,
                     secure: false,
                     rewrite: path => path.replace(/^\/proxyBase/, ''),

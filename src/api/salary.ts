@@ -30,7 +30,7 @@ export const apiGetSalaryList = async (params?: object) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/salaryList${query}`);
+    const res = await req(`${base}/salary/list${query}`);
     if (res?.code === 200) return res.data;
     else return false;
 };

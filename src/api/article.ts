@@ -35,7 +35,7 @@ export const apiGetArticleList = async (params?: ListParams) => {
         });
     }
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    const res = await req(`${base}/articleList${query}`);
+    const res = await req(`${base}/article/list${query}`);
     if (res?.code === 200) return res.data as ArticleListRes;
     else return false;
 };
