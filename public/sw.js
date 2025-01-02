@@ -9,8 +9,13 @@
 
 self.addEventListener('push', function (event) {
     const data = event.data.json();
+    const options = {
+        body: data.body,
+        icon: data.icon || '/default-icon.png',
+        data: data.data,
+    };
     const promiseChain = self.registration
-        .showNotification(data.title, data.option)
+        .showNotification(data.title, options)
         .then(() => {
             // console.log('push success');
         })

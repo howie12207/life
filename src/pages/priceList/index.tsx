@@ -59,26 +59,26 @@ const PriceList = () => {
         const [
             resMax,
             resAcePrice,
-            resAceBTCTWD,
+            // resAceBTCTWD,
             resAceBTCUSDT,
             resAceETHUSDT,
-            resAceUSDTTWD,
+            // resAceUSDTTWD,
             resBitoBTCTWD,
         ] = await Promise.all([
             apiGetMaxCryptoPrice(),
             apiGetAceCryptoPrice(),
-            apiGetAceCryptoBook(2, 1),
+            // apiGetAceCryptoBook(2, 1),
             apiGetAceCryptoBook(2, 14),
             apiGetAceCryptoBook(4, 14),
-            apiGetAceCryptoBook(14, 1),
+            // apiGetAceCryptoBook(14, 1),
             apiGetBitoCryptoBook(),
         ]);
         if (resMax) setMaxPriceList(resMax);
         if (resAcePrice) setAcePriceList(resAcePrice);
-        if (resAceBTCTWD) handleAceBook('BTC/TWD', resAceBTCTWD);
+        // if (resAceBTCTWD) handleAceBook('BTC/TWD', resAceBTCTWD);
         if (resAceBTCUSDT) handleAceBook('BTC/USDT', resAceBTCUSDT);
         if (resAceETHUSDT) handleAceBook('ETH/USDT', resAceETHUSDT);
-        if (resAceUSDTTWD) handleAceBook('USDT/TWD', resAceUSDTTWD);
+        // if (resAceUSDTTWD) handleAceBook('USDT/TWD', resAceUSDTTWD);
         if (resBitoBTCTWD) {
             setBitoPriceList({
                 buy: resBitoBTCTWD?.bids?.[0].price,
@@ -162,41 +162,45 @@ const PriceList = () => {
 
     const [aceType, setAceType] = useState('1');
     const [acePrice, setAcePrice] = useState('');
-    const [aceAmount, setAceAmount] = useState('0.0006');
+    const [aceAmount, setAceAmount] = useState('0.01');
     const [aceCurrency, setAceCurrency] = useState('14');
+    const [aceCurrencyTo, setAceCurrencyTo] = useState('4');
     const aceSubmit = async () => {
         await apiAceOrder({
             buyOrSell: aceType,
             price: acePrice,
             num: aceAmount,
             quoteCurrencyId: aceCurrency,
-            baseCurrencyId: '2',
+            baseCurrencyId: aceCurrencyTo,
         });
         await Promise.all([getOrderList(), getBalance()]);
     };
 
     const [ace2Type, setAce2Type] = useState('1');
     const [ace2Price, setAce2Price] = useState('');
-    const [ace2Amount, setAce2Amount] = useState('0.0006');
+    const [ace2Amount, setAce2Amount] = useState('0.01');
+    const [ace2CurrencyTo, setAce2CurrencyTo] = useState('4');
     const ace2Submit = async () => {
         await apiAceOrder2({
             buyOrSell: ace2Type,
             price: ace2Price,
             num: ace2Amount,
             quoteCurrencyId: '14',
-            baseCurrencyId: '2',
+            baseCurrencyId: ace2CurrencyTo,
         });
         await Promise.all([getOrderList(), getBalance()]);
     };
 
     const [bitoType, setBitoType] = useState('BUY');
+    const [bitoCurrency, setBitoCurrency] = useState('btc_twd');
     const [bitoPrice, setBitoPrice] = useState('');
-    const [bitoAmount, setBitoAmount] = useState('0.0005');
+    const [bitoAmount, setBitoAmount] = useState('0.0002');
     const bitoSubmit = async () => {
         await apiBitoOrder({
             action: bitoType,
             price: bitoPrice,
             amount: bitoAmount,
+            pair: bitoCurrency,
         });
         await Promise.all([getOrderList(), getBalance()]);
     };
@@ -352,6 +356,14 @@ const PriceList = () => {
                     <FormControlLabel value={'1'} control={<Radio size="small" />} label="TWD" />
                     <FormControlLabel value={'14'} control={<Radio size="small" />} label="USD" />
                 </RadioGroup>
+                <RadioGroup
+                    className="!flex-row"
+                    value={aceCurrencyTo}
+                    onChange={e => setAceCurrencyTo(e.target.value)}
+                >
+                    <FormControlLabel value={'2'} control={<Radio size="small" />} label="BTC" />
+                    <FormControlLabel value={'4'} control={<Radio size="small" />} label="ETH" />
+                </RadioGroup>
                 <TextField
                     label="價格"
                     variant="outlined"
@@ -426,6 +438,14 @@ const PriceList = () => {
                     <FormControlLabel value={'1'} control={<Radio size="small" />} label="買" />
                     <FormControlLabel value={'2'} control={<Radio size="small" />} label="賣" />
                 </RadioGroup>
+                <RadioGroup
+                    className="!flex-row"
+                    value={ace2CurrencyTo}
+                    onChange={e => setAce2CurrencyTo(e.target.value)}
+                >
+                    <FormControlLabel value={'2'} control={<Radio size="small" />} label="BTC" />
+                    <FormControlLabel value={'4'} control={<Radio size="small" />} label="ETH" />
+                </RadioGroup>
                 <TextField
                     label="價格"
                     variant="outlined"
@@ -499,6 +519,22 @@ const PriceList = () => {
                 >
                     <FormControlLabel value={'BUY'} control={<Radio size="small" />} label="買" />
                     <FormControlLabel value={'SELL'} control={<Radio size="small" />} label="賣" />
+                </RadioGroup>
+                <RadioGroup
+                    className="!flex-row"
+                    value={bitoCurrency}
+                    onChange={e => setBitoCurrency(e.target.value)}
+                >
+                    <FormControlLabel
+                        value={'btc_twd'}
+                        control={<Radio size="small" />}
+                        label="TWD"
+                    />
+                    <FormControlLabel
+                        value={'btc_usdt'}
+                        control={<Radio size="small" />}
+                        label="USDT"
+                    />
                 </RadioGroup>
                 <TextField
                     label="價格"
