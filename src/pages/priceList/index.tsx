@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import {
     apiGetMaxCryptoPrice,
     MaxPriceList,
-    apiGetAceCryptoPrice,
     apiGetAceCryptoBook,
     apiOrderListAll,
     apiAceCancelOrder,
@@ -43,8 +42,14 @@ type BitoPriceList = {
     sell: '';
 };
 
-const MAX_TABLE_LIST: Array<MaxPriceListKeys> = ['btctwd', 'usdttwd', 'btcusdt', 'ethusdt'];
-const ACE_TABLE_LIST: Array<AcePriceListKeys> = ['BTC/TWD', 'USDT/TWD', 'BTC/USDT', 'ETH/USDT'];
+const MAX_TABLE_LIST: Array<MaxPriceListKeys> = [
+    'usdttwd',
+    'ethusdt',
+    'bnbusdt',
+    'bnbtwd',
+    'btcusdt',
+];
+const ACE_TABLE_LIST: Array<AcePriceListKeys> = ['USDT/TWD', 'ETH/USDT'];
 
 const PriceList = () => {
     const INTERVAL = 10000;
@@ -56,33 +61,17 @@ const PriceList = () => {
     const getPrice = useCallback(async () => {
         if (import.meta.env.PROD) return;
         setIsLoadingPrice(true);
-        const [
-            resMax,
-            resAcePrice,
-            // resAceBTCTWD,
-            resAceBTCUSDT,
-            resAceETHUSDT,
-            // resAceUSDTTWD,
-            resBitoBTCTWD,
-        ] = await Promise.all([
+        const [resMax, resAceETHUSDT, resBitoBNBTWD] = await Promise.all([
             apiGetMaxCryptoPrice(),
-            apiGetAceCryptoPrice(),
-            // apiGetAceCryptoBook(2, 1),
-            apiGetAceCryptoBook(2, 14),
             apiGetAceCryptoBook(4, 14),
-            // apiGetAceCryptoBook(14, 1),
             apiGetBitoCryptoBook(),
         ]);
         if (resMax) setMaxPriceList(resMax);
-        if (resAcePrice) setAcePriceList(resAcePrice);
-        // if (resAceBTCTWD) handleAceBook('BTC/TWD', resAceBTCTWD);
-        if (resAceBTCUSDT) handleAceBook('BTC/USDT', resAceBTCUSDT);
         if (resAceETHUSDT) handleAceBook('ETH/USDT', resAceETHUSDT);
-        // if (resAceUSDTTWD) handleAceBook('USDT/TWD', resAceUSDTTWD);
-        if (resBitoBTCTWD) {
+        if (resBitoBNBTWD) {
             setBitoPriceList({
-                buy: resBitoBTCTWD?.bids?.[0].price,
-                sell: resBitoBTCTWD?.asks?.[0].price,
+                buy: resBitoBNBTWD?.bids?.[0].price,
+                sell: resBitoBNBTWD?.asks?.[0].price,
             });
         }
         setIsLoadingPrice(false);
@@ -192,9 +181,9 @@ const PriceList = () => {
     };
 
     const [bitoType, setBitoType] = useState('BUY');
-    const [bitoCurrency, setBitoCurrency] = useState('btc_twd');
+    const [bitoCurrency, setBitoCurrency] = useState('bnb_twd');
     const [bitoPrice, setBitoPrice] = useState('');
-    const [bitoAmount, setBitoAmount] = useState('0.0002');
+    const [bitoAmount, setBitoAmount] = useState('0.03');
     const bitoSubmit = async () => {
         await apiBitoOrder({
             action: bitoType,
@@ -229,24 +218,15 @@ const PriceList = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell></TableCell>
-                                <TableCell>btc/twd</TableCell>
                                 <TableCell>usdt/twd</TableCell>
-                                <TableCell>btc/usdt</TableCell>
                                 <TableCell>eth/usdt</TableCell>
+                                <TableCell>bnb/usdt</TableCell>
+                                <TableCell>bnb/twd</TableCell>
+                                <TableCell>btc/usdt</TableCell>
                             </TableRow>
                         </TableHead>
 
                         <TableBody>
-                            <TableRow>
-                                <TableCell>Last</TableCell>
-                                {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
-                                    return (
-                                        <TableCell key={item}>
-                                            {ValueComponent(maxPriceList[item]?.last)}
-                                        </TableCell>
-                                    );
-                                })}
-                            </TableRow>
                             <TableRow>
                                 <TableCell>Buy</TableCell>
                                 {MAX_TABLE_LIST.map((item: MaxPriceListKeys) => {
@@ -275,23 +255,11 @@ const PriceList = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell></TableCell>
-                                <TableCell>btc/twd</TableCell>
                                 <TableCell>usdt/twd</TableCell>
-                                <TableCell>btc/usdt</TableCell>
                                 <TableCell>eth/usdt</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableRow>
-                                <TableCell>Last</TableCell>
-                                {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
-                                    return (
-                                        <TableCell key={item}>
-                                            {ValueComponent(acePriceList[item]?.last_price)}
-                                        </TableCell>
-                                    );
-                                })}
-                            </TableRow>
                             <TableRow>
                                 <TableCell>Buy</TableCell>
                                 {ACE_TABLE_LIST.map((item: AcePriceListKeys) => {
@@ -526,14 +494,14 @@ const PriceList = () => {
                     onChange={e => setBitoCurrency(e.target.value)}
                 >
                     <FormControlLabel
-                        value={'btc_twd'}
+                        value={'bnb_twd'}
                         control={<Radio size="small" />}
-                        label="TWD"
+                        label="BNB_TWD"
                     />
                     <FormControlLabel
-                        value={'btc_usdt'}
+                        value={'bnb_usdt'}
                         control={<Radio size="small" />}
-                        label="USDT"
+                        label="BNB_USDT"
                     />
                 </RadioGroup>
                 <TextField
@@ -598,7 +566,8 @@ const PriceList = () => {
                     <TableHead>
                         <TableRow>
                             <TableCell>錢包</TableCell>
-                            <TableCell>BTC</TableCell>
+                            <TableCell>ETH</TableCell>
+                            <TableCell>BNB</TableCell>
                             <TableCell>TWD</TableCell>
                             <TableCell>USDT</TableCell>
                         </TableRow>
@@ -607,7 +576,10 @@ const PriceList = () => {
                         <TableRow>
                             <TableCell>Ace</TableCell>
                             <TableCell>
-                                {wallet.ace?.find(item => item.currencyName === 'BTC')?.cashAmount}
+                                {wallet.ace?.find(item => item.currencyName === 'ETH')?.cashAmount}
+                            </TableCell>
+                            <TableCell>
+                                {wallet.ace?.find(item => item.currencyName === 'BNB')?.cashAmount}
                             </TableCell>
                             <TableCell>
                                 {wallet.ace?.find(item => item.currencyName === 'TWD')?.cashAmount}
@@ -619,7 +591,10 @@ const PriceList = () => {
                         <TableRow>
                             <TableCell>Ace2</TableCell>
                             <TableCell>
-                                {wallet.ace2?.find(item => item.currencyName === 'BTC')?.cashAmount}
+                                {wallet.ace2?.find(item => item.currencyName === 'ETH')?.cashAmount}
+                            </TableCell>
+                            <TableCell>
+                                {wallet.ace2?.find(item => item.currencyName === 'BNB')?.cashAmount}
                             </TableCell>
                             <TableCell>
                                 {wallet.ace2?.find(item => item.currencyName === 'TWD')?.cashAmount}
@@ -634,7 +609,10 @@ const PriceList = () => {
                         <TableRow>
                             <TableCell>Bito</TableCell>
                             <TableCell>
-                                {wallet.bito?.find(item => item.currency === 'btc')?.available}
+                                {wallet.bito?.find(item => item.currency === 'eth')?.available}
+                            </TableCell>
+                            <TableCell>
+                                {wallet.bito?.find(item => item.currency === 'bnb')?.available}
                             </TableCell>
                             <TableCell>
                                 {wallet.bito?.find(item => item.currency === 'twd')?.available}

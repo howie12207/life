@@ -3,20 +3,20 @@ import { base, apiMax, apiAce, apiBito } from '@/config/apiPath';
 
 type MaxPriceObj = { buy: string; sell: string; last: string };
 export type MaxPriceList = {
-    btctwd: MaxPriceObj;
-    ethtwd: MaxPriceObj;
     usdttwd: MaxPriceObj;
     btcusdt: MaxPriceObj;
     ethusdt: MaxPriceObj;
+    bnbusdt: MaxPriceObj;
+    bnbtwd: MaxPriceObj;
 };
 
 type AcePriceObj = { buy: string; sell: string; last_price: string };
 export type AcePriceList = {
-    ['BTC/TWD']: AcePriceObj;
-    ['ETH/TWD']: AcePriceObj;
     ['BTC/USDT']: AcePriceObj;
     ['ETH/USDT']: AcePriceObj;
     ['USDT/TWD']: AcePriceObj;
+    ['BNB/USDT']: AcePriceObj;
+    ['BNB/TWD']: AcePriceObj;
 };
 export type AceBook = {
     attachment: {
@@ -125,7 +125,7 @@ export const apiAceCancelOrder2 = async (params: object) => {
 };
 
 // Bito
-export const apiGetBitoCryptoBook = async (pair = 'btc_twd', limit = 1) => {
+export const apiGetBitoCryptoBook = async (pair = 'bnb_twd', limit = 1) => {
     const res = await req(`${apiBito}/order-book/${pair}?limit=${limit}`);
     if (res) return res;
     else return false;
