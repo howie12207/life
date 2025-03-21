@@ -1,0 +1,1 @@
+import{j as t,a7 as n,a8 as s}from"./index-CEMpsM91.js";import{B as r}from"./BaseSkeleton-CSobE6pa.js";const p=({isLoading:a,children:i,className:e,customClass:o})=>t.jsx(n,{mode:"wait",children:t.jsx(s.div,{initial:{opacity:0},animate:{opacity:1},exit:{opacity:0},transition:{duration:.3},className:o,children:a?t.jsx(r,{className:e}):i},String(a))});export{p as S};

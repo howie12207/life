@@ -1,1 +1,0 @@
-const s=t=>(t=typeof t=="string"?t.trim():t,!(t==null||t==="")),n=(t,r=!1)=>r&&!s(t)?!0:/^(?!$)(\d+)*$/.test(t),e=(t,r=!1)=>r&&!s(t)?!0:/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?/.test(t);export{e as a,s as i,n as o};
