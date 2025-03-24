@@ -1,0 +1,1 @@
+import{j as e,Q as a,U as n,V as m}from"./index-nAwbjeji.js";import{B as i}from"./BaseSkeleton-C944cOzj.js";const j=({isLoading:s,children:t,className:r,customClass:o})=>e.jsx(a,{mode:"wait",children:e.jsx(n.div,{...m,className:o,children:s?e.jsx(i,{className:r}):t},String(s))});export{j as S};
