@@ -1,0 +1,1 @@
+import{d as o}from"./index-BsT9PFH1.js";function u(t,e){return o.useMemo(()=>{var r;if(t.type)return t.type;let n=(r=t.as)!=null?r:"button";if(typeof n=="string"&&n.toLowerCase()==="button"||(e==null?void 0:e.tagName)==="BUTTON"&&!e.hasAttribute("type"))return"button"},[t.type,t.as,e])}export{u as e};
