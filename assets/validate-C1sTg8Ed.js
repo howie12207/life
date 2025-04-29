@@ -1,1 +1,0 @@
-const s=r=>(r=typeof r=="string"?r.trim():r,!(r==null||r==="")),n=(r,t=!1)=>t&&!s(r)?!0:!isNaN(Number(r)),e=(r,t=!1)=>t&&!s(r)?!0:/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?/.test(r);export{e as a,s as i,n as o};
