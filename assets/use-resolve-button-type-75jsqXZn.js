@@ -1,1 +1,0 @@
-import{g as o}from"./index-zUY89gjX.js";function u(t,e){return o.useMemo(()=>{var r;if(t.type)return t.type;let n=(r=t.as)!=null?r:"button";if(typeof n=="string"&&n.toLowerCase()==="button"||(e==null?void 0:e.tagName)==="BUTTON"&&!e.hasAttribute("type"))return"button"},[t.type,t.as,e])}export{u as e};
