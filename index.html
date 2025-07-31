@@ -10,6 +10,8 @@
     <link rel="icon" type="image/svg+xml" href="/life/logo.png" />
     <title>Howie</title>
 
+    <meta name="robots" content="noindex, nofollow" />
+
     <!-- GA -->
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-85BXJD6HTS"></script>
@@ -18,9 +20,11 @@
       function gtag() {
         dataLayer.push(arguments);
       }
-      gtag('js', new Date());
+      if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        gtag('js', new Date());
 
-      gtag('config', 'G-85BXJD6HTS');
+        gtag('config', 'G-85BXJD6HTS');
+      }
     </script>
 
     <!-- GTM -->
@@ -36,7 +40,7 @@
         f.parentNode.insertBefore(j, f);
       })(window, document, 'script', 'dataLayer', 'GTM-M3VG2BXJ');
     </script> -->
-    <script type="module" crossorigin src="/life/assets/index-Bmhba4YD.js"></script>
+    <script type="module" crossorigin src="/life/assets/index-BSIxGM-n.js"></script>
     <link rel="stylesheet" crossorigin href="/life/assets/index-BFYCLhc7.css">
   </head>
   <body>
